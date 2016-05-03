@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>HelpDialog</class>
+ <widget class="QDialog" name="HelpDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>902</width>
+    <height>623</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="layoutTitle">
+     <property name="margin">
+      <number>5</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="labelTitle">
+       <property name="text">
+        <string>Compass Help</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="layoutMenuBar"/>
+   </item>
+   <item>
+    <widget class="QWidget" name="displayWidget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,2">
+      <property name="margin">
+       <number>5</number>
+      </property>
+      <item>
+       <widget class="QDockWidget" name="dockWidget_contents">
+        <property name="floating">
+         <bool>false</bool>
+        </property>
+        <property name="allowedAreas">
+         <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+        </property>
+        <property name="windowTitle">
+         <string>Help Contents</string>
+        </property>
+        <widget class="QWidget" name="dockWidgetContents">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <layout class="QVBoxLayout" name="layoutTreeView">
+            <item>
+             <layout class="QHBoxLayout" name="layoutTreeViewToolBar">
+              <item>
+               <widget class="QToolButton" name="toolButton_Expand">
+                <property name="text">
+                 <string>Expnd All</string>
+                </property>
+                <property name="shortcut">
+                 <string>Alt++</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="toolButton_Contract">
+                <property name="text">
+                 <string>Cntrct All</string>
+                </property>
+                <property name="shortcut">
+                 <string>Alt+-</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QTreeView" name="treeView">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="layoutPageView" stretch="0,2">
+        <item>
+         <layout class="QHBoxLayout" name="layoutPageViewToolBar">
+          <item>
+           <widget class="QToolButton" name="toolButton_Home">
+            <property name="text">
+             <string>Hm</string>
+            </property>
+            <property name="shortcut">
+             <string>Alt+Home</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="toolButton_Back">
+            <property name="text">
+             <string>Bck</string>
+            </property>
+            <property name="shortcut">
+             <string>Alt+Left</string>
+            </property>
+            <property name="arrowType">
+             <enum>Qt::LeftArrow</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="toolButton_Forward">
+            <property name="text">
+             <string>Fwd</string>
+            </property>
+            <property name="shortcut">
+             <string>Alt+Right</string>
+            </property>
+            <property name="arrowType">
+             <enum>Qt::RightArrow</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTextBrowser" name="pageView">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>2</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+  <action name="action_About">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="action_Open">
+   <property name="text">
+    <string>&amp;Open</string>
+   </property>
+   <property name="toolTip">
+    <string>Open a help file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="action_Print">
+   <property name="text">
+    <string>&amp;Print</string>
+   </property>
+   <property name="toolTip">
+    <string>Print current page</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="action_Copy">
+   <property name="text">
+    <string>&amp;Copy</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy selected text</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionSelect_All">
+   <property name="text">
+    <string>Select &amp;All</string>
+   </property>
+   <property name="toolTip">
+    <string>Select all text in window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

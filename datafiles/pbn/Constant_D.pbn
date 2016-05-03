@@ -1,0 +1,24 @@
+#============================================================================#
+# COMPASS Post-Bonneville File                       COMPASS v1.0B (WIN32)
+#
+# Constant D Post-Bonneville Hypothesis.
+# The parameters provided here are examples and are not based on data.
+#============================================================================#
+
+version 9
+post_bonneville_hypothesis constant_d
+
+
+species Chinook_1
+
+	differential_return 0.60
+
+end species (Chinook_1)
+
+
+species Steelhead
+
+	differential_return 0.80
+
+end species (Steelhead)
+

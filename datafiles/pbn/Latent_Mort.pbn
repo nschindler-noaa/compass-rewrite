@@ -1,0 +1,25 @@
+#============================================================================#
+# COMPASS Post-Bonneville File                       COMPASS v1.0B (WIN32)
+#
+# Latent Mortality Post-Bonneville Hypothesis.
+# The parameters provided here are examples and are not based on data.
+#============================================================================#
+
+version 9
+post_bonneville_hypothesis latent_mortality
+
+species Chinook_1
+
+	inriver_latent_mort 0.6
+	transport_latent_mort 0.5
+
+end species (Chinook_1)
+
+
+species Steelhead
+
+	inriver_latent_mort 0.6
+	transport_latent_mort 0.5
+
+end species (Steelhead)
+

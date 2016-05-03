@@ -1,0 +1,34 @@
+#============================================================================#
+# COMPASS Post-Bonneville File                       COMPASS v1.0B (WIN32)
+#
+# S3 vs WTT Post-Bonneville Hypothesis
+# This hypothesis relates S3 (3rd year return rate) to water particle travel time (WTT).
+# The parameters provided here are examples and are not based on data.  
+#============================================================================#
+
+version 9
+
+post_bonneville_hypothesis s3_vs_wtt
+
+
+species Chinook_1
+
+	differential_return 0.900000
+
+	inriver_latent_mort_eqn	58
+		parameter 0 0.008 
+	end inriver_latent_mort_eqn ( )
+
+end species (Chinook_1)
+
+
+species Steelhead
+
+	differential_return 0.900000
+
+	inriver_latent_mort_eqn	58
+		parameter 0 0.01 
+	end inriver_latent_mort_eqn ( )
+
+end species (Steelhead)
+

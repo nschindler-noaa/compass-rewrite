@@ -1,0 +1,9 @@
+Done up to 1.1 Graphical User Interface
+1.1: Not really sure about the data analysis tools...
+
+Document usage of vectors (array of doubles, first one is the length, I guess)
+There is very little documentation on how the GUI works
+-Namely, what IDCs are and why they're used
+-Also, the global event thing should be covered (since it's weird)
+
+The numbering of sections is completely messed up, I think

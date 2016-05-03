@@ -1,0 +1,42 @@
+#============================================================================#
+# COMPASS Post-Bonneville File                       COMPASS v0.33
+#
+# SAR vs Date Post-Bonneville Hypothesis
+# The parameters provided are estimated from data.
+#============================================================================#
+
+version 9
+post_bonneville_hypothesis sar_vs_date
+
+species Chinook_1
+
+	inriver_return_eqn	51
+		parameter 0 -5.152 
+		parameter 1 0.0748 
+		parameter 2 -0.001118 
+	end inriver_return_eqn ( )
+
+	transport_return_eqn	51
+		parameter 0 -5.76 
+		parameter 1 0.0518 
+		parameter 2 -0.000549 
+	end transport_return_eqn ( )
+
+
+end species (Chinook_1)
+
+species Steelhead
+	inriver_return_eqn	51
+		parameter 0 -6.372 
+		parameter 1 0.125 
+		parameter 2 -0.0015 
+	end inriver_return_eqn ( )
+
+	transport_return_eqn	51
+		parameter 0 -4.427 
+		parameter 1 0.0515 
+		parameter 2 -0.000801 
+	end transport_return_eqn ( )
+
+end species (Steelhead)
+

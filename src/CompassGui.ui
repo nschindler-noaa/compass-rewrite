@@ -1,0 +1,770 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CompassGui</class>
+ <widget class="QMainWindow" name="CompassGui">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1035</width>
+    <height>768</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>900</width>
+    <height>768</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>COMPASS </string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>1</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="page_io">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="leftMargin">
+         <number>5</number>
+        </property>
+        <property name="topMargin">
+         <number>5</number>
+        </property>
+        <property name="rightMargin">
+         <number>5</number>
+        </property>
+        <property name="bottomMargin">
+         <number>5</number>
+        </property>
+        <item>
+         <widget class="QFrame" name="frame">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>1</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_map">
+       <layout class="QVBoxLayout" name="verticalLayout_8"/>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="layout_buttons">
+      <item>
+       <widget class="QPushButton" name="pushButton_apply">
+        <property name="text">
+         <string>Apply</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_run">
+        <property name="text">
+         <string>Run Scenario</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_reset">
+        <property name="text">
+         <string>Reset</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_cancel">
+        <property name="text">
+         <string>Cancel Run</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1035</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionE_xit"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionHelp_Dialog"/>
+    <addaction name="separator"/>
+    <addaction name="action_About"/>
+    <addaction name="actionAbout_Qt"/>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string/>
+    </property>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menu"/>
+   <addaction name="menu_Help"/>
+  </widget>
+  <widget class="QToolBar" name="toolBar_io">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionShow_Log"/>
+   <addaction name="actionShow_Map"/>
+   <addaction name="actionShow_Toolbox"/>
+  </widget>
+  <widget class="QDockWidget" name="logWindow">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>100</height>
+    </size>
+   </property>
+   <property name="windowIcon">
+    <iconset resource="compass.qrc">
+     <normaloff>:/images/document-logfile.png</normaloff>:/images/document-logfile.png</iconset>
+   </property>
+   <property name="toolTip">
+    <string>This holds the output messages from the application.</string>
+   </property>
+   <property name="floating">
+    <bool>true</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::AllDockWidgetFeatures</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::BottomDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Compass Session Log</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_7">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_log"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_tools">
+   <property name="floating">
+    <bool>true</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Compass Settings</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <property name="leftMargin">
+      <number>10</number>
+     </property>
+     <property name="topMargin">
+      <number>10</number>
+     </property>
+     <property name="rightMargin">
+      <number>10</number>
+     </property>
+     <property name="bottomMargin">
+      <number>10</number>
+     </property>
+     <item>
+      <widget class="QToolBox" name="toolBox_settings">
+       <widget class="QWidget" name="toolBox_toolsPage2">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>280</width>
+          <height>158</height>
+         </rect>
+        </property>
+        <attribute name="icon">
+         <iconset resource="compass.qrc">
+          <normaloff>:/images/map_activesite_sm.png</normaloff>:/images/map_activesite_sm.png</iconset>
+        </attribute>
+        <attribute name="label">
+         <string>Releases</string>
+        </attribute>
+       </widget>
+       <widget class="QWidget" name="toolBox_toolsPage3">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>280</width>
+          <height>158</height>
+         </rect>
+        </property>
+        <attribute name="icon">
+         <iconset resource="compass.qrc">
+          <normaloff>:/images/river.png</normaloff>:/images/river.png</iconset>
+        </attribute>
+        <attribute name="label">
+         <string>Flow - Spill Averaging</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Start: </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBox_start_ave">
+             <item>
+              <property name="text">
+               <string>Jan</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Feb</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Mar</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Apr1</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Apr2</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>May</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Jun</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Jul</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Aug1</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Aug2</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Sep</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Oct</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Nov</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Dec</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>End: </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="comboBox_end_ave">
+             <item>
+              <property name="text">
+               <string>Jan</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Feb</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Mar</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Apr1</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Apr2</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>May</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Jun</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Jul</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Aug1</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Aug2</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Sep</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Oct</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Nov</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Dec</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>280</width>
+          <height>158</height>
+         </rect>
+        </property>
+        <attribute name="icon">
+         <iconset resource="compass.qrc">
+          <normaloff>:/images/monte_carlo.png</normaloff>:/images/monte_carlo.png</iconset>
+        </attribute>
+        <attribute name="label">
+         <string>Monte Carlo Settings</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QCheckBox" name="checkBox">
+           <property name="text">
+            <string>Run Monte Carlo</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Simulations to run: </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="suffix">
+              <string/>
+             </property>
+             <property name="minimum">
+              <number>2</number>
+             </property>
+             <property name="maximum">
+              <number>2000</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>24</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="toolBar_map">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionShow_Log"/>
+   <addaction name="actionShow_Toolbox"/>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_notes">
+   <property name="toolTip">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These notes will be added to a scenario or control file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="windowTitle">
+    <string>Scenario</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_11">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QToolBox" name="toolBox">
+       <property name="currentIndex">
+        <number>1</number>
+       </property>
+       <widget class="QWidget" name="page_files">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>153</width>
+          <height>148</height>
+         </rect>
+        </property>
+        <attribute name="icon">
+         <iconset resource="compass.qrc">
+          <normaloff>:/images/file-open.png</normaloff>:/images/file-open.png</iconset>
+        </attribute>
+        <attribute name="label">
+         <string>Files</string>
+        </attribute>
+       </widget>
+       <widget class="QWidget" name="page_notes">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>278</width>
+          <height>148</height>
+         </rect>
+        </property>
+        <attribute name="icon">
+         <iconset resource="compass.qrc">
+          <normaloff>:/images/document-logfile.png</normaloff>:/images/document-logfile.png</iconset>
+        </attribute>
+        <attribute name="label">
+         <string>Notes</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_10">
+         <item>
+          <widget class="QPlainTextEdit" name="plainTextEdit_notes"/>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_4">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>1</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="floating">
+    <bool>true</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::NoDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Map Tool</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_6"/>
+  </widget>
+  <action name="actionE_xit">
+   <property name="icon">
+    <iconset resource="compass.qrc">
+     <normaloff>:/images/system-log-out.png</normaloff>:/images/system-log-out.png</iconset>
+   </property>
+   <property name="text">
+    <string>E&amp;xit</string>
+   </property>
+   <property name="toolTip">
+    <string>Leave the application</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="action_About">
+   <property name="icon">
+    <iconset resource="compass.qrc">
+     <normaloff>:/images/chinsmolt1.png</normaloff>:/images/chinsmolt1.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;About COMPASS</string>
+   </property>
+  </action>
+  <action name="actionShow_Map">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="compass.qrc">
+     <normaloff>:/images/river.png</normaloff>:/images/river.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Map</string>
+   </property>
+   <property name="toolTip">
+    <string>Show the river map</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionShow_Log">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="compass.qrc">
+     <normaloff>:/images/document-logfile.png</normaloff>:/images/document-logfile.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Log</string>
+   </property>
+   <property name="toolTip">
+    <string>Show the log window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionShow_Toolbox">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="compass.qrc">
+     <normaloff>:/images/preferences-system.png</normaloff>:/images/preferences-system.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show Toolbox</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionAbout_Qt">
+   <property name="text">
+    <string>About &amp;Qt</string>
+   </property>
+  </action>
+  <action name="actionHelp_Dialog">
+   <property name="icon">
+    <iconset resource="compass.qrc">
+     <normaloff>:/images/help-browser.png</normaloff>:/images/help-browser.png</iconset>
+   </property>
+   <property name="text">
+    <string>Help &amp;Dialog</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H, ,, F1</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="compass.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>104</x>
+     <y>249</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>105</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>spinBox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>161</x>
+     <y>253</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>162</x>
+     <y>270</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
