@@ -8,11 +8,7 @@ RiverPoint::RiverPoint()
 }
 RiverPoint::RiverPoint(RiverPoint &other)
 {
-    QString txt (other.getText());
-    setLon (other.lon);
-    setLat (other.lat);
-    setWidth (other.width);
-    setText (txt);
+    copy(other);
 }
 RiverPoint::~RiverPoint ()
 {
@@ -90,6 +86,19 @@ float RiverPoint::setWidth (const float wd)
     return width;
 }
 
+void RiverPoint::copy(const RiverPoint &other)
+{
+    QString txt (other.getLatLon());
+    setWidth (other.width);
+    setLatLon (txt);
+}
+
+RiverPoint & RiverPoint::operator=(const RiverPoint &other)
+{
+    copy(other);
+    return *this;
+}
+
 bool RiverPoint::equals (const RiverPoint rhs)
 {
     float prec = .0001;
@@ -115,13 +124,16 @@ bool RiverPoint::operator == (const RiverPoint rhs)
 }
 
 
-QString RiverPoint::getText ()
+QString &RiverPoint::getLatLon () const
 {
-    QString *txt = new QString ("latlon ");
+    QString *txt = new QString(text);
+/*    QString *txt = new QString("latlon ");
+    float absLon = abs(lon);
+    float absLat = abs(lat);
     int d, m, s;
-    d = (int) (lon);
-    m = (int) ((lon - d) * 60.0);
-    s = (int) ((lon - d - (m / 60.0)) * 60.0);
+    d = static_cast<int>(absLon);
+    m = static_cast<int>((absLon - d) * 60.0);
+    s = static_cast<int>((absLon - d - (m / 60.0)) * 60.0);
     txt->append (QString::number (d));
     txt->append (' ');
     txt->append (QString::number (m));
@@ -133,9 +145,9 @@ QString RiverPoint::getText ()
     else
         txt->append ("W ");
 
-    d = (int) (lat);
-    m = (int) ((lat - d) * 60.0);
-    s = (int) ((lat - d - (m / 60.0)) * 60.0);
+    d = static_cast<int>(absLat);
+    m = static_cast<int>((absLat - d) * 60.0);
+    s = static_cast<int>((absLat - d - (m / 60.0)) * 60.0);
     txt->append (QString::number (d));
     txt->append (' ');
     txt->append (QString::number (m));
@@ -147,12 +159,19 @@ QString RiverPoint::getText ()
     else
         txt->append ("S ");
 
+    text = *txt;*/
     return *txt;
 }
-void RiverPoint::setText(const QString txt)
+
+void RiverPoint::setLatLon(const QString txt)
 {
     QStringList items;
     items = txt.split(' ', QString::SkipEmptyParts);
+    setLatLon(items);
+}
+
+void RiverPoint::setLatLon (const QStringList items)
+{
     if (items.count() == 8)
     {
         setLon (items.at(0), items.at(1), items.at(2));
@@ -160,24 +179,46 @@ void RiverPoint::setText(const QString txt)
         setLat (items.at(4), items.at(5), items.at(6));
         setLatDir(items.at(7));
     }
+    text = QString(QString("latlon %1 %2 %3 %4 %5 %6 %7 %8").arg(
+                       items.at(0),items.at(1),items.at(2),items.at(3),
+                       items.at(4),items.at(5),items.at(6),items.at(7)));
 }
 
-/*
-RiverPoint *newPoint ()
+QString & RiverPoint::updateText()
 {
-    RiverPoint *p = new RiverPoint;// *) malloc (sizeof (RiverPoint));
-    p->lat = 0.0;
-    p->lon = 0.0;
-    p->width = 0.0;
-    return p;
-}
+    QString *txt = new QString("latlon ");
+    float absLon = abs(lon);
+    float absLat = abs(lat);
+    int d, m, s;
+    d = static_cast<int>(absLon);
+    m = static_cast<int>((absLon - d) * 60.0);
+    s = static_cast<int>((absLon - d - (m / 60.0)) * 60.0);
+    txt->append (QString::number (d));
+    txt->append (' ');
+    txt->append (QString::number (m));
+    txt->append (' ');
+    txt->append (QString::number (s));
+    txt->append (' ');
+    if (lon > 0)
+        txt->append ("E ");
+    else
+        txt->append ("W ");
 
-void deletePoint (RiverPoint *&rpt)
-{
-    rpt->lat = 0.0;
-    rpt->lon = 0.0;
-    rpt->width = 0.0;
-    delete (rpt);
-    rpt = NULL;
-}*/
+    d = static_cast<int>(absLat);
+    m = static_cast<int>((absLat - d) * 60.0);
+    s = static_cast<int>((absLat - d - (m / 60.0)) * 60.0);
+    txt->append (QString::number (d));
+    txt->append (' ');
+    txt->append (QString::number (m));
+    txt->append (' ');
+    txt->append (QString::number (s));
+    txt->append (' ');
+    if (lat > 0)
+        txt->append ("N ");
+    else
+        txt->append ("S ");
+
+    text = *txt;
+    return text;
+}
 

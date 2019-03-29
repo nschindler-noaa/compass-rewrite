@@ -41,8 +41,8 @@ class CompassFile : public QFile
 {
     Q_OBJECT
 public:
-    explicit CompassFile(QObject *parent = 0);
-    CompassFile (const QString &name, QObject *parent = 0);
+    explicit CompassFile(QObject *parent = NULL);
+    CompassFile (const QString &name, QObject *parent = NULL);
     ~CompassFile ();
     void setup ();
 

@@ -1,9 +1,14 @@
 /** \file realtime.h
  * \brief Realtime mode functions. */
+
+#include "definitions.h"
+
 #ifdef REALTIME
 
-#ifndef REALTIME_H
-#define REALTIME_H
+#ifndef C_REALTIME_H
+#define C_REALTIME_H
+
+#include <QString>
 
 #define REALTIME_ALTERNATIVE   "realtime"
 #define REALTIME_FLOW_ARCHIVE  "flow.archive"
@@ -15,10 +20,15 @@
 
 
 /** Structure for holding realtime information. */
-typedef struct rt_info {
-    char *name;       //*< Name assigned to information */
-    int data_date;    //*< date of the data */
-} RtInfo;
+class RtInfo {
+public:
+    RtInfo();
+    ~RtInfo();
+
+protected:
+    QString name;       //*< Name assigned to information */
+    int dataDate;    //*< date of the data */
+};
 
 /** \fn rt_set_input_pathname Set the input pathname to a new value by copying the string. */
 void rt_set_input_pathname (QString path);
@@ -55,6 +65,6 @@ void realtime_monte_callback();
 void run_realtime (int mode);
 
 
-#endif /* REALTIME_H */
+#endif /* C_REALTIME_H */
 #endif /* REALTIME */
 

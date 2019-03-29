@@ -25,8 +25,8 @@ void deleteRiver (River *riv);
 class River : public QObject
 {
 public:
-    River (QObject *parent = 0);
-    River (QString name, QObject *parent = 0);
+    River (QObject *parent = nullptr);
+    River (QString name, QObject *parent = nullptr);
     ~River ();
 
     QString * name;
@@ -39,8 +39,8 @@ class RiverSystem : public QObject
     Q_OBJECT
 
 public:
-    RiverSystem (QObject *parent = 0);
-    RiverSystem (QString filename, QObject *parent = 0);
+    RiverSystem (QObject *parent = nullptr);
+    RiverSystem (QString filename, QObject *parent = nullptr);
     ~RiverSystem ();
     void setup ();
     void reset ();
@@ -91,7 +91,7 @@ public slots:
     void computeSegTemp (RiverSegment *seg);
     void computeSpill ();
     void computeSegSpill (RiverSegment *seg);
-    RiverSegment *mouth() {return segments->at(0);}
+    RiverSegment *getMouth() {return segments->at(0);}
     void deleteReleases ();
     void deleteSpill ();
 

@@ -4,10 +4,9 @@
 #include <QDialog>
 #include <QString>
 #include <QList>
-#include <QColor>
-#include <QPixmap>
-#include <QPen>
+#include <QChart>
 
+QT_CHARTS_USE_NAMESPACE
 
 struct series {
     bool show;
@@ -28,7 +27,7 @@ class GraphDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit GraphDialog(QWidget *parent = 0);
+    explicit GraphDialog(QWidget *parent = NULL);
     ~GraphDialog();
 
 private:
@@ -41,6 +40,8 @@ private:
     int yMax;
     int xMin;
     int xMax;
+//    QChart chart;
+
 
 
 public slots:

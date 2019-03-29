@@ -17,49 +17,136 @@ class RiverSegment : public QObject
 {
     Q_OBJECT
 public:
-    RiverSegment (QString rivName = QString(""), QObject *parent = 0);
+    RiverSegment (QString rivName = QString(""), QObject *parent = nullptr);
     RiverSegment (const RiverSegment &rhs);
     ~RiverSegment ();
 
+    RiverSegment &operator =(const RiverSegment &rhs);
     void setup ();
     bool parseToken (QString token, CompassFile *infile);
 
     virtual bool parse (CompassFile *infile);
 
-    QString *riverName;
+    RiverPoint * getCurrentPoint ();
+    RiverPoint * getTopPoint ();
+    RiverPoint * getBottomPoint ();
+    RiverPoint * getNextPointUp ();
+    RiverPoint * getNextPointDn ();
+    void appendPoint (RiverPoint *pt);
+
+    QString *getRiverName() const;
+    void setRiverName(QString *value);
+
+    QString *getName() const;
+    void setName(QString *value);
+
+    QString *getAbbrev() const;
+    void setAbbrev(QString *value);
+
+    QList<Tributary *> getTributaries() const;
+
+    QList<RiverPoint *> getCourse() const;
+
+    bool getRegPoint() const;
+    void setRegPoint(bool value);
+
+    bool getReadFlows() const;
+    void setReadFlows(bool value);
+
+    float getFlowMax() const;
+    void setFlowMax(float value);
+
+    float getFlowMin() const;
+    void setFlowMin(float value);
+
+    /** Division of river into separate flows */
+    enum FlowLocation {
+        Right,         /**< Right side of the segment */
+        Left,          /**< Left side of the segment */
+        FlowDivisions  /**< Number of flow divisions */
+    };
+    FlowLocation getMainFlow () const;
+    void setMainFlow (FlowLocation loc);
+    FlowLocation getOtherFlow () const;
+    void setOtherFlow (FlowLocation loc);
+
+    bool getReadTemps() const;
+    void setReadTemps(bool value);
+
+    RiverSegment * getUpperSegment () {return up;}
+    void setUpperSegment (RiverSegment *upper) {up = upper;}
+    RiverSegment * getLowerSegment () {return down;}
+    void setLowerSegment (RiverSegment *lower) {down = lower;}
+    RiverSegment * getForkSegment () {return fork;}
+    void setForkSegment (RiverSegment *forksg) {fork = forksg;}
+
+    /** Type of river segment */
+    enum SegmentType {
+        Dam,           /**< Dam segment */
+        Reach,         /**< Reach (pool or free-flowing) segment */
+        Headwater      /**< Headwater segment - required for every river */
+    };
+    SegmentType getType() const;
+    void setType(const SegmentType &value);
+
+
+    bool getIsRegPoint() const;
+    void setIsRegPoint(bool value);
+
+    float getWidthUpper() const;
+    void setWidthUpper(float value);
+
+    float getWidthAve() const;
+    void setWidthAve(float value);
+
+    float getWidthLower() const;
+    void setWidthLower(float value);
+
+    float getElevUpper() const;
+    void setElevUpper(float value);
+
+    float getElevLower() const;
+    void setElevLower(float value);
+
+protected:
+    RiverSegment &copy (RiverSegment &rhs);
+
+    //    River *river;
+
+    QString *riverName = new QString();
     QString *name;
     QString *abbrev;
 
     QList<RiverPoint *> course;
-    RiverPoint * topPoint ();
-    RiverPoint * bottomPoint ();
-    int currentPoint;
-    RiverPoint * nextPointUp ();
-    RiverPoint * nextPointDn ();
+    RiverPoint *currentPoint;
+    int currentPointIndex;
 
     QList<Tributary *> tributaries;
 
-    float width;          /**< Average width in feet */
-
-    enum SegmentType {
-        Dam,
-        Reach,
-        Headwater
-    };
     SegmentType type;     /**< type of river segment. */
+
+    float widthUpper;
+    float widthAve;         /**< Average width in feet */
+    float widthLower;
+
+    float elevUpper;
+    float elevLower;
+
 
     unsigned int output_flags;
 
     unsigned int output_settings;
 
-    bool regPoint;
-    bool read_flows;
-    float flow_max;
-    float flow_min;
+    bool isRegPoint;
+    bool readFlows;
+    float flowMax;
+    float flowMin;
     float flow[DAYS_IN_SEASON];
+    FlowLocation mainFlow;
+    FlowLocation otherFlow;
 
     float temp[DAYS_IN_SEASON];/**< Water temperature at each model day */
-    bool read_temps;     /**< true if reading temps from data file,
+    bool readTemps;     /**< true if reading temps from data file,
                           *   false if not. */
 
 
@@ -69,12 +156,6 @@ public:
 
     int temp_1; /**< temporary value used in some calculations. */
 
-    /** Division of river into separate flows */
-    enum FlowLocation {
-        Right,         /**< Right side of the segment */
-        Left,          /**< Left side of the segment */
-        FlowDivisions  /**< Number of flow divisions */
-    };
 
 private:
 /*    GasDistribution *gas_in; *< Input gas distribution */

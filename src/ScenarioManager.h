@@ -9,7 +9,7 @@ class ScenarioManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit ScenarioManager(QObject *parent = 0);
+    explicit ScenarioManager(QObject *parent = nullptr);
 
 signals:
     void complete ();

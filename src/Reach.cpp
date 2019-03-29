@@ -45,7 +45,7 @@ void Reach::clear ()
 
 void Reach::calculateFlow()
 {
-    if (!regPoint)
+    if (!isRegPoint)
     {
         calculateFlowInputs(); // sets flow to sum of upstream segments
         calculateFlows ();     // modifies flow by characteristics of segment
@@ -69,21 +69,21 @@ void Reach::calculateFlows()
     for (int i = 0; i < DAYS_IN_SEASON; i++)
     {
         newflow = flow[i] - loss[i];
-        if (newflow < flow_min - .0001)
+        if (newflow < flowMin - .0001)
         {
-            newflow = flow_min;
+            newflow = flowMin;
             newloss = flow[i] - newflow;
             msg = QString (QString("insufficient flow, %1, on day %2 at %3;\n adjusting old loss: %4, new loss: %5\n")
                            .arg(QString::number(flow[i], 'g', 2), QString::number(i),
                                 QString::number(loss[i], 'g' ,2), QString::number(newloss, 'g', 2)));
-            Log::instance()->add(Log::Warning, msg);
+            Log::outlog->add(Log::Warning, msg);
             loss[i] = newloss;
         }
         flow[i] = newflow;
 
         // check flow_max
-        if (flow[i] > flow_max)
-            flow_max = flow[i];
+        if (flow[i] > flowMax)
+            flowMax = flow[i];
     }
 
     /* Calculate velocity in miles per time step, averaged over input
@@ -93,11 +93,11 @@ void Reach::calculateFlows()
     /* calculate volume of the full reach */
     if (volume <= 0)
     {
-        volume = computeVolume (0.0, upper_depth, lower_depth, width, slopetan);
+        volume = computeVolume (0.0, upper_depth, lower_depth, widthAve, slopetan);
     }
     if (volume < 0)
     {
-        Log::instance()->add(Log::Error, QString(
+        Log::outlog->add(Log::Error, QString(
                      QString("check river description file, segment %1\n").arg (*name)));
         return;
     }
@@ -119,7 +119,7 @@ void Reach::calculateFlows()
         if (avg_flow < 0.0)
             avg_flow = 0.0;  // cannot be less than 0 (duh!)
 
-        tempVol = computeVolume (elev_change[i], upper_depth, lower_depth, width, slopetan);
+        tempVol = computeVolume (elev_change[i], upper_depth, lower_depth, widthAve, slopetan);
         tempVel = computeVelocity (elev_change[i], upper_depth, lower_depth, avg_flow);
 
         for (int j = 0; j < STEPS_PER_DAY; j++)
@@ -138,7 +138,7 @@ void Reach::calculateFlows()
           .arg(*name, QString::number(length, 'g', 2),
                QString::number(velocity[1], 'g', 2), QString::number(velocity[1]*24.0, 'g', 2),
                QString::number(cur_volume[1], 'g', 2), QString::number(temp[1], 'g', 2));
-    Log::instance()->add(Log::Debug, msg);
+    Log::outlog->add(Log::Debug, msg);
 }
 
 float Reach::computeVolume (float elev_chng, float upper_d, float lower_d, float wd, float slp_tan)
@@ -212,7 +212,7 @@ float Reach::computeWTT(int firstDay, int lastDay)
 
 void Reach::calculateTemp()
 {
-    if (!read_temps)
+    if (!readTemps)
     {
         calculateTempInputs();
         calculateTemps();

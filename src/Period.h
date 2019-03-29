@@ -2,6 +2,7 @@
 #define C_PERIOD_H
 
 #include <QList>
+#include <QPointF>
 
 /*template <class T>
 struct period{
@@ -17,6 +18,7 @@ class Period
 {
 public:
     Period();
+    Period(const Period<T>&period);
     ~Period();
 
     void setStart (int index);
@@ -32,7 +34,7 @@ private:
     int stop;
     T value;
 };
-
+/*
 template <class T>
 class PeriodSubPeriod : public Period<T>
 {
@@ -51,8 +53,9 @@ template <class T>
 class PeriodList
 {
 public:
-    PeriodList (int stt = 0, int stp = 0, T val = 0, bool pct = false);
+    PeriodList (int stt = NULL, int stp = NULL, T val = NULL, bool pct = false);
     PeriodList (bool pct);
+    PeriodList (const PeriodList<T>&plist);
     ~PeriodList ();
 
     void append (int stt, int stp, T val);
@@ -82,12 +85,12 @@ private:
     bool percent;
 
 
-};
+};*/
 /*
 class FloatPeriodList
 {
 public:
-    FloatPeriodList (int stt = 0, int stp = 0, float val = 0, bool pct = false);
+    FloatPeriodList (int stt = NULL, int stp = NULL, float val = NULL, bool pct = false);
     FloatPeriodList (bool pct = false);
     ~FloatPeriodList ();
 
@@ -105,7 +108,13 @@ public:
     bool operator == (FloatPeriodList);
 };
 */
-typedef PeriodList<float> FloatPeriodList;
-typedef PeriodList<int>   IntPeriodList;
+typedef Period<int>   intPeriod;
+typedef Period<bool>  boolPeriod;
+typedef Period<float> floatPeriod;
+
+typedef QList<intPeriod>   IntPeriodList;
+typedef QList<boolPeriod>  BoolPeriodList;
+typedef QList<floatPeriod> FloatPeriodList;
+
 
 #endif // C_PERIOD_H

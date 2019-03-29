@@ -38,7 +38,7 @@ bool FileManager::readRiverDescFile (Scenario *scn, Settings *set)//QString file
     else
     {
         QString msg (QString ("River description file {%1} not found.").arg (filename));
-        Log::instance ()->add (Log::Error, msg);
+        Log::outlog->add (Log::Error, msg);
         okay = false;
     }
     return okay;
@@ -98,8 +98,8 @@ bool FileManager::readFile (RiverSystem *rs, QString filename)
     }
     else
     {
-        Log::instance()->add(Log::Error, "could not determine type of file to read.");
-        Log::instance()->add(Log::Error, filename);
+        Log::outlog->add(Log::Error, "could not determine type of file to read.");
+        Log::outlog->add(Log::Error, filename);
     }
 
     return okay;
@@ -121,8 +121,8 @@ bool FileManager::readFile (QString filename)
     }
     else
     {
-        Log::instance()->add(Log::Error, "could not determine type of file to read.");
-        Log::instance()->add(Log::Error, filename);
+        Log::outlog->add(Log::Error, "could not determine type of file to read.");
+        Log::outlog->add(Log::Error, filename);
     }
 
     return okay;
@@ -283,7 +283,7 @@ bool FileManager::findFile (QString filename, QString path, Settings *&set)
     if (!exist)
     {
         QString msg (QString ("File {%1} not found.").arg (filename));
-        Log::instance ()->add (Log::Error, msg);
+        Log::outlog->add (Log::Error, msg);
     }
 
     return exist;

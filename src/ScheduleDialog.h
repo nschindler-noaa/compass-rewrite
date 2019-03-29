@@ -12,7 +12,7 @@ class ScheduleDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ScheduleDialog(QWidget *parent = 0);
+    explicit ScheduleDialog(QWidget *parent = NULL);
     ~ScheduleDialog();
 
 private:

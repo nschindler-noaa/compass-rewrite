@@ -11,7 +11,7 @@ class CompassConsole : public QObject
 {
     Q_OBJECT
 public:
-    explicit CompassConsole (QObject *parent = 0);
+    explicit CompassConsole (QObject *parent = nullptr);
     ~CompassConsole ();
 
     void run();

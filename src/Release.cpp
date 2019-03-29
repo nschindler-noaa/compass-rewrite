@@ -55,8 +55,9 @@ Release::Release (Release &rhs)
     species = rhs.species;
     stock = rhs.stock;
     startDay = rhs.startDay;
-    for (int i = 0; i < STEPS_IN_SEASON; i++)
-        fishOnStep[i] = rhs.fishOnStep[i];
+    fishReleased.clear();
+    for (int i = 0; i < rhs.fishReleased.count(); i++)
+        fishReleased.append(rhs.fishReleased[i]);
 #ifdef REALTIME
 //    if (rhs.rt)
 //        rt = clone_rtinfo (rhs.rt);
@@ -74,7 +75,7 @@ Release::~Release ()
 //    destroy_rtinfo (&rt);
 #endif
     delete name;
-    segments.clear ();
+//   segments.clear ();
 }
 
 /** Dump all releases in the system. */
@@ -519,7 +520,7 @@ int clear_seg_data (struct release *release, int game)
 ReleaseSite::ReleaseSite (QString rsname)
 {
     if (rsname.isEmpty ())
-        name = NULL;
+        name = nullptr;
     else
         name = new QString (rsname);
     latlon = new RiverPoint ();
@@ -527,7 +528,7 @@ ReleaseSite::ReleaseSite (QString rsname)
 
 ReleaseSite::~ReleaseSite ()
 {
-    if (name != NULL)
+    if (name != nullptr)
         delete name;
     delete latlon;
 }

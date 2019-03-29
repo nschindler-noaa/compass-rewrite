@@ -1,4 +1,4 @@
-QT       += widgets core
+QT       += widgets core charts
 
 TARGET = compass
 CONFIG   += console staticlib create_prl link_prl
@@ -48,7 +48,9 @@ HEADERS += \
     equationdialog.h \
     releasetool.h \
     mainwindow.h \
-    mapwidget.h
+    mapwidget.h \
+    commondialog.h \
+    releasedialog.h
 
 SOURCES += \
     main.cpp \
@@ -88,7 +90,9 @@ SOURCES += \
     equationdialog.cpp \
     releasetool.cpp \
     mainwindow.cpp \
-    mapwidget.cpp
+    mapwidget.cpp \
+    commondialog.cpp \
+    releasedialog.cpp
 
 FORMS += \
     CompassGui.ui \
@@ -101,7 +105,8 @@ FORMS += \
     equationdialog.ui \
     releasetool.ui \
     mainwindow.ui \
-    mapwidget.ui
+    mapwidget.ui \
+    CommonDialog.ui
 
 OTHER_FILES += \
     readme.txt

@@ -6,14 +6,14 @@
 class Headwater : public RiverSegment
 {
 public:
-    Headwater (QString hname, QString rivName = QString (""), QObject *parent = 0);
+    Headwater (QString hname, QString rivName = QString (""), QObject *parent = nullptr);
 
     void clear ();
 
     bool parse (CompassFile *infile);
     bool parseToken (QString token, CompassFile *infile);
 
-    bool read_flows;     /**< true if flow values are read from a data file. */
+    bool readFlows;     /**< true if flow values are read from a data file. */
     bool regulated;          /**< Whether this is a regulated or unregulated headwater */
     float flow_coefficient;   /**< For unregulated flow */
 

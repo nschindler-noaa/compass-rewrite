@@ -12,6 +12,7 @@
 #include "ScenarioManager.h"
 #include "settings.h"
 #include "mainwindow.h"
+#include "releasedialog.h"
 
 CompassGui::CompassGui(QWidget *parent) :
     QMainWindow(parent),
@@ -52,9 +53,16 @@ CompassGui::CompassGui(QWidget *parent) :
 
     fManager = new FileManager (this);
     sManager = new ScenarioManager (this);
+
+    rlsTool = new ReleaseDialog(this);
+    rlsTool->setVisible(false);
+    connect (ui->actionRelease_Tool, SIGNAL(triggered(bool)), SLOT(showRlsTool(bool)));//showRlsTool()));
+    connect (rlsTool, SIGNAL(visibilityChanged(bool)), ui->actionRelease_Tool, SLOT(setChecked(bool)));
+
     HelpDialog hlp (this);
 //    hlp.show ();
     connect (ui->actionHelp_Dialog, SIGNAL(triggered()), &hlp, SLOT(show()));
+
 
 
     lw->add (Log::Force, QString ("Running COMPASS in gui mode with the following arguments:\n"));
@@ -74,8 +82,8 @@ CompassGui::~CompassGui()
 
 void CompassGui::addLogWindow (QWidget *container)
 {
-//    Log * log = LogWindow::instance (container);
-//    logw = static_cast <LogWindow *> (log);
+//    Log * outlog = LogWindow::instance (container);
+//    logw = static_cast <LogWindow *> (outlog);
 
 //    container->layout ()->addWidget (logw);
 }
@@ -94,6 +102,24 @@ void CompassGui::run ()
 void CompassGui::showTool (Window page)
 {
     ui->stackedWidget->setCurrentIndex (page);
+}
+
+void CompassGui::showMap(bool show)
+{
+    if (show)
+        ui->stackedWidget->setCurrentIndex(Map);
+    else
+        ui->stackedWidget->setCurrentIndex(0);
+}
+
+void CompassGui::showRlsTool(bool show)
+{
+    rlsTool->setVisible(show);
+    ui->actionRelease_Tool->setChecked(show);
+    if (show)
+    {
+        rlsTool->raise();
+    }
 }
 
 void CompassGui::makeWindowTitle ()
@@ -127,8 +153,7 @@ void CompassGui::on_action_About_triggered()
 
 void CompassGui::on_action_About_Qt_triggered()
 {
-    QMessageBox h (QMessageBox::Question, "About COMPASS", "some text.");
-    h.exec ();
+    QMessageBox::aboutQt(this,tr("About Qt"));
 }
 /*
 void CompassGui::on_actionShow_Log_toggled(bool show)

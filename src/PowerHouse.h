@@ -8,21 +8,39 @@ class PowerHouse
 {
 public:
     PowerHouse(int num = 0);
-    int number;
+    ~PowerHouse ();
+
+    void allocate ();
+
+    int getPriority() const;
+    void setPriority(int value = 0);
+
+    float getThreshold() const;
+    void setThreshold(float value);
+
+    float getCapacity() const;
+    void setCapacity(float value);
+
+    void setActive (int day, int st, int sp, bool active = true);
+    bool getActive (int day, int slice);
+
+    void setFlowFraction (int day, float fraction);
+    float getFlowFraction (int day);
+
+private:
     int priority;    /**< Ranking of each phouse. The best priority is
                       *   0 followed by increasing positive numbers. */
     float threshold; /**< Min flow controls when this powerhouse turns on */
     float capacity;  /**< Capacity in KCFS of this powerhouse. */
 
-    PeriodList<bool> *schedule; /**< Powerhouse operation schedule
+    BoolPeriodList schedule; /**< Powerhouse operation schedule
                       * (in case some powerhouses are only available at
                       * certain times). This is a two-tier period list. */
 
     /** The threshold and schedule are used at run time to determine
      * the actual percentage flow through this powerhouse, tracked
      * here as flow_fraction */
-    float flow_fraction[DAM_SLICES_IN_SEASON];
-
+    QList<float> flowFraction;
 };
 
 #endif // C_POWERHOUSE_H

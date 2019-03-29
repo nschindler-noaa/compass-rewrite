@@ -78,10 +78,11 @@ public:
     enum Location {
         Right,
         Left,
-        Middle
+        Middle,
+        None
     };
 
-    Dam (QString dname, QString rivName = QString (""), QObject *parent = 0);
+    Dam (QString dname, QString rivName = QString (""), QObject *parent = nullptr);
     Dam (const Dam &rhs);
     ~Dam ();
     void clear ();
@@ -98,29 +99,30 @@ public:
      * depending on which were found in the river description file.
      */
     QList<PowerHouse *> powerhouses;
-    Location phouse_side;
+    Location phouseSide;
 
 
     float width;          /**< Tailrace width (ft) */
-    float tailrace_length;/**< Tailrace length in ft */
-    float base_elev;      /**< Dam floor elevation (ft) */
-    float forebay_elev;   /**< Forebay elevation (ft) */
-    float tailrace_elev;  /**< Tailrace elevation (ft) */
-    float full_head;      /**< Full pool head */
-    float full_fb_depth;  /**< Full pool forebay depth */
-    float bypass_height;  /**< Height of bypass orifice */
+    float lengthTailrace;/**< Tailrace length in ft */
+    float elevBase;      /**< Dam floor elevation (ft) */
+    float elevForebay;   /**< Forebay elevation (ft) */
+    float elevTailrace;  /**< Tailrace elevation (ft) */
+    float fullHead;      /**< Full pool head */
+    float depthForebay;  /**< Full pool forebay depth */
+    float depthTailrace; /**< Nominal tailrace depth */
+    float heightBypass;  /**< Height of bypass opening */
 
     int collector;        /**< Whether or not this dam is a collector dam.
                            * (i.e. it has PIT tag detectors and a
                            * different kind of bypass system which can
                            * produce latent effects) */
 
-    int ngates;           /**< Number of spill gates */
-    float gate_width;     /**< Width of each gate (ft) */
-    float pergate;        /**< Max spill per gate */
-    float spillway_width; /**< Spilway width */
-    float basin_length;   /**< Stilling basin depth */
-    float sgr;            /**< Specific grav of roller */
+    int numGates;           /**< Number of spill gates */
+    float widthGates;     /**< Width of each gate (ft) */
+    float spillPerGate;        /**< Max spill per gate */
+    float widthSpillway; /**< Spilway width */
+    float lengthBasin;   /**< Stilling basin depth */
+    float specGrav;            /**< Specific grav of roller */
 
     /* Spill */
     float spill[DAM_SLICES_IN_SEASON]; /**< Spill fraction given at each
@@ -128,41 +130,41 @@ public:
 
     /** Planned spill vector is computed from planned_spill days/nights,
            then serves as input to compute_flow() */
-    float planned_spill[DAM_SLICES_IN_SEASON];
+    float spillPlanned[DAM_SLICES_IN_SEASON];
 
-    PeriodList<float> *planned_spill_day; /**< Planned spill during the day */
-    PeriodList<float> *planned_spill_night; /**< Planned spill during the night */
+    FloatPeriodList *spillPlannedDay; /**< Planned spill during the day */
+    FloatPeriodList *spillPlannedNight; /**< Planned spill during the night */
 
         /* These two variables are used to implement support for legacy tokens
          * planned_spill and fish_spill. Only planned_spill_day and
          * planned_spill_night should be used by new users and these legacy
          * tokens only set planned_spill_day and planned_spill_night. */
-    PeriodList<float> *legacy_planned_spill; /**< Planned spill during the day.
+    FloatPeriodList *spillLegacyPlanned; /**< Planned spill during the day.
                            * This is used to implement support for legacy
                            * planned_spill tokens. */
-    PeriodList<float> *legacy_fish_spill; /**< Planned spill during the day. This
+    FloatPeriodList *spillLegacyFish; /**< Planned spill during the day. This
                            * is used to implement support for legacy
                            * fish_spill tokens. */
 
-    float spill_cap;      /**< Maximum unforced spill (kcfs) */
-    Location spill_side;/**< Left bank or right bank */
+    float spillMax;      /**< Maximum unforced spill (kcfs) */
+    Location spillSide;/**< Left bank or right bank */
 
     /* Removable spill weirs */
-    float rsw_spill_cap;  /**< Maximum flow (partitioned from spill)
+    float rswSpillMax;  /**< Maximum flow (partitioned from spill)
                            * through RSW (setting this to 0 essentially
                            * turns off RSWs) */
-    PeriodList<bool> *rsw_active; /**< Whether the RSW is
-                           * active during a particular day (1 or 0) */
+    BoolPeriodList *rswActive; /**< Whether the RSW is
+                           * active during a particular day (1 or 0) (Days in season)*/
 
     /* Flow */
-    float flow_max;       /**< For slider top-end */
-    float flow_min_project; /**< User data; used by modulators*/
-    float flow_min_river; /**< Calculated from river desc */
-    float flow[DAYS_IN_SEASON];/**< Flow in KCFS given at each day */
+    float flowMax;       /**< For slider top-end */
+    float flowProjectMin; /**< User data; used by modulators*/
+    float flowRiverMin; /**< Calculated from river desc */
+    QList<float> flow;/**< Flow in KCFS given at each day [DAYS_IN_SEASON]*/
 
     /* Transport info */
-    Transport *transport;/**< Transport operation information.
-                             * (this may be NULL) */
+    Transport *transport;/**< Pointer to transport operation information
+                             * started at this dam. (this may be NULL) */
 
     /* nsat stuff */
 //    equation nsat_eqn;    /* Nitrogen supersaturation equation that
@@ -177,13 +179,13 @@ public:
 //    float k_entrain;      /* Powerhouse side gas entrainment */
 
     /* actual depths, calculated from adjacent reaches, with drawdown */
-    float forebay_depth[DAYS_IN_SEASON];/**< Forebay depth at each day */
-    float tailrace_depth[DAYS_IN_SEASON];/**< Tailrace depth at each day */
+    float depthForebayDay[DAYS_IN_SEASON];/**< Forebay depth at each day */
+    float depthTailraceDay[DAYS_IN_SEASON];/**< Tailrace depth at each day */
 
     /* useful params, calculated during each simulation */
-    float drop_ratio[DAYS_IN_SEASON];/**< Drop ratio. */
-    float tr_drop_ratio[DAYS_IN_SEASON];/**< Drop ratio for the tailrace.*/
-    float daylight_proportion[DAM_SLICES_IN_SEASON];/**< Proportion of
+    float dropRatioDay[DAYS_IN_SEASON];/**< Drop ratio. */
+    float dropRatioDayTR[DAYS_IN_SEASON];/**< Drop ratio for the tailrace.*/
+    float daylightProportion[DAM_SLICES_IN_SEASON];/**< Proportion of
                            * the day that is light given at each dam time
                            * slice. */
 

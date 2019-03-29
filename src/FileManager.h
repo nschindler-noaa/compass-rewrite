@@ -28,7 +28,7 @@ class FileManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit FileManager(QObject *parent = 0);
+    explicit FileManager(QObject *parent = nullptr);
 
     QStringList filenames;
     QList <CompassFile *> files;

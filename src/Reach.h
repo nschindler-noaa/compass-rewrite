@@ -20,7 +20,7 @@ class Reach : public RiverSegment
 {
     Q_OBJECT
 public:
-    Reach (QString rname, QString rivName = QString (""), QObject *parent = 0);
+    Reach (QString rname, QString rivName = QString (""), QObject *parent = nullptr);
 
     bool parse (CompassFile *infile);
     bool parseToken (QString token, CompassFile *infile);

@@ -18,7 +18,8 @@ CompassConsole::CompassConsole(QObject *parent) :
     compassSettings->readArguments(qApp->arguments ());
     compassSettings->getCurrentUserData();
 
-    out = Log::instance (this);
+
+    out = Log::instance();//new Log (this);
     fManager = new FileManager (this);
 //    sManager = new ScenarioManager (this);
 
@@ -67,7 +68,7 @@ void CompassConsole::run ()
 
     }
     if (!okay)
-        Log::instance()->add(Log::Error, "Error in running COMPASS console application.");
+        out->add(Log::Error, "Error in running COMPASS console application.");
 
 //    delete compassSettings;
 

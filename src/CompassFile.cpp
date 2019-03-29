@@ -156,7 +156,7 @@ bool CompassFile::readInfo ()
         }
     }
     if (data_version < 9)
-        Log::instance()->add (Log::Debug, QString ("Old data version %1").arg(QString::number(data_version)));
+        Log::outlog->add (Log::Debug, QString ("Old data version %1").arg(QString::number(data_version)));
     return okay;
 }
 
@@ -180,7 +180,7 @@ void CompassFile::writeData ()
     }
     else
     {
-        Log::instance ()->add (Log::Error, QString("Could not write to file: %1!")
+        Log::outlog->add (Log::Error, QString("Could not write to file: %1!")
                                .arg (fileName ()));
     }
 }
@@ -292,7 +292,7 @@ QString CompassFile::popToken ()
             token = getToken ();
     }*/
 #ifdef DEBUG
-    Log::instance ()->add (Log::Debug, QString ("size of token %1 is %2").arg
+    Log::outlog->add (Log::Debug, QString ("size of token %1 is %2").arg
                            (token, QString::number (token.size ())));
 #endif
     return token;
@@ -540,7 +540,7 @@ void CompassFile::writeFloat (double val, Data::Type dtype)
         break;
 
     default:
-        Log::instance()->add(Log::Error, "no such data type");
+        Log::outlog->add(Log::Error, "no such data type");
     }
 }
 
@@ -568,7 +568,7 @@ int CompassFile::convertInt(int val, Data::Conversion ctype)
         break;
 
     default:
-        Log::instance()->add(Log::Error, "no such data conversion type");
+        Log::outlog->add(Log::Error, "no such data conversion type");
     }
 
     return retval;
@@ -593,7 +593,7 @@ float CompassFile::convertFloat(float val, Data::Conversion ctype)
         break;
 
     default:
-        Log::instance()->add(Log::Error, "no such data conversion type");
+        Log::outlog->add(Log::Error, "no such data conversion type");
     }
 
     return retval;
@@ -604,7 +604,7 @@ void CompassFile::writeFloatArray (int indent, float arry[], int size, Data::Con
 {
     int num_on_line = 0;
 
-    if (arry != NULL)
+    if (arry != nullptr)
     {
         int first = 0, last = 1, l;
         int firstval = 0, lastval = 0;
@@ -662,7 +662,7 @@ void CompassFile::writeFloatArray (int indent, float arry[], int size, Data::Con
     }
     else
     {
-        Log::instance()->add(Log::Error, QString("Integer array is NULL."));
+        Log::outlog->add(Log::Error, QString("Integer array is NULL."));
         writeFloat (0.0, dtype);
     }
 }
@@ -671,7 +671,7 @@ void CompassFile::writeIntArray (int indent, int arry[], int size, Data::Convers
 {
     int num_on_line = 0;
 
-    if (arry != NULL)
+    if (arry != nullptr)
     {
         int first = 0, last = 1, l;
         int firstval = 0, lastval = 0;
@@ -729,7 +729,7 @@ void CompassFile::writeIntArray (int indent, int arry[], int size, Data::Convers
     }
     else
     {
-        Log::instance()->add(Log::Error, QString("Float array is NULL."));
+        Log::outlog->add(Log::Error, QString("Float array is NULL."));
         writeInt (0);
     }
 }
@@ -744,13 +744,13 @@ void CompassFile::printEOF (QString data)
 
 void CompassFile::printMessage (QString msg)
 {
-    Log::instance ()->add (Log::Message, msg);
+    Log::outlog->add (Log::Message, msg);
     printFileLine ();
 }
 
 void CompassFile::printError (QString errmsg)
 {
-    Log::instance ()->add (Log::Error, errmsg);
+    Log::outlog->add (Log::Error, errmsg);
     printFileLine ();
 }
 
@@ -758,5 +758,5 @@ void CompassFile::printFileLine ()
 {
     QString fileline (QString("File: %1, Line: %2").arg
                       (fileName (), QString::number (line)));
-    Log::instance ()->add (Log::Force, fileline);
+    Log::outlog->add (Log::Force, fileline);
 }

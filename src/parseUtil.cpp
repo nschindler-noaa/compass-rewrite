@@ -19,7 +19,7 @@ bool parseCompassFile (QString filename)
     okay = infile->readInfo ();
     okay = parseCompassData (infile);
     if (!okay)
-        Log::instance()->add(Log::Error, QString ("Error in reading file %1").arg (filename));
+        Log::outlog->add(Log::Error, QString ("Error in reading file %1").arg (filename));
 
 //    delete infile;
 
@@ -78,7 +78,7 @@ bool parse_river (CompassFile *cfile, RiverSystem *rs, River *river)
                 Reach *reach = new Reach (reachName);
                 rs->reaches->append (reachName);
                 rs->segments->append ((RiverSegment *) reach);
-                reach->riverName = river->name;
+                reach->setRiverName(river->name);
                 okay = parse_reach (cfile, reach);
             }
         }
@@ -91,7 +91,7 @@ bool parse_river (CompassFile *cfile, RiverSystem *rs, River *river)
                 Dam *dam = new Dam (damName);
                 rs->dams->append (damName);
                 rs->segments->append ((RiverSegment *) dam);
-                dam->riverName = river->name;
+                dam->setRiverName(river->name);
                 okay = parse_dam (cfile, dam);
             }
         }
@@ -104,7 +104,7 @@ bool parse_river (CompassFile *cfile, RiverSystem *rs, River *river)
                 Headwater *head = new Headwater (hwName);
                 rs->headwaters->append (hwName);
                 rs->segments->append ((RiverSegment *) head);
-                head->riverName = river->name;
+                head->setRiverName(river->name);
                 okay = parse_headwater (cfile, head);
             }
         }
@@ -126,11 +126,14 @@ bool parse_river (CompassFile *cfile, RiverSystem *rs, River *river)
 bool parse_dam (CompassFile *cfile, Dam *dam)
 {
     bool okay = true, end = false;
+    bool tempBool = false;
+    float tempFloat = 0;
+    int tempInt = 0;
     QString token (""), val ("");
     float temp = 0.0;
     int index = 0;
 
-    Log::instance ()->add (Log::Debug, QString("parsing ......... %1").arg (*dam->name));
+    Log::outlog->add (Log::Debug, QString("parsing ......... %1").arg (*dam->getName()));
 
     while (okay && !end)
     {
@@ -143,12 +146,12 @@ bool parse_dam (CompassFile *cfile, Dam *dam)
         {
             RiverPoint *pt = new RiverPoint ();
             okay = parse_latlon (cfile, pt);
-            if (okay) dam->course.append (pt);
+            if (okay) dam->getCourse().append (pt);
         }
         else if (token.compare ("abbrev", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken();
-            dam->abbrev = new QString (val);
+            dam->setAbbrev(new QString (val));
             cfile->skipLine ();
         }
         else if (token.compare ("width", Qt::CaseInsensitive) == 0)
@@ -159,85 +162,85 @@ bool parse_dam (CompassFile *cfile, Dam *dam)
         else if (token.compare ("floor_elevation", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken();
-            okay = read_float (val, &dam->base_elev, QString("Floor elevation"));
+            okay = read_float (val, &dam->elevBase, QString("Floor elevation"));
         }
         else if (token.compare ("forebay_elevation", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken();
-            okay = read_float (val, &dam->forebay_elev, QString("Forebay elevation"));
+            okay = read_float (val, &dam->elevForebay, QString("Forebay elevation"));
         }
         else if (token.compare ("bypass_elevation", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken();
             okay = read_float (val, &temp, QString("Forebay elevation"));
-            dam->bypass_height = temp - dam->base_elev;
-            if (dam->bypass_height < 0.0)
-                dam->bypass_height = 0.0;
+            dam->heightBypass = temp - dam->elevBase;
+            if (dam->heightBypass < 0.0)
+                dam->heightBypass = 0.0;
         }
         else if (token.compare ("tailrace_elevation", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken();
-            okay = read_float (val, &dam->tailrace_elev,
+            okay = read_float (val, &dam->elevTailrace,
                            QString("Tailrace elevation"));
         }
         else if (token.compare ("spillway_width", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken();
-            okay = read_float (val, &dam->spillway_width,
+            okay = read_float (val, &dam->widthSpillway,
                            QString("Spillway width"));
         }
         else if (token.compare ("spill_side", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken ();
             if (val.compare ("left", Qt::CaseInsensitive) == 0)
-                dam->spill_side = Dam::Left;
+                dam->spillSide = Dam::Left;
             else
-                dam->spill_side = Dam::Right;
+                dam->spillSide = Dam::Right;
         }
         else if (token.compare ("ngates", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken();
-            okay = read_int (val, &dam->ngates,
+            okay = read_int (val, &dam->numGates,
                     QString("Number of spillway gates"));
         }
         else if (token.compare ("gate_width", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken();
-            okay = read_float (val, &dam->gate_width,
+            okay = read_float (val, &dam->widthGates,
                     QString("Spillway gate width"));
         }
         else if (token.compare ("pergate", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken();
-            okay = read_float (val, &dam->pergate,
+            okay = read_float (val, &dam->spillPerGate,
                     QString("Spillway per gate"));
         }
         else if (token.contains ("powerhouse", Qt::CaseInsensitive))
         {
             val = cfile->popToken ();
             read_float (val, &temp, QString ("powerhouse"));
-            PowerHouse *phouse = NULL;
+            PowerHouse *phouse = nullptr;
             if (token.contains ("2"))
                 index = 1;
             else
                 index = 0;
 
-            Log::instance()->add(Log::Debug,QString ("powerhouse index %1").arg(
+            Log::outlog->add(Log::Debug,QString ("powerhouse index %1").arg(
                                      QString::number(index)));
             while (dam->powerhouses.count () < (index + 1))
             {
-                dam->powerhouses.append (new PowerHouse (index + 1));
+                dam->powerhouses.append (new PowerHouse (index));
             }
 
-            phouse = (PowerHouse *) dam->powerhouses.at (index);
-            phouse->capacity = temp;
+            phouse = (PowerHouse *) dam->powerhouses[index];
+            phouse->setCapacity(temp);
 /*            if (token.contains ("capacity"), Qt::CaseInsensitive)
             {
                 phouse->capacity = temp;
                 okay = read_float (val, &temp, QString("powerhouse capacity"));
                 if (okay)
                 {
-                    Log::instance()->add(Log::Debug, QString(QString ("Powerhouse capacity %1").arg(
+                    Log::outlog->add(Log::Debug, QString(QString ("Powerhouse capacity %1").arg(
                                 QString::number(phouse->capacity))));
                 }
             }*/
@@ -255,13 +258,13 @@ bool parse_dam (CompassFile *cfile, Dam *dam)
         else if (token.compare ("basin_length", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken();
-            okay = read_float (val, &dam->basin_length,
+            okay = read_float (val, &dam->lengthBasin,
                        QString("Stilling basin length"));
         }
         else if (token.compare ("sgr", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken();
-            okay = read_float (val, &dam->sgr,
+            okay = read_float (val, &dam->specGrav,
                        QString("Specific gravity"));
         }
         else if (token.contains ("end"))
@@ -287,9 +290,12 @@ bool parse_dam (CompassFile *cfile, Dam *dam)
 bool parse_reach (CompassFile *cfile, Reach *rch)
 {
     bool okay = true, end = false;
+    bool tempBool = false;
+    float tempFloat = 0;
+    int tempInt = 0;
     QString token (""), val ("");
 
-    Log::instance ()->add (Log::Debug, QString("parsing ......... %1").arg (*rch->name));
+    Log::outlog->add (Log::Debug, QString("parsing ......... %1").arg (*rch->getName()));
 
     while (okay && !end)
     {
@@ -302,18 +308,19 @@ bool parse_reach (CompassFile *cfile, Reach *rch)
         {
             RiverPoint *pt = new RiverPoint ();
             okay = parse_latlon (cfile, pt);
-            if (okay) rch->course.append (pt);
+            if (okay) rch->getCourse().append (pt);
         }
         else if (token.compare ("abbrev", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken();
-            rch->abbrev = new QString (val);
+            rch->setAbbrev(new QString (val));
             cfile->skipLine ();
         }
         else if (token.compare ("width", Qt::CaseInsensitive) == 0)
         {
-            okay = read_float (cfile->popToken (), &rch->width,
+            okay = read_float (cfile->popToken (), &tempFloat,
                                QString("Width"));
+            rch->setWidthAve(tempFloat);
         }
         else if (token.compare ("depth", Qt::CaseInsensitive) == 0)
         {
@@ -365,9 +372,12 @@ bool parse_reach (CompassFile *cfile, Reach *rch)
 bool parse_headwater (CompassFile *cfile, Headwater *hdw)
 {
     bool okay = true, end = false;
+    bool tempBool = false;
+    float tempFloat = 0;
+    int tempInt = 0;
     QString token (""), val ("");
 
-    Log::instance ()->add (Log::Debug, QString("parsing ......... %1").arg (*hdw->name));
+    Log::outlog->add (Log::Debug, QString("parsing ......... %1").arg (*hdw->getName()));
 
     while (okay && !end)
     {
@@ -380,11 +390,12 @@ bool parse_headwater (CompassFile *cfile, Headwater *hdw)
         {
             RiverPoint *pt = new RiverPoint ();
             okay = parse_latlon (cfile, pt);
-            if (okay) hdw->course.append (pt);
+            if (okay) hdw->getCourse().append (pt);
         }
         else if (token.compare ("width",Qt::CaseInsensitive))
         {
-            okay = read_float (cfile->popToken (), &hdw->width, QString("Width"));
+            okay = read_float (cfile->popToken (), &tempFloat, QString("Width"));
+            hdw->setWidthAve(tempFloat);
         }
         else if (token.contains ("end"))
         {
@@ -477,7 +488,7 @@ bool read_float_or_na (CompassFile *infile, float *number, QString name, bool *w
     bool okay = infile->readFloatOrNa (na, *number);
     if (!okay)
     {
-        Log::instance ()->add (Log::Error, QString("Reading float or na for %1.")
+        Log::outlog->add (Log::Error, QString("Reading float or na for %1.")
                                .arg (name));
     }
 
@@ -494,7 +505,7 @@ bool read_double (QString token, double *val, QString prompt)
     bool okay;
     *val = token.toDouble (&okay);
     if (!okay)
-        Log::instance ()->add (Log::Error, QString ("Looking for double value for %1, found %2.")
+        Log::outlog->add (Log::Error, QString ("Looking for double value for %1, found %2.")
                                .arg (prompt, token));
     return okay;
 }
@@ -504,7 +515,7 @@ bool read_float (QString token, float *val, QString prompt)
     bool okay;
     *val = token.toFloat (&okay);
     if (!okay)
-        Log::instance ()->add (Log::Error, QString ("Looking for float value for %1, found %2.")
+        Log::outlog->add (Log::Error, QString ("Looking for float value for %1, found %2.")
                                .arg (prompt, token));
     return okay;
 }
@@ -514,7 +525,7 @@ bool read_int (QString token, int *val, QString prompt)
     bool okay;
     *val = token.toInt (&okay);
     if (!okay)
-        Log::instance ()->add (Log::Error, QString ("Looking for float value for %1, found %2.")
+        Log::outlog->add (Log::Error, QString ("Looking for float value for %1, found %2.")
                                .arg (prompt, token));
     return okay;
 }
@@ -541,12 +552,12 @@ void handle_unknown_token (QString token)
     if (isFloat)
     {
         QString msg (QString (NUMERIC_TOKEN).arg (token));
-        Log::instance ()->add (Log::Error, msg);
+        Log::outlog->add (Log::Error, msg);
     }
     else
     {
         QString msg (QString (UNKNOWN_TOKEN).arg (token));
-        Log::instance ()->add (Log::Error, msg);
+        Log::outlog->add (Log::Error, msg);
     }
 }
 void handle_obsolete_token (QString obs_token, QString new_token)
@@ -566,7 +577,7 @@ void handle_obsolete_token (QString obs_token, QString new_token)
                 message.append ("}.\n");
         }
 
-        Log::instance ()->add (Log::Error, message);
+        Log::outlog->add (Log::Error, message);
 }
 bool is_float (QString token)
 {
@@ -728,11 +739,11 @@ bool parse_latlon (CompassFile *cfile, RiverPoint *pt)
 bool check_course (RiverSegment *seg)
 {
     bool okay = true;
-    if (seg->course.isEmpty())
+    if (seg->getCourse().isEmpty())
     {
         okay = false;
-        Log::instance()->add(Log::Error, QString(QString("Segment %1 has no latlon points.").arg(
-                                                     *seg->name)));
+        Log::outlog->add(Log::Error, QString(QString("Segment %1 has no latlon points.").arg(
+                                                     *seg->getName())));
     }
     return okay;
 }

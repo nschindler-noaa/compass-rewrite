@@ -30,21 +30,22 @@ RiverSegment::RiverSegment (const RiverSegment &rhs) :
 }
 void RiverSegment::setup ()
 {
-    currentPoint = -1;
-    width = 0.0;
+    currentPointIndex = -1;
+    currentPoint = (RiverPoint *) nullptr;
+    widthAve = 1.0;
     type = (SegmentType) -1;
     output_flags = 0;
     output_settings = 0;
-    flow_max = 0.0;
-    flow_min = 0.0;
+    flowMax = 0.0;
+    flowMin = 0.0;
     for (int i = 0; i < DAYS_IN_SEASON; i++)
         flow[i] = 0.0;
     for (int i = 0; i < STEPS_IN_SEASON; i++)
         temp[i] = 0.0;
-    read_temps = false;
-    up = (RiverSegment *)NULL;
-    down = (RiverSegment *)NULL;
-    fork = (RiverSegment *)NULL;
+    readTemps = false;
+    up = (RiverSegment *)nullptr;
+    down = (RiverSegment *)nullptr;
+    fork = (RiverSegment *)nullptr;
     temp_1 = -1;
 }
 
@@ -86,11 +87,11 @@ bool RiverSegment::parseToken(QString token, CompassFile *cfile)
 
     if (token.compare("flow_max", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatOrNa(na, flow_max);
+        okay = cfile->readFloatOrNa(na, flowMax);
     }
     else if (token.compare("flow_min", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatOrNa(na, flow_min);
+        okay = cfile->readFloatOrNa(na, flowMin);
     }
     else if (token.compare("flow", Qt::CaseInsensitive) == 0)
     {
@@ -98,7 +99,7 @@ bool RiverSegment::parseToken(QString token, CompassFile *cfile)
     }
     else if (token.compare ("water_temp", Qt::CaseInsensitive) == 0)
     {
-        read_temps = true;
+        readTemps = true;
         okay = cfile->readFloatArray (temp);
     }
     else if (token.compare ("output_settings", Qt::CaseInsensitive) == 0)
@@ -122,32 +123,225 @@ bool RiverSegment::parseToken(QString token, CompassFile *cfile)
     return okay;
 }
 
-RiverPoint * RiverSegment::topPoint ()
+RiverPoint * RiverSegment::getCurrentPoint()
 {
-    currentPoint = course.count () - 1;
-    return course.at (currentPoint);
+    return course.at (currentPointIndex);
 }
 
-RiverPoint * RiverSegment::bottomPoint ()
+RiverPoint * RiverSegment::getTopPoint ()
 {
-    currentPoint = 0;
-    return course.at (currentPoint);
+    currentPointIndex = course.count () - 1;
+    return course.at (currentPointIndex);
 }
 
-RiverPoint * RiverSegment::nextPointUp ()
+RiverPoint * RiverSegment::getBottomPoint ()
 {
-    currentPoint++;
-    if (currentPoint >= course.count ())
-        currentPoint = course.count () - 1;
-    return course.at (currentPoint);
+    currentPointIndex = 0;
+    return course.at (currentPointIndex);
 }
 
-RiverPoint * RiverSegment::nextPointDn ()
+RiverPoint * RiverSegment::getNextPointUp ()
 {
-    currentPoint--;
-    if (currentPoint <= 0)
-        currentPoint = 0;
-    return course.at (currentPoint);
+    currentPointIndex++;
+    if (currentPointIndex >= course.count ())
+        currentPointIndex = course.count () - 1;
+    return course.at (currentPointIndex);
+}
+
+RiverPoint * RiverSegment::getNextPointDn ()
+{
+    currentPointIndex--;
+    if (currentPointIndex <= 0)
+        currentPointIndex = 0;
+    return course.at (currentPointIndex);
+}
+
+QString *RiverSegment::getRiverName() const
+{
+    return riverName;
+}
+
+void RiverSegment::setRiverName(QString *value)
+{
+    riverName = value;
+}
+
+QString *RiverSegment::getName() const
+{
+    return name;
+}
+
+void RiverSegment::setName(QString *value)
+{
+    name = value;
+}
+
+QString *RiverSegment::getAbbrev() const
+{
+    return abbrev;
+}
+
+void RiverSegment::setAbbrev(QString *value)
+{
+    abbrev = value;
+}
+
+QList<Tributary *> RiverSegment::getTributaries() const
+{
+    return tributaries;
+}
+
+QList<RiverPoint *> RiverSegment::getCourse() const
+{
+    return course;
+}
+
+bool RiverSegment::getRegPoint() const
+{
+    return isRegPoint;
+}
+
+void RiverSegment::setRegPoint(bool value)
+{
+    isRegPoint = value;
+}
+
+bool RiverSegment::getReadFlows() const
+{
+    return readFlows;
+}
+
+void RiverSegment::setReadFlows(bool value)
+{
+    readFlows = value;
+}
+
+float RiverSegment::getFlowMax() const
+{
+    return flowMax;
+}
+
+void RiverSegment::setFlowMax(float value)
+{
+    flowMax = value;
+}
+
+float RiverSegment::getFlowMin() const
+{
+    return flowMin;
+}
+
+void RiverSegment::setFlowMin(float value)
+{
+    flowMin = value;
+}
+
+RiverSegment::FlowLocation RiverSegment::getMainFlow() const
+{
+    return mainFlow;
+}
+
+void RiverSegment::setMainFlow(FlowLocation loc)
+{
+    mainFlow = loc;
+    if (loc == FlowLocation::Right)
+        otherFlow = FlowLocation::Left;
+    else
+        otherFlow = FlowLocation::Right;
+}
+
+RiverSegment::FlowLocation RiverSegment::getOtherFlow() const
+{
+    return otherFlow;
+}
+
+void RiverSegment::setOtherFlow(FlowLocation loc)
+{
+    otherFlow = loc;
+    if (loc == FlowLocation::Right)
+        mainFlow = FlowLocation::Left;
+    else
+        mainFlow = FlowLocation::Right;
+}
+
+bool RiverSegment::getReadTemps() const
+{
+    return readTemps;
+}
+
+void RiverSegment::setReadTemps(bool value)
+{
+    readTemps = value;
+}
+
+RiverSegment::SegmentType RiverSegment::getType() const
+{
+    return type;
+}
+
+void RiverSegment::setType(const RiverSegment::SegmentType &value)
+{
+    type = value;
+}
+
+bool RiverSegment::getIsRegPoint() const
+{
+    return isRegPoint;
+}
+
+void RiverSegment::setIsRegPoint(bool value)
+{
+    isRegPoint = value;
+}
+
+float RiverSegment::getWidthUpper() const
+{
+    return widthUpper;
+}
+
+void RiverSegment::setWidthUpper(float value)
+{
+    widthUpper = value;
+}
+
+float RiverSegment::getWidthAve() const
+{
+    return widthAve;
+}
+
+void RiverSegment::setWidthAve(float value)
+{
+    widthAve = value;
+}
+
+float RiverSegment::getWidthLower() const
+{
+    return widthLower;
+}
+
+void RiverSegment::setWidthLower(float value)
+{
+    widthLower = value;
+}
+
+float RiverSegment::getElevUpper() const
+{
+    return elevUpper;
+}
+
+void RiverSegment::setElevUpper(float value)
+{
+    elevUpper = value;
+}
+
+float RiverSegment::getElevLower() const
+{
+    return elevLower;
+}
+
+void RiverSegment::setElevLower(float value)
+{
+    elevLower = value;
 }
 
 void RiverSegment::calculateFlow ()
@@ -158,13 +352,13 @@ void RiverSegment::calculateFlow ()
 
 void RiverSegment::calculateFlowInputs()
 {
-    if (up != NULL)
+    if (up != nullptr)
     {
         up->calculateFlow();
         for (int i = 0; i < DAYS_IN_SEASON; i++)
             flow[i] = up->flow[i];
 
-        if (fork != NULL)
+        if (fork != nullptr)
         {
             fork->calculateFlow();
             for (int i = 0; i < DAYS_IN_SEASON; i++)
@@ -177,7 +371,7 @@ void RiverSegment::calculateFlowInputs()
         {
             QString msg (QString ("Segment %1 is not a headwater and has no upstream segment.")
                          .arg (*(name)));
-            Log::instance()->add(Log::Fatal, msg);
+            Log::outlog->add(Log::Fatal, msg);
         }
     }
 }
@@ -189,7 +383,7 @@ void RiverSegment::calculateFlows()
 
 void RiverSegment::calculateTemp ()
 {
-    if (!read_temps)
+    if (!readTemps)
     {
         calculateTempInputs();
         calculateTemps();
@@ -198,13 +392,13 @@ void RiverSegment::calculateTemp ()
 
 void RiverSegment::calculateTempInputs()
 {
-    if (up != NULL)
+    if (up != nullptr)
     {
         up->calculateTemp();
         for (int i = 0; i < STEPS_IN_SEASON; i++)
             temp[i] = up->temp[i];
 
-        if (fork != NULL)
+        if (fork != nullptr)
         {
             fork->calculateTemp();
             for (int i = 0; i < STEPS_IN_SEASON; i++)
@@ -219,7 +413,7 @@ void RiverSegment::calculateTempInputs()
         {
             QString msg (QString ("Segment %1 is not a headwater and has no upstream segment.")
                          .arg (*(name)));
-            Log::instance()->add(Log::Fatal, msg);
+            Log::outlog->add(Log::Fatal, msg);
         }
     }
 }

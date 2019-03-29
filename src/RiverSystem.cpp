@@ -6,7 +6,7 @@
 #include "parseUtil.h"
 #include "writeUtil.h"
 
-RiverSystem *riverSystem = NULL;
+RiverSystem *riverSystem = nullptr;
 
 River::River (QObject *parent) :
     QObject (parent)
@@ -141,8 +141,8 @@ bool RiverSystem::parse(CompassFile *rfile)
                 }
                 else
                 {
-                    Log::instance()->add(Log::Error, "No reach by this name");
-                    Log::instance()->add(Log::Error, reachName);
+                    Log::outlog->add(Log::Error, "No reach by this name");
+                    Log::outlog->add(Log::Error, reachName);
                 }
             }
         }
@@ -159,8 +159,8 @@ bool RiverSystem::parse(CompassFile *rfile)
                 }
                 else
                 {
-                    Log::instance()->add(Log::Error, "No dam by this name");
-                    Log::instance()->add(Log::Error, damName);
+                    Log::outlog->add(Log::Error, "No dam by this name");
+                    Log::outlog->add(Log::Error, damName);
                 }
             }
         }
@@ -177,8 +177,8 @@ bool RiverSystem::parse(CompassFile *rfile)
                 }
                 else
                 {
-                    Log::instance()->add(Log::Error, "No headwater by this name");
-                    Log::instance()->add(Log::Error, hwName);
+                    Log::outlog->add(Log::Error, "No headwater by this name");
+                    Log::outlog->add(Log::Error, hwName);
                 }
             }
         }
@@ -200,37 +200,37 @@ bool RiverSystem::parse(CompassFile *rfile)
 bool RiverSystem::construct()
 {
     bool okay = true;
-    River *riv = NULL;
-    RiverSegment *cur = NULL;
-    RiverSegment *prev = NULL;
+    River *riv = nullptr;
+    RiverSegment *cur = nullptr;
+    RiverSegment *prev = nullptr;
     QString curRiver ("");
 
     prev = (RiverSegment *) segments->at (0);
-    curRiver = QString (*prev->riverName);
+    curRiver = QString (*prev->getRiverName());
     for (int i = 1; okay && i < segments->count(); i++)
     {
         cur = (RiverSegment *) segments->at(i);
-        if (curRiver.compare(*cur->riverName) != 0)
+        if (curRiver.compare(*cur->getRiverName()) != 0)
         {
             // create headwater of previous river, if it doesn't exist
-            if (prev->type != RiverSegment::Headwater)
+            if (prev->getType() != RiverSegment::Headwater)
             {
                 QString hname (curRiver);
                 hname.append(" Headwater");
-                prev->up = new Headwater (hname, curRiver);
-                prev->up->down = prev;
-                segments->insert (i, prev->up);
+                prev->setUpperSegment(new Headwater (hname, curRiver));
+                prev->getUpperSegment()->setLowerSegment(prev);
+                segments->insert (i, prev->getUpperSegment());
                 i++;
                 headwaters->append(hname);
-                Log::instance()->add(Log::Debug, QString (
+                Log::outlog->add(Log::Debug, QString (
                           QString("adding headwater %1").arg(hname)));
             }
             // change rivers, if exist
-            curRiver = QString (*cur->riverName);
+            curRiver = QString (*cur->getRiverName());
             riv = findRiver(curRiver);
-            if (riv == NULL)
+            if (riv == nullptr)
             {
-                Log::instance ()->add (Log::Error, QString (
+                Log::outlog->add (Log::Error, QString (
                            QString("River name %1 not found when constructing system").arg (
                                curRiver)));
                 okay = false;
@@ -238,37 +238,37 @@ bool RiverSystem::construct()
             else
             {
                 // find previous segment by top latlon
-                prev = findSegment (cur->bottomPoint());
-                if (prev == NULL)
+                prev = findSegment (cur->getBottomPoint());
+                if (prev == nullptr)
                 {
                     okay = false;
-                    Log::instance()->add(Log::Error, QString ("faulty River construction."));
+                    Log::outlog->add(Log::Error, QString ("faulty River construction."));
                 }
                 else
                 {
-                    prev->fork = cur;
-                    cur->down = prev;
+                    prev->setForkSegment(cur);
+                    cur->setLowerSegment(prev);
                 }
             }
         }
         else
         {
-            prev->up = cur;
-            cur->down = prev;
+            prev->setUpperSegment(cur);
+            cur->setLowerSegment(prev);
         }
         prev = cur;
     }
     // we have ended, but is it at a headwater?
     // create headwater of this river, if it doesn't exist
-    if (cur->type != RiverSegment::Headwater)
+    if (cur->getType() != RiverSegment::Headwater)
     {
         QString hname (curRiver);
         hname.append(" Headwater");
-        cur->up = new Headwater (hname, curRiver);
-        cur->up->down = cur;
-        segments->append (cur->up);
+        cur->setUpperSegment(new Headwater (hname, curRiver));
+        cur->getUpperSegment()->setLowerSegment(cur);
+        segments->append (cur->getUpperSegment());
         headwaters->append(hname);
-        Log::instance()->add(Log::Debug, QString (
+        Log::outlog->add(Log::Debug, QString (
                   QString("adding headwater %1").arg(hname)));
     }
 
@@ -284,7 +284,7 @@ bool RiverSystem::initialize()
 
 River * RiverSystem::findRiver(QString name)
 {
-    River *riv = NULL;
+    River *riv = nullptr;
     for (int i = 0; i < rivers->count(); i++)
     {
         riv = rivers->at (i);
@@ -296,11 +296,11 @@ River * RiverSystem::findRiver(QString name)
 
 RiverSegment * RiverSystem::findSegment(QString name)
 {
-    RiverSegment *seg = NULL;
+    RiverSegment *seg = nullptr;
     for (int i = 0; i < segments->count(); i++)
     {
         seg = segments->at (i);
-        if (seg->name->compare(name) == 0)
+        if (seg->getName()->compare(name) == 0)
             break;
     }
     return seg;
@@ -308,13 +308,13 @@ RiverSegment * RiverSystem::findSegment(QString name)
 
 RiverSegment * RiverSystem::findSegment(RiverPoint *pt)
 {
-    RiverSegment *seg = NULL;
+    RiverSegment *seg = nullptr;
     bool found = false;
     for (int i = 0; !found && i < segments->count(); i++)
     {
         seg = segments->at (i);
-        for (int j = 0; !found && j < seg->course.count(); j++)
-            if (seg->course.at (j)->equals(*pt))
+        for (int j = 0; !found && j < seg->getCourse().count(); j++)
+            if (seg->getCourse().at (j)->equals(*pt))
                 found = true;
     }
     return seg;
@@ -322,7 +322,7 @@ RiverSegment * RiverSystem::findSegment(RiverPoint *pt)
 
 Species * RiverSystem::findSpecies(QString name)
 {
-    Species *spec = NULL;
+    Species *spec = nullptr;
     for (int i = 0; i < species->count(); i++)
     {
         spec = species->at (i);
@@ -334,7 +334,7 @@ Species * RiverSystem::findSpecies(QString name)
 
 Stock * RiverSystem::findStock(QString name)
 {
-    Stock *st = NULL;
+    Stock *st = nullptr;
     for (int i = 0; i < stocks->count(); i++)
     {
         st = stocks->at (i);
@@ -353,7 +353,7 @@ Transport * RiverSystem::findTransport(QString name)
 
 Release * RiverSystem::findRelease(QString name)
 {
-    Release *rel = NULL;
+    Release *rel = nullptr;
     for (int i = 0; i < releases->count(); i++)
     {
         rel = releases->at (i);
@@ -365,7 +365,7 @@ Release * RiverSystem::findRelease(QString name)
 
 ReleaseSite * RiverSystem::findReleaseSite(QString name)
 {
-    ReleaseSite *site = NULL;
+    ReleaseSite *site = nullptr;
     for (int i = 0; i < releaseSites->count(); i++)
     {
         site = releaseSites->at (i);
@@ -379,7 +379,7 @@ void RiverSystem::computeFlows ()
 {
     markRegulationPts ();
     fillHeadwaters ();
-    computeSegFlow (mouth ());
+    computeSegFlow (getMouth ());
 }
 void RiverSystem::markRegulationPts()
 {
@@ -387,7 +387,7 @@ void RiverSystem::markRegulationPts()
     {
         QString damname = (QString)dams->at (i);
         Dam *dam = static_cast <Dam *> (findSegment(damname));
-        dam->regPoint = true;
+        dam->setIsRegPoint(true);
     }
 }
 
@@ -417,25 +417,25 @@ void RiverSystem::fillHeadwaters ()
 
 void RiverSystem::computeSegFlow (RiverSegment *seg)
 {
-    if (seg->up != NULL)
+/*    if (seg->getUpperSegment() != NULL)
     {
-            computeSegFlow(seg->up);
-        if (seg->fork != NULL)
-            computeSegFlow(seg->fork);
+            computeSegFlow(seg->getUpperSegment());
+        if (seg->getForkSegment() != NULL)
+            computeSegFlow(seg->getForkSegment());
 
-        if (seg->type == RiverSegment::Dam)
+        if (seg->getType() == RiverSegment::Dam)
             static_cast <Dam *> (seg)->calculateFlow();
-        else if (seg->type == RiverSegment::Reach)
+        else if (seg->getType() == RiverSegment::Reach)
             static_cast <Reach *> (seg)->calculateFlow();
     }
-    else if (seg->type == RiverSegment::Headwater)
+    else if (seg->getType() == RiverSegment::Headwater)
         static_cast <Headwater *> (seg)->calculateFlow();
     else
     {
-        QString msg (QString ("Segment %1 is not headwater and has no upstream segment.").arg (*seg->name));
-        Log::instance()->add(Log::Error, msg);
+        QString msg (QString ("Segment %1 is not headwater and has no upstream segment.").arg (*seg->getName()));
+        Log::outlog->add(Log::Error, msg);
         return;
-    }
+    }*/
 }
 
 /** Downstream temperature propogation. Headwaters are always done first, then
@@ -443,48 +443,52 @@ void RiverSystem::computeSegFlow (RiverSegment *seg)
 
 void RiverSystem::computeTemps ()
 {
-    mouth()->calculateTemps();
+    getMouth()->calculateTemps();
 }
 
 void RiverSystem::computeSegTemp (RiverSegment *seg)
 {
-    if (seg->up != NULL)
+/*    if (seg->getUpperSegment() != NULL)
     {
-        computeSegTemp(seg->up);
-        if (seg->fork != NULL)
-            computeSegTemp(seg->fork);
+        computeSegTemp(seg->getUpperSegment());
+        if (seg->getForkSegment() != NULL)
+            computeSegTemp(seg->getForkSegment());
 
-        if (!seg->read_temps)
+        if (!seg->getReadTemps())
         {
-            if (seg->type == RiverSegment::Dam)
+            if (seg->getType() == RiverSegment::Dam)
                 static_cast <Dam *> (seg)->calculateTemp ();
-            else if (seg->type == RiverSegment::Reach)
+            else if (seg->getType() == RiverSegment::Reach)
                 static_cast <Reach *> (seg)->calculateTemp ();
         }
     }
-    else if (seg->type == RiverSegment::Headwater)
+    else if (seg->getType() == RiverSegment::Headwater)
     {
-        if (!seg->read_temps)
+        if (!seg->getReadTemps())
             static_cast <Headwater *> (seg)->calculateTemp ();
     }
     else
     {
         QString msg (QString ("Segment %1 is not headwater and has no upstream segment.").arg (*seg->name));
-        Log::instance()->add(Log::Error, msg);
-    }
+        Log::outlog->add(Log::Error, msg);
+    }*/
 }
 
 void RiverSystem::computeSpill ()
 {
-    computeSegSpill (mouth());
+//    computeSegSpill (getMouth());
+    for (int i = 0; i < segments->count(); i++)
+    if (segments->at (i)->getType() == RiverSegment::Dam)
+    {
+        static_cast <Dam *> (segments->at (i))->calculateSpill ();
+    }
 }
 
 void RiverSystem::computeSegSpill(RiverSegment *seg)
 {
-    for (int i = 0; i < segments->count(); i++)
-    if (segments->at (i)->type == RiverSegment::Dam)
+    if (seg->getType() == RiverSegment::Dam)
     {
-        static_cast <Dam *> (segments->at (i))->calculateSpill ();
+        static_cast <Dam *> (seg)->calculateSpill ();
     }
 }
 
@@ -496,7 +500,7 @@ void RiverSystem::deleteReleases ()
 void RiverSystem::deleteSpill ()
 {
     for (int i = 0; i < segments->count(); i++)
-    if (segments->at (i)->type == RiverSegment::Dam)
+    if (segments->at (i)->getType() == RiverSegment::Dam)
     {
         static_cast <Dam *> (segments->at (i))->deleteSpill ();
     }

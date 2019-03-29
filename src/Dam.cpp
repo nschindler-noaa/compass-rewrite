@@ -15,55 +15,55 @@ Dam::~Dam ()
 
 void Dam::clear()
 {
-    basin = NULL;
-    species = NULL;
-    phouse_side =  (Location)-1;
+    basin = nullptr;
+    species = nullptr;
+    phouseSide =  (Location)-1;
     width = 0.0;
-    tailrace_length = 0.0;
-    base_elev = 0.0;
-    forebay_elev = 0.0;
-    tailrace_elev = 0.0;
-    full_head = 0.0;
-    full_fb_depth = 0.0;
-    bypass_height = 0.0;
+    lengthTailrace = 0.0;
+    elevBase = 0.0;
+    elevForebay = 0.0;
+    elevTailrace = 0.0;
+    fullHead = 0.0;
+    depthForebay = 0.0;
+    heightBypass = 0.0;
     collector = 0;
-    ngates = 0;
-    gate_width = 0.0;
-    pergate = 0.0;
-    spillway_width = 0.0;
-    basin_length = 0.0;
-    sgr = 0.0;
+    numGates = 0;
+    widthGates = 0.0;
+    spillPerGate = 0.0;
+    widthSpillway = 0.0;
+    lengthBasin = 0.0;
+    specGrav = 0.0;
 
     for (int i = 0; i < DAM_SLICES_IN_SEASON; i++)
     {
         spill[i] = 0.0;
-        planned_spill[i] = 0.0;
-        daylight_proportion[i] = 0.0;
+        spillPlanned[i] = 0.0;
+        daylightProportion[i] = 0.0;
     }
 
-    planned_spill_day = NULL;
-    planned_spill_night = NULL;
-    legacy_planned_spill = NULL;
-    legacy_fish_spill = NULL;
-    spill_cap = 0.0;
-    spill_side = (Location)-1;
-    rsw_spill_cap = 0.0;
-    rsw_active = NULL;
+    spillPlannedDay = nullptr;
+    spillPlannedNight = nullptr;
+    spillLegacyPlanned = nullptr;
+    spillLegacyFish = nullptr;
+    spillMax = 0.0;
+    spillSide = (Location)-1;
+    rswSpillMax = 0.0;
+    rswActive = nullptr;
 
-    flow_max = 0.0;
-    flow_min_project = 0.0;
-    flow_min_river = 0.0;
+    flowMax = 0.0;
+    flowProjectMin = 0.0;
+    flowRiverMin = 0.0;
 
     for (int i = 0; i < DAYS_IN_SEASON; i++)
     {
         flow[i] = 0.0;
-        forebay_depth[i] = 0.0;
-        tailrace_depth[i] = 0.0;
-        drop_ratio[i] = 0.0;
-        tr_drop_ratio[i] = 0.0;
+        depthForebayDay[i] = 0.0;
+        depthTailraceDay[i] = 0.0;
+        dropRatioDay[i] = 0.0;
+        dropRatioDayTR[i] = 0.0;
     }
 
-    transport = NULL;
+    transport = nullptr;
 }
 
 void Dam::calculateFlow()
@@ -79,7 +79,7 @@ void Dam::calculateFlows()
 
 void Dam::calculateTemp()
 {
-    if (!read_temps)
+    if (!readTemps)
     {
         calculateTempInputs();
         calculateTemps();

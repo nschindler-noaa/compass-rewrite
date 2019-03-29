@@ -7,6 +7,7 @@
 #include "FileManager.h"
 #include "ScenarioManager.h"
 #include "settings.h"
+#include "releasedialog.h"
 
 enum Window {
     IO,
@@ -24,16 +25,19 @@ class CompassGui : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit CompassGui(QWidget *parent = 0);
+    explicit CompassGui(QWidget *parent = nullptr);
     ~CompassGui();
 
     FileManager *fManager;
     ScenarioManager *sManager;
     Settings *compassSettings;
+    ReleaseDialog *rlsTool;
 
 public slots:
     void run ();
     void showTool (Window wd);
+    void showMap (bool show);
+    void showRlsTool (bool show);
 
 private:
 //    LogWindow *logw;

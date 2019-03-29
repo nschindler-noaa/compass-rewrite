@@ -18,9 +18,8 @@ public:
 
     /* Transport by date */
     int startDate;            /**< For transport start by date */
-    PeriodList<bool> *active; /**< Bool array for transport activity by
-                               *   day: 1 = on, 0 = off. Will be NULL if
-                               *   transport by count. */
+    QList<bool> active;      /**< Bool array for transport activity by
+                               *   day: 1 = on, 0 = off.  */
 
     /* Transport by count */
     int startCount;           /**< Count at which to start transport. */
@@ -41,8 +40,8 @@ public:
     /* Transport speed */
     float rate;               /**< Rate of transport 100-500 mi per day */
 
-    QString source_seg; /**< Dam transported from */
-    QString target_seg; /**< Release point */
+    QString source_seg;       /**< Dam transported from */
+    QString target_seg;       /**< Release point, where fish rejoin river */
 };
 
 

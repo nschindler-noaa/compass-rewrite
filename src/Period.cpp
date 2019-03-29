@@ -2,40 +2,62 @@
 
 
 template <class T>
-Period<T>::Period ()
-{    start = 0; stop = 0; value = 0;    }
+Period<T>::Period () :start(0), stop(0), value(0)
+{}
+
+template <class T>
+Period<T>::Period (const Period<T> &period)
+    :start(period.getStart()), stop(period.getStop()), value(period.getValue())
+{}
 
 template <class T>
 Period<T>::~Period()
 {}
 
 template <class T>
-Period<T>::setStart(int index)
+void Period<T>::setStart(int index)
 {    start = index; }
 
 template <class T>
-Period<T>::getStart()
+int Period<T>::getStart()
 {    return start;  }
 
 template <class T>
-Period<T>::setStop(int index)
+void Period<T>::setStop(int index)
 {   stop = index;   }
 
 template <class T>
-Period<T>::getStop()
+int Period<T>::getStop()
 {   return stop;    }
 
 template <class T>
-Period<T>::setValue(T val)
+void Period<T>::setValue(T val)
 {   value = val;    }
 
 template <class T>
-Period<T>::getValue()
+T Period<T>::getValue()
 {   return value;   }
-
+/*
 
 template <class T>
-void PeriodSubPeriod::setSubPeriod(int index, Period<T> *period)
+PeriodSubPeriod<T>::PeriodSubPeriod() :Period<T>()
+{
+    subPeriods.append(NULL);
+    subPeriods.clear();
+}
+
+template <class T>
+PeriodSubPeriod<T>::~PeriodSubPeriod()
+{
+    while(subPeriods.count() > 0)
+    {
+        Period<T> *period = subPeriods.takeLast();
+        delete period;
+    }
+}
+
+template <class T>
+void PeriodSubPeriod<T>::setSubPeriod(int index, Period<T> *period)
 {
     if (index < subPeriods.count())
     {
@@ -46,7 +68,7 @@ void PeriodSubPeriod::setSubPeriod(int index, Period<T> *period)
 }
 
 template <class T>
-Period<T>* PeriodSubPeriod::getSubPeriod(int index)
+Period<T>* PeriodSubPeriod<T>::getSubPeriod(int index)
 {
     Period<T> *period;
     if (index < subPeriods.count())
@@ -58,10 +80,10 @@ Period<T>* PeriodSubPeriod::getSubPeriod(int index)
 template <class T>
 PeriodList<T>::PeriodList (int stt, int stp, T val, bool pct)
 {
-    Period prd;
-    prd.startday = stt;
-    prd.stopday = stp;
-    prd.value = val;
+    Period<T> prd;
+    prd.setStart(stt);
+    prd.setStop(stp);
+    prd.setValue(val);
     percent = pct;
 
     periods.append (prd);
@@ -74,6 +96,12 @@ PeriodList<T>::PeriodList (bool pct)
 }
 
 template <class T>
+PeriodList<T>::PeriodList (const PeriodList<T>&plist)
+{
+    copy (plist);
+}
+
+template <class T>
 PeriodList<T>::~PeriodList ()
 {
     clear();
@@ -82,7 +110,7 @@ PeriodList<T>::~PeriodList ()
 template <class T>
 void PeriodList<T>::append (int stt, int stp, T val)
 {
-    Period prd;
+    Period<T> prd;
     prd.startday = stt;
     prd.stopday = stp;
     prd.value = val;
@@ -103,7 +131,7 @@ T * PeriodList<T>::toArray (PeriodList<T> plist, int &size)
 {
     int i, j;
     T array[size];
-    Period prd = plist.periods.at[0];
+    Period<T> prd = plist.periods.at[0];
 
     for (i = 0; i < plist.periods.count(); i++)
     {
@@ -129,25 +157,24 @@ PeriodList<T> PeriodList<T>::fromArray (T array[], int size)
 {
     int i;
     PeriodList<T> plist = PeriodList<T>();
-    Period prd;
-    prd.startday = 0;
-    prd.value = new T;
-    *(prd.value) = array[0];
-    prd.stopday = 0;
-    prd.percent = false;
+    Period<T> *prd = new Period<T>();
+    prd.setStart(0);
+    prd.setValue(array[0]);
+    prd.setStop(0);
 
     for (i = 1; i < size; i++)
     {
-        if (*prd.value != array[i])
+        if (prd->getValue(i-1) != array[i])
         {
-            prd.stopday = i - 1;
+            prd->setStop(i - 1);
             plist.periods.append (prd);
-            prd.startday = i;
-            prd.value = array[i];
-            prd.stopday = i;
+            prd = new Period<T>();
+            prd->setStart(i);
+            prd->setValue(array[i]);
+            prd->setStop(i);
         }
     }
-    prd.stopday = i - 1;
+    prd->setStop(i - 1);
     plist.periods.append (prd);
 
     return plist;
@@ -157,11 +184,11 @@ PeriodList<T> PeriodList<T>::fromArray (T array[], int size)
 template <class T>
 PeriodList<T> PeriodList<T>::copy (PeriodList<T> rhplist)
 {
-    int num_periods = rhs.periods.count();
+    int num_periods = rhplist.periods.count();
     clear();
     for (int i = 0; i < num_periods; i++)
     {
-        Period<T>* period = rhplist.getPeriod(i);
+        Period<T>* period = new Period<T>(*rhplist.getPeriod(i));
         periods.append(period);
     }
     return this;
@@ -212,6 +239,5 @@ void PeriodList<T>::trimLeadingZeros()
         i++;
     }
 }
-
-
+*/
 

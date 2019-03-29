@@ -1,39 +1,30 @@
 #include <iostream>
 
 #include "Log.h"
-#define DEFAULT_LOGNAME  "COMPASSXXXX.log"
+#define DEFAULT_LOGNAME  "COMPASSXXXX.outlog"
 
-static Log *log = NULL;
+Log *Log::outlog = NULL;
 
-Log *Log::instance (QObject *parent)
+Log *Log::instance()
 {
-    if (log == NULL)
-        log = new Log (parent);
-
-    return log;
-}
-
-Log *Log::instance (QString filename, QObject *parent)
-{
-    if (log == NULL)
-        log = new Log (filename);
-
-    return log;
+    if (outlog == NULL)
+        outlog = new Log(DEFAULT_LOGNAME);
+    return outlog;
 }
 
 
 Log::Log (QString filename, QObject *parent)
 {
+    logFile = NULL;
     setLogFile (filename);
     setup ();
-    log = this;
 }
 
 Log::Log (QObject *parent)
 {
+    logFile = NULL;
     setLogFile ();
     setup ();
-    log = this;
 }
 
 void Log::setup ()
@@ -68,19 +59,16 @@ void Log::setLogFile (QString filename)
 Log::~Log()
 {
     deleteLogFile ();
-    log = NULL;
+//    outlog = NULL;
 }
 
 
 void Log::deleteLogFile ()
 {
-    if (log != NULL)
+    if (logFile != NULL)
     {
-        if (logFile != NULL)
-        {
-            logFile->close ();
-            delete logFile;
-        }
+        logFile->close ();
+        delete logFile;
     }
 }
 

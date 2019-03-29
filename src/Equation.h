@@ -5,7 +5,7 @@
 
 #define MAX_PARAMETERS (15)
 
-/** \class A class that hold info for a particular equation.
+/** \class A class that hold equation data.
  *  Maximum number of parameters is set to 15.               */
 class Equation
 {

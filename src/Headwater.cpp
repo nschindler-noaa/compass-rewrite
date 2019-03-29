@@ -24,21 +24,21 @@ void Headwater::fillRegulated()
     RiverSegment *downseg = down;
     QString msg ("");
 
-    if (read_flows)
+    if (readFlows)
         return;
 
-    while (downseg != NULL && !downseg->regPoint && downseg->fork == NULL)
-        downseg = downseg->down;
+    while (downseg != nullptr && !downseg->getIsRegPoint() && downseg->getForkSegment() == nullptr)
+        downseg = downseg->getLowerSegment();
 
-    if (downseg == NULL || downseg->fork != NULL)
+    if (downseg == nullptr || downseg->getForkSegment() != nullptr)
     {
         regulated = false;
     }
     else
     {
         regulated = true;
-        msg = QString (QString ("Filling regulated headwater %1, regulated at %2").arg(*name, *downseg->name));
-        Log::instance()->add(Log::Debug, msg);
+        msg = QString (QString ("Filling regulated headwater %1, regulated at %2").arg(*name, *downseg->getName()));
+        Log::outlog->add(Log::Debug, msg);
 
 
     }
@@ -50,17 +50,17 @@ void Headwater::fillUnRegulated()
     RiverSegment *downseg = down;
     QString msg ("");
 
-    if (read_flows || regulated)
+    if (readFlows || regulated)
         return;
 
     msg = QString (QString ("Filling unregulated headwater %1").arg(*name));
-    Log::instance()->add(Log::Debug, msg);
+    Log::outlog->add(Log::Debug, msg);
 
 }
 
 void Headwater::calculateFlow()
 {
-    if (!read_flows)
+    if (!readFlows)
     {
         calculateFlows();
     }
@@ -72,10 +72,10 @@ void Headwater::calculateFlows()
     int i;
     RiverSegment *downseg = down;
 
-    while (downseg != NULL && !downseg->regPoint && downseg->fork != NULL)
-        downseg = downseg->down;
+    while (downseg != nullptr && !downseg->getIsRegPoint() && downseg->getForkSegment() != nullptr)
+        downseg = downseg->getLowerSegment();
 
-    if (downseg != NULL || downseg->fork)
+    if (downseg != nullptr || downseg->getForkSegment())
     {
         regulated = false;
     }
@@ -83,7 +83,7 @@ void Headwater::calculateFlows()
     {
         regulated = true;
         flow_coefficient = 0.0;
-        if (downseg->type == RiverSegment::Dam)
+        if (downseg->getType() == RiverSegment::Dam)
         {
 
         }
@@ -93,7 +93,7 @@ void Headwater::calculateFlows()
 
 void Headwater::calculateTemp()
 {
-    if (!read_temps)
+    if (!readTemps)
     { // get temps from down stream if not read in
         calculateTempInputs();
         calculateTemps();

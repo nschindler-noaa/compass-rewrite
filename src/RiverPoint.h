@@ -7,7 +7,7 @@
 class RiverPoint
 {
 public:
-    explicit RiverPoint(QObject *parent = 0);
+    explicit RiverPoint(QObject *parent = NULL);
     RiverPoint (const RiverPoint &other);
 
     const float lat () {return latitude;}
@@ -33,9 +33,6 @@ public:
     RiverPoint(RiverPoint &other);
     ~RiverPoint ();
 
-    float lat;
-    float lon;
-    float width;
     float setLon (float ln);
     float setLon (int d, int m, int s);
     float setLon (QString deg, QString min, QString sec);
@@ -53,11 +50,21 @@ public:
 
     void reset ();
 
+    void copy (const RiverPoint &other);
+    RiverPoint & operator = (const RiverPoint &other);
     bool equals (const RiverPoint rhs);
     bool operator == (const RiverPoint rhs);
 
-    void setText (QString txt);
-    QString getText();
+    void setLatLon (QString txt);
+    void setLatLon (QStringList items);
+    QString &getLatLon() const;
+    QString &updateText();
+
+private:
+    float lat;
+    float lon;
+    float width;
+    QString text;
 };
 
 

@@ -79,9 +79,9 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_run">
+       <widget class="QPushButton" name="pushButton_reset">
         <property name="text">
-         <string>Run Scenario</string>
+         <string>Reset</string>
         </property>
        </widget>
       </item>
@@ -99,9 +99,9 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton_reset">
+       <widget class="QPushButton" name="pushButton_run">
         <property name="text">
-         <string>Reset</string>
+         <string>Run Scenario</string>
         </property>
        </widget>
       </item>
@@ -145,9 +145,28 @@
      <string/>
     </property>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionRelease_Tool"/>
+    <addaction name="actionTransport_Tool"/>
+   </widget>
+   <widget class="QMenu" name="menuShow">
+    <property name="title">
+     <string>Show</string>
+    </property>
+    <addaction name="actionShow_Log"/>
+    <addaction name="actionShow_Map"/>
+    <addaction name="actionShow_Toolbox"/>
+    <addaction name="actionRelease_Tool"/>
+    <addaction name="actionTransport_Tool"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu"/>
    <addaction name="menu_Help"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuShow"/>
   </widget>
   <widget class="QToolBar" name="toolBar_io">
    <property name="windowTitle">
@@ -177,7 +196,7 @@
     </size>
    </property>
    <property name="windowIcon">
-    <iconset resource="compass.qrc">
+    <iconset>
      <normaloff>:/images/document-logfile.png</normaloff>:/images/document-logfile.png</iconset>
    </property>
    <property name="toolTip">
@@ -241,12 +260,12 @@
           <x>0</x>
           <y>0</y>
           <width>280</width>
-          <height>158</height>
+          <height>96</height>
          </rect>
         </property>
         <attribute name="icon">
          <iconset resource="compass.qrc">
-          <normaloff>:/images/map_activesite_sm.png</normaloff>:/images/map_activesite_sm.png</iconset>
+          <normaloff>:/icons/map_new_relsite_lg.png</normaloff>:/icons/map_new_relsite_lg.png</iconset>
         </attribute>
         <attribute name="label">
          <string>Releases</string>
@@ -258,12 +277,12 @@
           <x>0</x>
           <y>0</y>
           <width>280</width>
-          <height>158</height>
+          <height>96</height>
          </rect>
         </property>
         <attribute name="icon">
          <iconset resource="compass.qrc">
-          <normaloff>:/images/river.png</normaloff>:/images/river.png</iconset>
+          <normaloff>:/icons/river.png</normaloff>:/icons/river.png</iconset>
         </attribute>
         <attribute name="label">
          <string>Flow - Spill Averaging</string>
@@ -460,12 +479,12 @@
           <x>0</x>
           <y>0</y>
           <width>280</width>
-          <height>158</height>
+          <height>96</height>
          </rect>
         </property>
         <attribute name="icon">
          <iconset resource="compass.qrc">
-          <normaloff>:/images/monte_carlo.png</normaloff>:/images/monte_carlo.png</iconset>
+          <normaloff>:/icons/monte_carlo_64.png</normaloff>:/icons/monte_carlo_64.png</iconset>
         </attribute>
         <attribute name="label">
          <string>Monte Carlo Settings</string>
@@ -577,12 +596,12 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>153</width>
-          <height>148</height>
+          <width>149</width>
+          <height>230</height>
          </rect>
         </property>
         <attribute name="icon">
-         <iconset resource="compass.qrc">
+         <iconset>
           <normaloff>:/images/file-open.png</normaloff>:/images/file-open.png</iconset>
         </attribute>
         <attribute name="label">
@@ -595,11 +614,11 @@
           <x>0</x>
           <y>0</y>
           <width>278</width>
-          <height>148</height>
+          <height>230</height>
          </rect>
         </property>
         <attribute name="icon">
-         <iconset resource="compass.qrc">
+         <iconset>
           <normaloff>:/images/document-logfile.png</normaloff>:/images/document-logfile.png</iconset>
         </attribute>
         <attribute name="label">
@@ -616,7 +635,7 @@
     </layout>
    </widget>
   </widget>
-  <widget class="QDockWidget" name="dockWidget_4">
+  <widget class="QDockWidget" name="dockWidget_map">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
      <horstretch>1</horstretch>
@@ -639,7 +658,7 @@
   </widget>
   <action name="actionE_xit">
    <property name="icon">
-    <iconset resource="compass.qrc">
+    <iconset>
      <normaloff>:/images/system-log-out.png</normaloff>:/images/system-log-out.png</iconset>
    </property>
    <property name="text">
@@ -654,7 +673,7 @@
   </action>
   <action name="action_About">
    <property name="icon">
-    <iconset resource="compass.qrc">
+    <iconset>
      <normaloff>:/images/chinsmolt1.png</normaloff>:/images/chinsmolt1.png</iconset>
    </property>
    <property name="text">
@@ -667,7 +686,7 @@
    </property>
    <property name="icon">
     <iconset resource="compass.qrc">
-     <normaloff>:/images/river.png</normaloff>:/images/river.png</iconset>
+     <normaloff>:/icons/river.png</normaloff>:/icons/river.png</iconset>
    </property>
    <property name="text">
     <string>Show Map</string>
@@ -685,7 +704,7 @@
    </property>
    <property name="icon">
     <iconset resource="compass.qrc">
-     <normaloff>:/images/document-logfile.png</normaloff>:/images/document-logfile.png</iconset>
+     <normaloff>:/icons/document-logfile.png</normaloff>:/icons/document-logfile.png</iconset>
    </property>
    <property name="text">
     <string>Show Log</string>
@@ -703,7 +722,7 @@
    </property>
    <property name="icon">
     <iconset resource="compass.qrc">
-     <normaloff>:/images/preferences-system.png</normaloff>:/images/preferences-system.png</iconset>
+     <normaloff>:/icons/preferences-system.png</normaloff>:/icons/preferences-system.png</iconset>
    </property>
    <property name="text">
     <string>Show Toolbox</string>
@@ -720,13 +739,31 @@
   <action name="actionHelp_Dialog">
    <property name="icon">
     <iconset resource="compass.qrc">
-     <normaloff>:/images/help-browser.png</normaloff>:/images/help-browser.png</iconset>
+     <normaloff>:/icons/help-browser.png</normaloff>:/icons/help-browser.png</iconset>
    </property>
    <property name="text">
     <string>Help &amp;Dialog</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+H, ,, F1</string>
+   </property>
+  </action>
+  <action name="actionRelease_Tool">
+   <property name="icon">
+    <iconset resource="compass.qrc">
+     <normaloff>:/icons/map_activesite_lg.png</normaloff>:/icons/map_activesite_lg.png</iconset>
+   </property>
+   <property name="text">
+    <string>Release Tool</string>
+   </property>
+  </action>
+  <action name="actionTransport_Tool">
+   <property name="icon">
+    <iconset resource="compass.qrc">
+     <normaloff>:/icons/map_barge_lg.png</normaloff>:/icons/map_barge_lg.png</iconset>
+   </property>
+   <property name="text">
+    <string>Transport Tool</string>
    </property>
   </action>
  </widget>

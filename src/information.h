@@ -33,7 +33,7 @@ typedef struct information Information;
 
 void clearInfo (Information *inf)
 {
-    inf->riverMouth = NULL;
+    inf->riverMouth = nullptr;
     inf->files.clear ();
     inf->dams.clear ();
     inf->powerhouses.clear ();
@@ -60,7 +60,7 @@ void deleteInfo (Information *inf)
 {
     clearInfo (inf);
     delete inf;
-    inf = NULL;
+    inf = nullptr;
 }
 
 extern Information *compassInfo;

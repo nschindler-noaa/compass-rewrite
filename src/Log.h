@@ -5,17 +5,14 @@
 #include <QString>
 #include <QStringList>
 
-/** A simple log utility. This adds log messages to a log file that may be saved
+/** A simple outlog utility. This adds outlog messages to a outlog file that may be saved
  *  and displays selected messages in the console. */
 class Log
 {
 public:
-    explicit Log (QObject *parent = 0);
-    Log (QString filename = QString (""), QObject *parent = 0);
+    explicit Log (QObject *parent = NULL);
+    Log (QString filename = QString (""), QObject *parent = NULL);
     ~Log();
-
-    static Log *instance (QObject *parent = 0);
-    static Log *instance (QString filename, QObject *parent = 0);
 
     void deleteLogFile ();
 
@@ -31,7 +28,9 @@ public:
 
     void add (MessageType id, QString msg);
 
-//    static Log *log;
+    static Log *outlog;
+
+    static Log *instance();
 
 protected:
     void setup();

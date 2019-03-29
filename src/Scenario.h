@@ -57,8 +57,8 @@ class Scenario : public QObject
 {
     Q_OBJECT
 public:
-    explicit Scenario (QObject *parent = 0);
-    Scenario (Settings *set, QObject *parent = 0);
+    explicit Scenario (QObject *parent = nullptr);
+    Scenario (Settings *set, QObject *parent = nullptr);
     ~Scenario ();
 
     bool stop;
@@ -77,7 +77,7 @@ public:
     float fork_threshold;         /**< Proportion of total flow a fork needs to be
                                    *  "significant" - range [0.0-0.4] */
 #ifdef PRED_CALC
-    float prey_energy_density;    /**< Value == 0 => no growth calculated */
+    float prey_energy_density;    /**< Value == NULL => no growth calculated */
 #endif
 #ifdef GROWTH_CALC
     float length_weight_b0;       /**< Also used in growth calculations. */

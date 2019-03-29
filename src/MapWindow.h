@@ -12,7 +12,7 @@ class MapWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MapWindow(QWidget *parent = 0);
+    explicit MapWindow(QWidget *parent = NULL);
     ~MapWindow();
 
 private:

@@ -137,13 +137,13 @@ bool Settings::readArguments(QStringList arguments)
             else if (arg.startsWith ('l', Qt::CaseInsensitive))
             {
                 if (arg.contains ('w'))
-                    Log::instance ()->setWarning (true);
+                    Log::outlog->setWarning (true);
                 if (arg.contains ('r'))
-                    Log::instance ()->setRawDump (true);
+                    Log::outlog->setRawDump (true);
                 if (arg.contains ('m'))
-                    Log::instance ()->setMessage (true);
+                    Log::outlog->setMessage (true);
                 if (arg.contains ('d'))
-                    Log::instance ()->setDebug (true);
+                    Log::outlog->setDebug (true);
             }
             // check for files
             // river description file
@@ -224,8 +224,8 @@ bool Settings::readArguments(QStringList arguments)
 
     if (help_flag || !okay)
     {
-        Log::instance ()->add (Log::Force, version_string());
-        Log::instance ()->add (Log::Force, help_string(verbose_flag));
+        Log::outlog->add (Log::Force, version_string());
+        Log::outlog->add (Log::Force, help_string(verbose_flag));
     }
     else
     {
@@ -267,7 +267,7 @@ bool Settings::readArguments(QStringList arguments)
             if (batch)
             {
                 setInitialData (QString (DEFAULT_DATAFILE));
-                Log::instance ()->add (Log::Message,
+                Log::outlog->add (Log::Message,
                       QString ("Using %1 for initial data file.")
                          .arg (DEFAULT_DATAFILE));
             }
@@ -371,13 +371,13 @@ void Settings::getCurrentUserData()
 
     if (gethostname(name,100))
     {
-        Log::instance ()->add (Log::Warning,
+        Log::outlog->add (Log::Warning,
                 "Error in gethostname.  Called from write_header.\n");
         name[0] = '\0';
     }
 #ifdef SYSV
     if ( !(host = gethostbyname(name)) )
-        Log::instance ()->add (Log::Warning,
+        Log::outlog->add (Log::Warning,
                 "Error getting full host name. Unknown_host_error.\n%s%s\n",
                 "Host was: ",
                 name);
