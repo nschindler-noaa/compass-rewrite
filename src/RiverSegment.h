@@ -82,6 +82,7 @@ public:
 
     /** Type of river segment */
     enum SegmentType {
+        Null = -1,     /**< not a segment */
         Dam,           /**< Dam segment */
         Reach,         /**< Reach (pool or free-flowing) segment */
         Headwater      /**< Headwater segment - required for every river */

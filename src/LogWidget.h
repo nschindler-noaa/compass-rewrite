@@ -15,7 +15,7 @@ class LogWidget : public QWidget, public Log
     Q_OBJECT
 
 public:
-    explicit LogWidget(QWidget *parent = NULL);
+    explicit LogWidget(QWidget *parent = nullptr);
     ~LogWidget();
 
 //    QMenuBar *menuBar() {return menu;}

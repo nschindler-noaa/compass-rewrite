@@ -90,7 +90,7 @@ public:
     bool parseToken (QString token, CompassFile *infile);
 
     /* Storage basin info */
-    Basin *basin;      /**< Storage basin pointer. If no basin, this is NULL. */
+    Basin *basin;      /**< Storage basin pointer. If no basin, this is nullptr. */
 
     /** Pointer to the dam-species information struct */
     struct dam_species *species;
@@ -164,7 +164,7 @@ public:
 
     /* Transport info */
     Transport *transport;/**< Pointer to transport operation information
-                             * started at this dam. (this may be NULL) */
+                             * started at this dam. (this may be nullptr) */
 
     /* nsat stuff */
 //    equation nsat_eqn;    /* Nitrogen supersaturation equation that

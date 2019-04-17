@@ -45,7 +45,7 @@ Equation Equation::copy (const Equation &rhs)
 void Equation::addParameter (QString name, double val, double mn, double mx)
 {
     Parameter *par = getParameter(name);
-    if (par != NULL)
+    if (par != nullptr)
     {
         par->value = val;
         par->min = mn;
@@ -66,7 +66,7 @@ void Equation::addParameter (int num, double val, double mn, double mx)
 void Equation::setParameter (QString name, double val, double mn, double mx)
 {
     Parameter *par = getParameter(name);
-    if (par != NULL)
+    if (par != nullptr)
     {
         par->value = val;
         par->min = mn;
@@ -98,7 +98,7 @@ double Equation::value (double xval)
 
 Equation::Parameter *Equation::getParameter (int num)
 {
-    Equation::Parameter *parm = NULL;
+    Equation::Parameter *parm = nullptr;
     if (num < MAX_PARAMETERS)
         parm = &parameters[num];
     return parm;
@@ -106,7 +106,7 @@ Equation::Parameter *Equation::getParameter (int num)
 
 Equation::Parameter *Equation::getParameter (QString name)
 {
-    Equation::Parameter *parm = NULL;
+    Equation::Parameter *parm = nullptr;
     int i;
 
     for (i = 0; i < MAX_PARAMETERS; i++)

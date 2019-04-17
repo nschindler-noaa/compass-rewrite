@@ -338,7 +338,7 @@ struct rls_seg
                                 * corresponds to */
 
     struct rls_seg_data **data;/**< Dynamic array of pointers to
-                                 * seg data [games], null terminated */
+                                 * seg data [games], nullptr terminated */
 };
 
 /** Release parameters */

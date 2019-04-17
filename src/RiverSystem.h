@@ -98,6 +98,6 @@ public slots:
 private:
 };
 
-//extern RiverSystem *riverSystem;
+extern RiverSystem *riverSystem;
 
 #endif // C_RIVERSYSTEM_H

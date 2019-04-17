@@ -3,11 +3,11 @@
 #include "Log.h"
 #define DEFAULT_LOGNAME  "COMPASSXXXX.outlog"
 
-Log *Log::outlog = NULL;
+Log *Log::outlog = nullptr;
 
 Log *Log::instance()
 {
-    if (outlog == NULL)
+    if (outlog == nullptr)
         outlog = new Log(DEFAULT_LOGNAME);
     return outlog;
 }
@@ -15,26 +15,26 @@ Log *Log::instance()
 
 Log::Log (QString filename, QObject *parent)
 {
-    logFile = NULL;
+    logFile = nullptr;
     setLogFile (filename);
     setup ();
 }
 
 Log::Log (QObject *parent)
 {
-    logFile = NULL;
+    logFile = nullptr;
     setLogFile ();
     setup ();
 }
 
 void Log::setup ()
 {
-    prefix.append ("- ERROR: ");
+    prefix.append ("--ERROR: ");
     prefix.append ("WARNING: ");
     prefix.append ("  ");
     prefix.append ("RAWDUMP: ");
     prefix.append ("--DEBUG: ");
-    prefix.append ("FATAL!  ");
+    prefix.append ("!FATAL!  ");
     prefix.append ("");
 
     lastLine = QString ("");
@@ -59,13 +59,13 @@ void Log::setLogFile (QString filename)
 Log::~Log()
 {
     deleteLogFile ();
-//    outlog = NULL;
+//    outlog = nullptr;
 }
 
 
 void Log::deleteLogFile ()
 {
-    if (logFile != NULL)
+    if (logFile != nullptr)
     {
         logFile->close ();
         delete logFile;

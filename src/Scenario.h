@@ -77,7 +77,7 @@ public:
     float fork_threshold;         /**< Proportion of total flow a fork needs to be
                                    *  "significant" - range [0.0-0.4] */
 #ifdef PRED_CALC
-    float prey_energy_density;    /**< Value == NULL => no growth calculated */
+    float prey_energy_density;    /**< Value == nullptr => no growth calculated */
 #endif
 #ifdef GROWTH_CALC
     float length_weight_b0;       /**< Also used in growth calculations. */

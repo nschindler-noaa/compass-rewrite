@@ -12,7 +12,7 @@ class EquationDialog : public QDialog
     Q_OBJECT
     
 public:
-    explicit EquationDialog(QWidget *parent = NULL);
+    explicit EquationDialog(QWidget *parent = nullptr);
     ~EquationDialog();
     
 private:

@@ -31,9 +31,9 @@ RiverSegment::RiverSegment (const RiverSegment &rhs) :
 void RiverSegment::setup ()
 {
     currentPointIndex = -1;
-    currentPoint = (RiverPoint *) nullptr;
+    currentPoint = nullptr;
     widthAve = 1.0;
-    type = (SegmentType) -1;
+    type = Null;
     output_flags = 0;
     output_settings = 0;
     flowMax = 0.0;
@@ -43,9 +43,9 @@ void RiverSegment::setup ()
     for (int i = 0; i < STEPS_IN_SEASON; i++)
         temp[i] = 0.0;
     readTemps = false;
-    up = (RiverSegment *)nullptr;
-    down = (RiverSegment *)nullptr;
-    fork = (RiverSegment *)nullptr;
+    up = nullptr;
+    down = nullptr;
+    fork = nullptr;
     temp_1 = -1;
 }
 

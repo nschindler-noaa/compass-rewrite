@@ -7,7 +7,7 @@
 class RiverPoint
 {
 public:
-    explicit RiverPoint(QObject *parent = NULL);
+    explicit RiverPoint(QObject *parent = nullptr);
     RiverPoint (const RiverPoint &other);
 
     const float lat () {return latitude;}

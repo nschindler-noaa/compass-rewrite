@@ -39,8 +39,10 @@ RiverSystem::RiverSystem(QObject *parent) :
 RiverSystem::RiverSystem(QString riverFile, QObject *parent) :
     QObject(parent)
 {
+    CompassFile cf(riverFile);
     setup();
     riverSystem = this;
+    parse (&cf);
 }
 
 void RiverSystem::setup ()
@@ -69,7 +71,7 @@ RiverSystem::~RiverSystem ()
 
 void RiverSystem::deleteAll()
 {
-    int i;
+//    int i;
     while (rivers->count())
         delete rivers->takeLast();
     delete rivers;
@@ -136,7 +138,7 @@ bool RiverSystem::parse(CompassFile *rfile)
             {
                 if (reaches->contains(reachName))
                 {
-                    Reach *reach = (Reach *)findSegment(reachName);
+                    Reach *reach = static_cast<Reach *>(findSegment(reachName));
                     okay = reach->parse (rfile);
                 }
                 else
@@ -154,7 +156,7 @@ bool RiverSystem::parse(CompassFile *rfile)
             {
                 if (dams->contains(damName))
                 {
-                    Dam *dam = (Dam *)findSegment(damName);
+                    Dam *dam = static_cast<Dam *>(findSegment(damName));
                     okay = dam->parse (rfile);
                 }
                 else
@@ -172,7 +174,7 @@ bool RiverSystem::parse(CompassFile *rfile)
             {
                 if (headwaters->contains(hwName))
                 {
-                    Headwater *hwtr = (Headwater *)findSegment(hwName);
+                    Headwater *hwtr = static_cast<Headwater *>(findSegment(hwName));
                     okay = hwtr->parse (rfile);
                 }
                 else
@@ -205,11 +207,11 @@ bool RiverSystem::construct()
     RiverSegment *prev = nullptr;
     QString curRiver ("");
 
-    prev = (RiverSegment *) segments->at (0);
+    prev = static_cast<RiverSegment *> (segments->at (0));
     curRiver = QString (*prev->getRiverName());
     for (int i = 1; okay && i < segments->count(); i++)
     {
-        cur = (RiverSegment *) segments->at(i);
+        cur = static_cast<RiverSegment *> (segments->at(i));
         if (curRiver.compare(*cur->getRiverName()) != 0)
         {
             // create headwater of previous river, if it doesn't exist
@@ -326,7 +328,7 @@ Species * RiverSystem::findSpecies(QString name)
     for (int i = 0; i < species->count(); i++)
     {
         spec = species->at (i);
-        if (spec->name->compare(name) == 0)
+        if (spec->getName().compare(name) == 0)
             break;
     }
     return spec;
@@ -338,7 +340,7 @@ Stock * RiverSystem::findStock(QString name)
     for (int i = 0; i < stocks->count(); i++)
     {
         st = stocks->at (i);
-        if (st->name->compare(name) == 0)
+        if (st->getName().compare(name) == 0)
             break;
     }
     return st;
@@ -346,7 +348,7 @@ Stock * RiverSystem::findStock(QString name)
 
 Transport * RiverSystem::findTransport(QString name)
 {
-    Dam *dm = (Dam *)findSegment(name);
+    Dam *dm = static_cast<Dam *> (findSegment(name));
 
     return dm->transport;
 }
@@ -385,7 +387,7 @@ void RiverSystem::markRegulationPts()
 {
     for (int i = 0; i < dams->count(); i++)\
     {
-        QString damname = (QString)dams->at (i);
+        QString damname = dams->at (i);
         Dam *dam = static_cast <Dam *> (findSegment(damname));
         dam->setIsRegPoint(true);
     }
@@ -400,13 +402,13 @@ void RiverSystem::fillHeadwaters ()
 
     for (int i = 0; i < headwaters->count(); i++)
     {
-        hwtrname = (QString)(headwaters->at (i));
+        hwtrname = headwaters->at (i);
         hwtr = static_cast <Headwater *> (findSegment (hwtrname));
         hwtr->fillRegulated();
     }
     for (int i = 0; i < headwaters->count(); i++)
     {
-        hwtrname = (QString)(headwaters->at (i));
+        hwtrname = headwaters->at (i);
         hwtr = static_cast <Headwater *> (findSegment (hwtrname));
         hwtr->fillUnRegulated();
     }
@@ -417,10 +419,10 @@ void RiverSystem::fillHeadwaters ()
 
 void RiverSystem::computeSegFlow (RiverSegment *seg)
 {
-/*    if (seg->getUpperSegment() != NULL)
+/*    if (seg->getUpperSegment() != nullptr)
     {
             computeSegFlow(seg->getUpperSegment());
-        if (seg->getForkSegment() != NULL)
+        if (seg->getForkSegment() != nullptr)
             computeSegFlow(seg->getForkSegment());
 
         if (seg->getType() == RiverSegment::Dam)
@@ -448,10 +450,10 @@ void RiverSystem::computeTemps ()
 
 void RiverSystem::computeSegTemp (RiverSegment *seg)
 {
-/*    if (seg->getUpperSegment() != NULL)
+/*    if (seg->getUpperSegment() != nullptr)
     {
         computeSegTemp(seg->getUpperSegment());
-        if (seg->getForkSegment() != NULL)
+        if (seg->getForkSegment() != nullptr)
             computeSegTemp(seg->getForkSegment());
 
         if (!seg->getReadTemps())

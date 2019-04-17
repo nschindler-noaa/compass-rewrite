@@ -662,7 +662,7 @@ void CompassFile::writeFloatArray (int indent, float arry[], int size, Data::Con
     }
     else
     {
-        Log::outlog->add(Log::Error, QString("Integer array is NULL."));
+        Log::outlog->add(Log::Error, QString("Integer array is nullptr."));
         writeFloat (0.0, dtype);
     }
 }
@@ -729,7 +729,7 @@ void CompassFile::writeIntArray (int indent, int arry[], int size, Data::Convers
     }
     else
     {
-        Log::outlog->add(Log::Error, QString("Float array is NULL."));
+        Log::outlog->add(Log::Error, QString("Float array is nullptr."));
         writeInt (0);
     }
 }

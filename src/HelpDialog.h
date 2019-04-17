@@ -14,7 +14,7 @@ class HelpDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit HelpDialog(QWidget *parent = NULL);
+    explicit HelpDialog(QWidget *parent = nullptr);
     ~HelpDialog();
 
 private:

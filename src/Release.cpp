@@ -45,7 +45,7 @@ Release::Release()
 }
 
 /** Copy the data from one release to another. The "new" release must
- * be allocated already. If the "from" release is null, fill
+ * be allocated already. If the "from" release is nullptr, fill
  * the "new" release with default data.
  */
 Release::Release (Release &rhs)
@@ -102,7 +102,7 @@ void activate_release (struct release *rls)
                 rls->next->prev = rls;
     }
     current->release_list = rls;
-    rls->prev = NULL;
+    rls->prev = nullptr;
     rls_seg = (struct rls_seg *)0;
 
     for (river_seg = rls->site->seg; river_seg; river_seg = river_seg->down)
@@ -133,7 +133,7 @@ void activate_release (struct release *rls)
                         rls_seg->up = (struct rls_seg *)0;
                         rls->rls_seg = rls_seg;
                 }
-                rls_seg->data = NULL;
+                rls_seg->data = nullptr;
                 rls_seg->down = (struct rls_seg *)0;
                 rls_seg->river_segment = river_seg;
     }
@@ -156,7 +156,7 @@ void delete_release (struct release *rls)
 
         if (rls->next)
                 rls->next->prev = rls->prev;
-        while ((rls_seg = rls->rls_seg) != NULL)
+        while ((rls_seg = rls->rls_seg) != nullptr)
         {
             if (rls_seg->data)
                 {
@@ -213,8 +213,8 @@ void delete_release (struct release *rls)
                                 if (rls_seg->data[i]->d)
                                 {
                                         delayed_mortality_table_free(rls_seg->data[i]->d);
-                                        rls_seg->data[i]->d = NULL;
-                                        rls_seg->data[i]->stats.d = NULL;
+                                        rls_seg->data[i]->d = nullptr;
+                                        rls_seg->data[i]->stats.d = nullptr;
                                 }
                                 free(rls_seg->data[i]);
                     }
@@ -225,12 +225,12 @@ void delete_release (struct release *rls)
             rls->rls_seg = rls_seg->down;
             free(rls_seg);
                 if (rls->rls_seg)
-                        rls->rls_seg->up = NULL;
+                        rls->rls_seg->up = nullptr;
         }
         if (rls->stats.d)
         {
                 delayed_mortality_table_free(rls->stats.d);
-                rls->stats.d = NULL;
+                rls->stats.d = nullptr;
         }
 
     free_release(rls);
@@ -252,7 +252,7 @@ int alloc_seg_data (struct release *release, int games)
     while (rls_seg)
     {
         if (! rls_seg->data)		/* alloc the game pointer list,
-                                           null terminated */
+                                           nullptr terminated */
 /*        {
             if ( ! (rls_seg->data =
                 (struct rls_seg_data **)
@@ -262,16 +262,16 @@ int alloc_seg_data (struct release *release, int games)
                                 release->site->name->toUtf8().data());
                         return(0);
             }
-            /* use -1 as place holder, NULL as terminator */
+            /* use -1 as place holder, nullptr as terminator */
 /*            for (i = 0; i < games; i++)
                         rls_seg->data[i] = (struct rls_seg_data *) -1;
-            rls_seg->data[games] = NULL;
+            rls_seg->data[games] = nullptr;
         }
         else
         {
             /* more game pointers needed? */
 /*            i = 0;
-            while (i < games && rls_seg->data[i] != NULL)
+            while (i < games && rls_seg->data[i] != nullptr)
                 i++;
 
             if (i < games)
@@ -290,7 +290,7 @@ int alloc_seg_data (struct release *release, int games)
                         rls_seg->data = tmp;
                         for ( ; i < games; i++)
                                 rls_seg->data[i] = (struct rls_seg_data *) -1;
-                        rls_seg->data[games] = NULL;
+                        rls_seg->data[games] = nullptr;
             }
         }
 
@@ -309,31 +309,31 @@ int alloc_seg_data (struct release *release, int games)
                         }
                         else
                         {
-                                rls_seg->data[i]->output = NULL;
-                                rls_seg->data[i]->length = NULL;
-                                rls_seg->data[i]->dam_spill = NULL;
-                                rls_seg->data[i]->output_transport = NULL;
-                                rls_seg->data[i]->transport_out = NULL;
-                                rls_seg->data[i]->transport_in = NULL;
-                                rls_seg->data[i]->transport_in_length = NULL;
-                                rls_seg->data[i]->delayed_survival_rate = NULL;
+                                rls_seg->data[i]->output = nullptr;
+                                rls_seg->data[i]->length = nullptr;
+                                rls_seg->data[i]->dam_spill = nullptr;
+                                rls_seg->data[i]->output_transport = nullptr;
+                                rls_seg->data[i]->transport_out = nullptr;
+                                rls_seg->data[i]->transport_in = nullptr;
+                                rls_seg->data[i]->transport_in_length = nullptr;
+                                rls_seg->data[i]->delayed_survival_rate = nullptr;
 #ifdef ROUTE_TRACKING
-                                rls_seg->data[i]->project_in = NULL;
-                                rls_seg->data[i]->turbine_in = NULL;
-                                rls_seg->data[i]->sluiceway_in = NULL;
-                                rls_seg->data[i]->bypass_in = NULL;
-                                rls_seg->data[i]->spillway_in = NULL;
-                                rls_seg->data[i]->rsw_in = NULL;
+                                rls_seg->data[i]->project_in = nullptr;
+                                rls_seg->data[i]->turbine_in = nullptr;
+                                rls_seg->data[i]->sluiceway_in = nullptr;
+                                rls_seg->data[i]->bypass_in = nullptr;
+                                rls_seg->data[i]->spillway_in = nullptr;
+                                rls_seg->data[i]->rsw_in = nullptr;
 
-                                rls_seg->data[i]->sluiceway_pass = NULL;
-                                rls_seg->data[i]->bypass_pass = NULL;
-                                rls_seg->data[i]->turbine_pass = NULL;
-                                rls_seg->data[i]->spillway_pass = NULL;
-                                rls_seg->data[i]->rsw_pass = NULL;
-                                rls_seg->data[i]->transport_pass = NULL;
-                                rls_seg->data[i]->transport_arrived = NULL;
+                                rls_seg->data[i]->sluiceway_pass = nullptr;
+                                rls_seg->data[i]->bypass_pass = nullptr;
+                                rls_seg->data[i]->turbine_pass = nullptr;
+                                rls_seg->data[i]->spillway_pass = nullptr;
+                                rls_seg->data[i]->rsw_pass = nullptr;
+                                rls_seg->data[i]->transport_pass = nullptr;
+                                rls_seg->data[i]->transport_arrived = nullptr;
 #endif
-                                rls_seg->data[i]->d = NULL;
+                                rls_seg->data[i]->d = nullptr;
                         }
             }
         }
@@ -468,7 +468,7 @@ int clear_seg_data (struct release *release, int game)
         if (rls_seg->data[game]->stats.d)
         {
                 delayed_mortality_table_free(rls_seg->data[game]->stats.d);
-                rls_seg->data[game]->stats.d = NULL;
+                rls_seg->data[game]->stats.d = nullptr;
         }
 #endif
         rls_seg = rls_seg->down;
@@ -493,13 +493,13 @@ int clear_seg_data (struct release *release, int game)
 /** Delete a release site and all subsequent sites */
 /*void delete_release_site (struct release_site* rsite)
 {
-        if (rsite->next != NULL)
+        if (rsite->next != nullptr)
                 delete_release_site (rsite->next);
-        rsite->next = NULL;
+        rsite->next = nullptr;
 
         delete_all_points (rsite->latlon);
 //	free (rsite->latlon);
-        rsite->latlon = NULL;
+        rsite->latlon = nullptr;
 
 //	if (rsite->name)
 //		if (strcmp(rsite->name, "McNary Tailrace"))
@@ -507,7 +507,7 @@ int clear_seg_data (struct release *release, int game)
         rsite->name->clear();
         delete rsite->name;
         free (rsite);
-        rsite = NULL;
+        rsite = nullptr;
 }
 /** Delete all release sites (uses global variable release_sites) */
 /*void delete_release_sites ()

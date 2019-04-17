@@ -13,7 +13,7 @@ class IOWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit IOWindow(QWidget *parent = NULL);
+    explicit IOWindow(QWidget *parent = nullptr);
     ~IOWindow();
 
 private:

@@ -42,7 +42,7 @@ T Period<T>::getValue()
 template <class T>
 PeriodSubPeriod<T>::PeriodSubPeriod() :Period<T>()
 {
-    subPeriods.append(NULL);
+    subPeriods.append(nullptr);
     subPeriods.clear();
 }
 

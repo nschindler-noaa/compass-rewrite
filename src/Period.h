@@ -53,7 +53,7 @@ template <class T>
 class PeriodList
 {
 public:
-    PeriodList (int stt = NULL, int stp = NULL, T val = NULL, bool pct = false);
+    PeriodList (int stt = nullptr, int stp = nullptr, T val = nullptr, bool pct = false);
     PeriodList (bool pct);
     PeriodList (const PeriodList<T>&plist);
     ~PeriodList ();
@@ -90,7 +90,7 @@ private:
 class FloatPeriodList
 {
 public:
-    FloatPeriodList (int stt = NULL, int stp = NULL, float val = NULL, bool pct = false);
+    FloatPeriodList (int stt = nullptr, int stp = nullptr, float val = nullptr, bool pct = false);
     FloatPeriodList (bool pct = false);
     ~FloatPeriodList ();
 

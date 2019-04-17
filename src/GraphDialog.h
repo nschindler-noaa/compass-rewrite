@@ -27,7 +27,7 @@ class GraphDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit GraphDialog(QWidget *parent = NULL);
+    explicit GraphDialog(QWidget *parent = nullptr);
     ~GraphDialog();
 
 private:

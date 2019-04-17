@@ -1,0 +1,11 @@
+build*
+logs
+Output
+realtime
+*.pro.user*
+*.bak
+*.autosave*
+*.orig
+summary.dat
+*.csv
+

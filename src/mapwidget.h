@@ -13,7 +13,7 @@ class MapWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit MapWidget(QWidget *parent = NULL);
+    explicit MapWidget(QWidget *parent = nullptr);
     ~MapWidget();
 
 signals:
