@@ -10,16 +10,18 @@
 
 class RiverSystem;
 
-/** Post-Project hypotheses/algorithms */
-enum PostProjectHypothesis
+/** Ocean hypotheses/algorithms
+ *  This accounts for the years that fish spend outside of the river environment
+ */
+enum ReturnHypothesis
 {
     SAR_vs_Date,          /**< SAR vs date */
     Latent_Mortality,     /**< Latent mortality */
     Constant_D,           /**< Constant delayed mortality*/
     S3_vs_WTT,            /**< S3 vs water travel time */
-    NumPostPrjHyp         /**< The number of hypotheses */
+    NumOceanHyp         /**< The number of hypotheses */
 };
-/** The actual input tokens for post-Bonneville hypothesis
+/** The actual input tokens for Ocean hypothesis
  *  selection.
 extern QStringList post_bonneville_hypothesis_names;//[NUM_POST_BONNEVILLE];*/
 /** The display hypothesis names. They may contain spaces and other characters
@@ -35,7 +37,7 @@ enum MortalityClass
                             *  be in range [0..NumMortalityClasses-1] */
 };
 /** Names of mortality classes for use as input tokens */
-extern QStringList mortality_class_names;
+extern QStringList mortalityClassNames;
 
 /** Performing XT calculations
 #define DO_XT        (mortality_class == XTSurvival)*/
@@ -93,15 +95,15 @@ public:
     struct water_travel_time water_travel;
 
     unsigned int flags;		      /**< Run time flags */
-    MortalityClass mortality_class; /**< Which mortalities are calculated -
+    MortalityClass mortalityClass; /**< Which mortalities are calculated -
                                    *  only a few combinations are allowed. */
                                   /** mortality_class:
                                    * - GAS_AND_PREDATION_CLASS = gas & predation
                                    * - XT_CLASS = XT reservoir survival model
                                    * - CUSTOM_CLASS = Custom reservoir survival model */
 
-    PostProjectHypothesis post_proj_hypothesis; /**< Which hypothesis should be used for
-                                     * post-Bonneville calculations \ref PostBonHypothesis */
+    ReturnHypothesis returnHypothesis; /**< Which hypothesis should be used for
+                                     * return calculations \ref PostBonHypothesis */
 
     bool changeFlow;
     bool changeTemp;
