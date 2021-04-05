@@ -10,6 +10,7 @@
 #include "Equation.h"
 #include "Species.h"
 #include "Transport.h"
+#include "damstructures.h"
 
 /** \struct dam_species
  * \brief Species-specific information at a dam */
@@ -89,8 +90,129 @@ public:
     bool parse (CompassFile *infile);
     bool parseToken (QString token, CompassFile *infile);
 
+    void outputDesc (CompassFile *outfile);
+
+    Spillway *getSpillway() const;
+    void setSpillway(Spillway *value);
+
+    Basin *getBasin() const;
+    void setBasin(Basin *value);
+
+    dam_species *getSpecies() const;
+
+    QList<PowerHouse *> getPowerhouses() const;
+    void setPowerhouses(const QList<PowerHouse *> &value);
+    int setPowerhouse (PowerHouse *house, int num = 0);
+    int getNumPowerhouses ();
+
+    Location getPhouseSide() const;
+    void setPhouseSide(const Location &value);
+
+    float getWidthTailrace() const;
+    void setWidthTailrace(float value);
+
+    float getLengthTailrace() const;
+    void setLengthTailrace(float value);
+
+    float getElevBase() const;
+    void setElevBase(float value);
+
+    float getElevForebay() const;
+    void setElevForebay(float value);
+
+    float getElevTailrace() const;
+    void setElevTailrace(float value);
+
+    float getFullHead() const;
+    void setFullHead(float value);
+
+    float getDepthForebay() const;
+    void setDepthForebay(float value);
+
+    float getDepthTailrace() const;
+    void setDepthTailrace(float value);
+
+    float getHeightBypass() const;
+    void setHeightBypass(float value);
+
+    int getCollector() const;
+    void setCollector(int value);
+
+    float getLengthBasin() const;
+    void setLengthBasin(float value);
+
+    float getSpecGrav() const;
+    void setSpecGrav(float value);
+
+    QList<float> getSpill() const;
+    void setSpill(const QList<float> &value);
+
+    QList<float> getSpillPlanned() const;
+    void setSpillPlanned(const QList<float> &value);
+
+    FloatPeriodList *getSpillPlannedDay() const;
+    void setSpillPlannedDay(FloatPeriodList *value);
+
+    FloatPeriodList *getSpillPlannedNight() const;
+    void setSpillPlannedNight(FloatPeriodList *value);
+
+    FloatPeriodList *getSpillLegacyPlanned() const;
+    void setSpillLegacyPlanned(FloatPeriodList *value);
+
+    FloatPeriodList *getSpillLegacyFish() const;
+    void setSpillLegacyFish(FloatPeriodList *value);
+
+    float getSpillMax() const;
+    void setSpillMax(float value);
+
+    QString &getSpillSideText();
+    void setSpillSideText(const QString &text);
+    Location getSpillSide() const;
+    void setSpillSide(const Location &value);
+
+    float getRswSpillMax() const;
+    void setRswSpillMax(float value);
+
+    BoolPeriodList *getRswActive() const;
+    void setRswActive(BoolPeriodList *value);
+
+    float getFlowProjectMin() const;
+    void setFlowProjectMin(float value);
+
+    float getFlowRiverMin() const;
+    void setFlowRiverMin(float value);
+
+    Transport *getTransport() const;
+    void setTransport(Transport *value);
+
+    QList<float> getDepthForebayDay() const;
+    void setDepthForebayDay(const QList<float> &value);
+
+    QList<float> getDepthTailraceDay() const;
+    void setDepthTailraceDay(const QList<float> &value);
+
+    QList<float> getDropRatioDay() const;
+    void setDropRatioDay(const QList<float> &value);
+
+    QList<float> getDropRatioDayTR() const;
+    void setDropRatioDayTR(const QList<float> &value);
+
+    QList<float> getDaylightProportion() const;
+    void setDaylightProportion(const QList<float> &value);
+
+    int getNumFishways();
+    void setNumFishways(int num);
+    Fishway *getFishway(int index) const;
+    void setFishway(int index, Fishway *value);
+
+private:
+    /* Spillway information  */
+    Spillway *spillway;
+
     /* Storage basin info */
     Basin *basin;      /**< Storage basin pointer. If no basin, this is nullptr. */
+
+    QList<Fishway *>fishways;
 
     /** Pointer to the dam-species information struct */
     struct dam_species *species;
@@ -102,7 +224,7 @@ public:
     Location phouseSide;
 
 
-    float width;          /**< Tailrace width (ft) */
+    float widthTailrace; /**< Tailrace width (ft) */
     float lengthTailrace;/**< Tailrace length in ft */
     float elevBase;      /**< Dam floor elevation (ft) */
     float elevForebay;   /**< Forebay elevation (ft) */
@@ -117,20 +239,20 @@ public:
                            * different kind of bypass system which can
                            * produce latent effects) */
 
-    int numGates;           /**< Number of spill gates */
-    float widthGates;     /**< Width of each gate (ft) */
-    float spillPerGate;        /**< Max spill per gate */
-    float widthSpillway; /**< Spilway width */
+//    int numGates;           /**< Number of spill gates */
+//    float widthGates;     /**< Width of each gate (ft) */
+//    float spillPerGate;        /**< Max spill per gate */
+//    float widthSpillway; /**< Spilway width */
     float lengthBasin;   /**< Stilling basin depth */
     float specGrav;            /**< Specific grav of roller */
 
     /* Spill */
-    float spill[DAM_SLICES_IN_SEASON]; /**< Spill fraction given at each
-                                        * time slice */
+    QList<float> spill; /**< Spill fraction given at each
+                                        * time slice [DAM_SLICES_IN_SEASON]*/
 
     /** Planned spill vector is computed from planned_spill days/nights,
-           then serves as input to compute_flow() */
-    float spillPlanned[DAM_SLICES_IN_SEASON];
+           then serves as input to compute_flow() [DAM_SLICES_IN_SEASON]*/
+    QList<float> spillPlanned;
 
     FloatPeriodList *spillPlannedDay; /**< Planned spill during the day */
     FloatPeriodList *spillPlannedNight; /**< Planned spill during the night */
@@ -147,7 +269,8 @@ public:
                            * fish_spill tokens. */
 
     float spillMax;      /**< Maximum unforced spill (kcfs) */
-    Location spillSide;/**< Left bank or right bank */
+    Location spillSide;  /**< Left bank or right bank */
+    QString spillSideText;
 
     /* Removable spill weirs */
     float rswSpillMax;  /**< Maximum flow (partitioned from spill)
@@ -157,10 +280,10 @@ public:
                            * active during a particular day (1 or 0) (Days in season)*/
 
     /* Flow */
-    float flowMax;       /**< For slider top-end */
+//    float flowMax;       /**< For slider top-end */
     float flowProjectMin; /**< User data; used by modulators*/
     float flowRiverMin; /**< Calculated from river desc */
-    QList<float> flow;/**< Flow in KCFS given at each day [DAYS_IN_SEASON]*/
+//    QList<float> flow;/**< Flow in KCFS given at each day [DAYS_IN_SEASON]*/
 
     /* Transport info */
     Transport *transport;/**< Pointer to transport operation information
@@ -179,16 +302,18 @@ public:
 //    float k_entrain;      /* Powerhouse side gas entrainment */
 
     /* actual depths, calculated from adjacent reaches, with drawdown */
-    float depthForebayDay[DAYS_IN_SEASON];/**< Forebay depth at each day */
-    float depthTailraceDay[DAYS_IN_SEASON];/**< Tailrace depth at each day */
+    QList<float> depthForebayDay;/**< Forebay depth at each day [DAYS_IN_SEASON]*/
+    QList<float> depthTailraceDay;/**< Tailrace depth at each day [DAYS_IN_SEASON]*/
 
     /* useful params, calculated during each simulation */
-    float dropRatioDay[DAYS_IN_SEASON];/**< Drop ratio. */
-    float dropRatioDayTR[DAYS_IN_SEASON];/**< Drop ratio for the tailrace.*/
-    float daylightProportion[DAM_SLICES_IN_SEASON];/**< Proportion of
+    QList<float> dropRatioDay;/**< Drop ratio. [DAYS_IN_SEASON]*/
+    QList<float> dropRatioDayTR;/**< Drop ratio for the tailrace.[DAYS_IN_SEASON]*/
+    QList<float> daylightProportion;/**< Proportion of
                            * the day that is light given at each dam time
-                           * slice. */
+                           * slice. [DAM_SLICES_IN_SEASON]*/
 
+public slots:
+    void allocate();
     void calculateFlow ();
     void calculateFlows ();
     void calculateTemp ();

@@ -5,6 +5,7 @@
 PowerHouse::PowerHouse(int num)
 {
     capacity = 0.0;
+    setNumber(num);
     setPriority(num);
     allocate();
 }
@@ -26,14 +27,14 @@ void PowerHouse::allocate()
 
     for (int i = 0; i < DAYS_IN_SEASON; i++)
     {
-        boolPeriod *nwprd = new boolPeriod();
+        BoolPeriod *nwprd = new BoolPeriod();
         schedule.append(*nwprd);
         schedule[i].setStart(0);
         schedule[i].setStop(DAM_SLICES_PER_DAY - 1);
         schedule[i].setValue(false);
     }
     for (int i = 0; i < DAM_SLICES_IN_SEASON; i++)
-        flowFraction[i] = 0.0;
+        flowFraction.append(0.0);
 }
 int PowerHouse::getPriority() const
 {
@@ -85,5 +86,15 @@ void PowerHouse::setFlowFraction (int day, float fraction)
 float PowerHouse::getFlowFraction (int day)
 {
     return flowFraction.at(day);
+}
+
+int PowerHouse::getNumber() const
+{
+    return number;
+}
+
+void PowerHouse::setNumber(int value)
+{
+    number = value;
 }
 

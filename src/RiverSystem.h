@@ -29,9 +29,30 @@ public:
     River (QString name, QObject *parent = nullptr);
     ~River ();
 
-    QString * name;
+    QString &getName();
+    void setName(QString &value);
+
+    float getFlowMax() const;
+    void setFlowMax(float value);
+
+    float getFlowMin() const;
+    void setFlowMin(float value);
+
+    QList<RiverSegment *> getSegments() const;
+    void setSegments(const QList<RiverSegment *> &value);
+    RiverSegment *getSegment(int index) const;
+    void addSegment(RiverSegment *value);
+    int getNumSegments();
+
+    bool parseDesc(CompassFile *descfile);
+    bool outputDesc(CompassFile *descfile);
+    bool output(CompassFile *cfile);
+
+private:
+    QString name;
     float flowMax;
     float flowMin;
+    QList<RiverSegment *> segments;
 };
 
 class RiverSystem : public QObject
@@ -71,7 +92,6 @@ public:
     Release *findRelease (QString name);
     ReleaseSite *findReleaseSite (QString name);
 
-
 signals:
     void constructed (bool okay);
     void flows_computed (bool okay);
@@ -79,8 +99,10 @@ signals:
 
 
 public slots:
-    bool parseDesc (CompassFile *cfile);
+    bool parseDesc (CompassFile *descfile);
     bool parse (CompassFile *cfile);
+    bool outputDesc (CompassFile *descfile);
+    bool output (CompassFile *cfile);
     bool initialize ();
     bool construct ();
     void computeFlows ();

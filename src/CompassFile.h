@@ -4,38 +4,13 @@
 #include <QFile>
 #include <QStringList>
 
-#define CURRENT_DATA_VERSION    9
+#define CURRENT_DATA_VERSION    12
 
 #define MAX_LINE_LENGTH    1024
 
-#define SEPARATOR QString("#============================================================================#")
+#define COMMENT_SEPARATOR "#============================================================================#"
 
-class Data
-{
-public:
-    typedef enum OutputOptions {
-        OutputAll,
-        OutputNonDefault,
-        OutputNonZero
-    }Output;
-
-    typedef enum OutputDataConversionType {
-        None,
-        SumValues,
-        AverageValues,
-        DamDay,
-        DamNight
-    }Conversion;
-
-    typedef enum OutputDataType {
-        Integer,
-        Float,
-        Fixed,
-        Precise,
-        Scientific
-    }Type;
-
-};
+#include "dataConversion.h"
 
 class CompassFile : public QFile
 {
@@ -49,11 +24,11 @@ public:
     bool parse ();
     bool readHeader ();
     bool readInfo ();
-    bool readData ();
+//    bool readData ();
 
     void writeHeader ();
     void writeInfo (QString notes = QString(""));
-    void writeData ();
+//    void writeData ();
 
     QStringList *header;
     int data_version;
@@ -84,20 +59,41 @@ public:
     bool readFloatArray (float *farray); /**< read values to end or next token */
     bool readIntArray (int *iarray);  /**< read values to end or next token */
     bool readString (QString &string); /**< read to end of current line */
+    QStringList * splitString (QString &string); /**< divide string into component words/tokens */
+
+    bool readFloatList (QList<float> &flist, int outSize, Data::DataConversion convert, unsigned mult, QString prompt);
+    bool readIntList (QList<float> &ilist, int outSize, Data::DataConversion convert, unsigned mult, QString prompt);
+//    bool input_float_array (PARSER_FILE *infile, int inSize, float *farray,
+//                            int outSize, aconv conversion,
+//                            unsigned mult, QString prompt);
+//
+//    void assign_fInArray_fOutArray (float *in_array, int in_size,
+//                                    float *out_array, int out_size,
+//                                    int mult, aconv conversion);
 
     void writeNewline ();
     void writeSpace ();
+    void writeSeparator ();
     void writeIndent (int indent);
-    void writeString (int indent, QString keyword, QString option1, QString option2 = QString (""));
+    void writeValue (int indent, QString keyword, float value, float *defaultValue = nullptr);
+    void writeValue (int indent, QString keyword, int value, int *defaultValue = nullptr);
+    void writeNumberedValue(int indent, QString keyword, int index, int value, int *defaultVal = nullptr);
+    void writeNumberedValue(int indent, QString keyword, int index, float value, float *defaultVal = nullptr);
+    void writeString (int indent, QString keyword, QString option1 = QString(""), QString option2 = QString (""));
     void writeStringNR (int indent, QString keyword, QString option1 = QString (""));
-    void writeFloatOrNa (float val, Data::Type dtype = Data::Integer);
+    void writeFloatOrNa (float val, Data::Type dtype = Data::Float);
     void writeFloat (double val, Data::Type dtype);
     void writeInt (int val);
-    void writeFloatArray (int indent, float arry[], int size, Data::Conversion ctype,
+    void writeFloatArray (int indent, float arry[], int size, Data::OutputConversion ctype,
                           Data::Type dtype, float *defaultval);
-    void writeIntArray (int indent, int arry[], int size, Data::Conversion ctype, int *defaultval);
-    int convertInt (int val, Data::Conversion ctype);
-    float convertFloat (float val, Data::Conversion ctype);
+    void writeIntArray (int indent, int arry[], int size, Data::OutputConversion ctype,
+                        int *defaultval);
+    int convertInt (int val, Data::OutputConversion ctype);
+    float convertFloat (float val, Data::OutputConversion ctype);
+//    int output_float_array (QFile *outfile, const QString prefix, const QString name,
+//                                     int size, float *array,
+//                                     oconv conversion, unsigned mult,
+//                                     enum FloatType output_type, float *default_value);
 
 signals:
     void eof (bool); /**< signals end of file reached */

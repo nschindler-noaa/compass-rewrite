@@ -29,5 +29,13 @@
 #define JUVENILE
 #undef ADULT
 
+#define DEBUG true
+#define DEBUG_INPUT true
+
+#define PRECISION .000001
+
+bool floatIsEqual (float val1, float val2);
+bool floatIsNotEqual (float val1, float val2);
+bool doubleIsEqual (double val1, double val2);
 
 #endif // C_DEFINITIONS_H

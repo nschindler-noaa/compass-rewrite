@@ -27,7 +27,11 @@ public:
     void setFlowFraction (int day, float fraction);
     float getFlowFraction (int day);
 
+    int getNumber() const;
+    void setNumber(int value);
+
 private:
+    int number;
     int priority;    /**< Ranking of each phouse. The best priority is
                       *   0 followed by increasing positive numbers. */
     float threshold; /**< Min flow controls when this powerhouse turns on */

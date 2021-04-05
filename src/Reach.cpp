@@ -18,28 +18,28 @@ void Reach::clear ()
     rclass = 0;
     length = 0.0;
     volume = 0.0;
-    surface_area = 0.0;
+    surfaceArea = 0.0;
     depth = 0.0;
-    upper_depth = 0.0;
-    lower_depth = 0.0;
-    lower_elev = 0.0;
+    depthUpper = 0.0;
+    depthLower = 0.0;
+    elevLower = 0.0;
     slope = 0.0;
 
-    loss_max = 0.0;
-    loss_min = 0.0;
+    lossMax = 0.0;
+    lossMin = 0.0;
 
-    water_particle_tt = 0.0;
+    waterParticleTT = 0.0;
 
     for (int i = 0; i < DAYS_IN_SEASON; i++)
     {
-        elev_change[i] = 0.0;
+        elevChange[i] = 0.0;
         loss[i] = 0.0;
     }
     for (int i = 0; i < STEPS_IN_SEASON; i++)
     {
-        cur_volume[i] = 0.0;
+        volumeCurr[i] = 0.0;
         velocity[i] = 0.0;
-        delta_temp[i] = 0.0;
+        tempDelta[i] = 0.0;
     }
 }
 
@@ -57,7 +57,7 @@ void Reach::calculateFlows()
     float newloss = 0.0;
     float newflow = 0.0;
     double slopetan = tan (slope);
-    float lwr_depth_max = lower_depth * .95; // 5% less than bottom
+    float lwr_depth_max = depthLower * .95; // 5% less than bottom
     float avg_flow = 0.0;
     static float secs_per_step = 3600.0 * 24.0/STEPS_PER_DAY;
 
@@ -93,7 +93,7 @@ void Reach::calculateFlows()
     /* calculate volume of the full reach */
     if (volume <= 0)
     {
-        volume = computeVolume (0.0, upper_depth, lower_depth, widthAve, slopetan);
+        volume = computeVolume (0.0, depthUpper, depthLower, widthAve, slopetan);
     }
     if (volume < 0)
     {
@@ -109,9 +109,9 @@ void Reach::calculateFlows()
 
         /* Adjust elevation if out of range; use a minimum depth of 5%
            in forebay, as represeneted by lower depth. */
-        if (elev_change[i] > -(lwr_depth_max))
+        if (elevChange[i] > -(lwr_depth_max))
         {
-            elev_change[i] = -(lwr_depth_max);
+            elevChange[i] = -(lwr_depth_max);
             msg = QString (QString("elevation drop below depth in reach %1\n    adjusting ...\n")
                            .arg(*name));
         }
@@ -119,25 +119,25 @@ void Reach::calculateFlows()
         if (avg_flow < 0.0)
             avg_flow = 0.0;  // cannot be less than 0 (duh!)
 
-        tempVol = computeVolume (elev_change[i], upper_depth, lower_depth, widthAve, slopetan);
-        tempVel = computeVelocity (elev_change[i], upper_depth, lower_depth, avg_flow);
+        tempVol = computeVolume (elevChange[i], depthUpper, depthLower, widthAve, slopetan);
+        tempVel = computeVelocity (elevChange[i], depthUpper, depthLower, avg_flow);
 
         for (int j = 0; j < STEPS_PER_DAY; j++)
         {
             int index = i * STEPS_PER_DAY + j;
-            cur_volume [index] = tempVol;
+            volumeCurr [index] = tempVol;
             velocity [index] = tempVel * 0.19 * secs_per_step;
         }
     }
 
     /* Average water particle travel time */
-    water_particle_tt = computeWTT (1, 365);//water_travel.first_day, water_travel.last_day);
+    waterParticleTT = computeWTT (1, 365);//water_travel.first_day, water_travel.last_day);
 
     /* Print stats for day 1 */
     msg = QString (QString("reach %1 length (mi) %2, \n\tday 1: vel(mi/hr) %3, vel_conv(mi/day) %4, \n\tvol(acre-ft) %5, temp %6\n"))
           .arg(*name, QString::number(length, 'g', 2),
                QString::number(velocity[1], 'g', 2), QString::number(velocity[1]*24.0, 'g', 2),
-               QString::number(cur_volume[1], 'g', 2), QString::number(temp[1], 'g', 2));
+               QString::number(volumeCurr[1], 'g', 2), QString::number(temp[1], 'g', 2));
     Log::outlog->add(Log::Debug, msg);
 }
 
@@ -234,11 +234,111 @@ void Reach::calculateStats()
 
 }
 
+int Reach::getRclass() const
+{
+    return rclass;
+}
+
+void Reach::setRclass(int value)
+{
+    rclass = value;
+}
+
+float Reach::getLength() const
+{
+    return length;
+}
+
+void Reach::setLength(float value)
+{
+    length = value;
+}
+
+float Reach::getVolume() const
+{
+    return volume;
+}
+
+void Reach::setVolume(float value)
+{
+    volume = value;
+}
+
+float Reach::getsurfaceArea() const
+{
+    return surfaceArea;
+}
+
+void Reach::setsurfaceArea(float value)
+{
+    surfaceArea = value;
+}
+
+float Reach::getDepth() const
+{
+    return depth;
+}
+
+void Reach::setDepth(float value)
+{
+    depth = value;
+}
+
+float Reach::getDepthUpper() const
+{
+    return depthUpper;
+}
+
+void Reach::setDepthUpper(float value)
+{
+    depthUpper = value;
+}
+
+float Reach::getDepthLower() const
+{
+    return depthLower;
+}
+
+void Reach::setDepthLower(float value)
+{
+    depthLower = value;
+}
+
+float Reach::getSlope() const
+{
+    return slope;
+}
+
+void Reach::setSlope(float value)
+{
+    slope = value;
+}
+
+float Reach::getLossMax() const
+{
+    return lossMax;
+}
+
+void Reach::setLossMax(float value)
+{
+    lossMax = value;
+}
+
+float Reach::getLossMin() const
+{
+    return lossMin;
+}
+
+void Reach::setLossMin(float value)
+{
+    lossMin = value;
+}
+
 bool Reach::parse (CompassFile *cfile)
 {
     bool okay = true, end = false;
     QString token ("");
-
+    
     while (okay && !end)
     {
         token = cfile->popToken ();
@@ -268,15 +368,15 @@ bool Reach::parseToken (QString token, CompassFile *cfile)
 
     if (token.compare ("elevation_change", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatArray (elev_change);
+        okay = cfile->readFloatArray (elevChange);
     }
     else if (token.compare("loss_max", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatOrNa(na, loss_max);
+        okay = cfile->readFloatOrNa(na, lossMax);
     }
     else if (token.compare("loss_min", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatOrNa(na, loss_min);
+        okay = cfile->readFloatOrNa(na, lossMin);
     }
     else if (token.compare ("loss", Qt::CaseInsensitive) == 0)
     {

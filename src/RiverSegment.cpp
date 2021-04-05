@@ -38,10 +38,9 @@ void RiverSegment::setup ()
     output_settings = 0;
     flowMax = 0.0;
     flowMin = 0.0;
-    for (int i = 0; i < DAYS_IN_SEASON; i++)
-        flow[i] = 0.0;
-    for (int i = 0; i < STEPS_IN_SEASON; i++)
-        temp[i] = 0.0;
+    temp.append(0);
+    flow.append(0);
+    allocate();
     readTemps = false;
     up = nullptr;
     down = nullptr;
@@ -95,12 +94,12 @@ bool RiverSegment::parseToken(QString token, CompassFile *cfile)
     }
     else if (token.compare("flow", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatArray(flow);
+//        okay = cfile->readFloatList(flow);
     }
     else if (token.compare ("water_temp", Qt::CaseInsensitive) == 0)
     {
         readTemps = true;
-        okay = cfile->readFloatArray (temp);
+//        okay = cfile->readFloatList (temp);
     }
     else if (token.compare ("output_settings", Qt::CaseInsensitive) == 0)
     {
@@ -113,6 +112,12 @@ bool RiverSegment::parseToken(QString token, CompassFile *cfile)
     else if (token.compare ("output_gas", Qt::CaseInsensitive) == 0)
     {
         handle_obsolete_token(token);
+    }
+    else if (token.compare("latlon", Qt::CaseInsensitive) == 0)
+    {
+        RiverPoint *pt = new RiverPoint();
+        parse_latlon(cfile, pt);
+        addCoursePoint(pt);
     }
 
     else
@@ -194,6 +199,16 @@ QList<Tributary *> RiverSegment::getTributaries() const
 QList<RiverPoint *> RiverSegment::getCourse() const
 {
     return course;
+}
+
+bool RiverSegment::addCoursePoint(RiverPoint *pt)
+{
+    bool okay = true;
+    int num = course.count();
+    course.append(pt);
+    if (course.count() == num)
+        okay = false;
+    return okay;
 }
 
 bool RiverSegment::getRegPoint() const
@@ -373,6 +388,23 @@ void RiverSegment::calculateFlowInputs()
                          .arg (*(name)));
             Log::outlog->add(Log::Fatal, msg);
         }
+    }
+}
+
+void RiverSegment::allocate()
+{
+    while (flow.count() < DAYS_IN_SEASON)
+        flow.append(0);
+    while (flow.count() > DAYS_IN_SEASON)
+        flow.takeLast();
+    while (temp.count() < DAYS_IN_SEASON)
+        temp.append(0);
+    while (temp.count() > DAYS_IN_SEASON)
+        temp.takeLast();
+    for (int i = 0; i < DAYS_IN_SEASON; i++)
+    {
+        flow[i] = 0;
+        temp[i] = 0;
     }
 }
 

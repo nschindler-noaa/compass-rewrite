@@ -1,4 +1,4 @@
-QT       += widgets core charts
+QT       += widgets gui core charts
 
 TARGET = compass
 CONFIG   += console staticlib create_prl link_prl
@@ -50,7 +50,8 @@ HEADERS += \
     mainwindow.h \
     mapwidget.h \
     commondialog.h \
-    releasedialog.h
+    releasedialog.h \
+    damstructures.h
 
 SOURCES += \
     main.cpp \
@@ -92,7 +93,10 @@ SOURCES += \
     mainwindow.cpp \
     mapwidget.cpp \
     commondialog.cpp \
-    releasedialog.cpp
+    releasedialog.cpp \
+    damstructures.cpp \
+    dataconversion.cpp \
+    definitions.cpp
 
 FORMS += \
     CompassGui.ui \

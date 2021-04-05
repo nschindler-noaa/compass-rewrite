@@ -34,6 +34,27 @@ private:
     int stop;
     T value;
 };
+
+class BoolPeriod
+{
+public:
+    BoolPeriod();
+    BoolPeriod(const BoolPeriod&period);
+    ~BoolPeriod();
+
+    void setStart (int index);
+    int getStart () const;
+    void setStop (int index);
+    int getStop () const;
+
+    void setValue (bool val);
+    bool getValue () const;
+
+private:
+    int start;
+    int stop;
+    bool value;
+};
 /*
 template <class T>
 class PeriodSubPeriod : public Period<T>
@@ -113,7 +134,7 @@ typedef Period<bool>  boolPeriod;
 typedef Period<float> floatPeriod;
 
 typedef QList<intPeriod>   IntPeriodList;
-typedef QList<boolPeriod>  BoolPeriodList;
+typedef QList<BoolPeriod>  BoolPeriodList;
 typedef QList<floatPeriod> FloatPeriodList;
 
 

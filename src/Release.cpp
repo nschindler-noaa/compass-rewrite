@@ -12,7 +12,7 @@
 
 #include "Log.h"
 //#include "batch.h"
-#include "realtime.h"
+#include "Realtime.h"
 //#include "release.h"
 //#include "point.h"
 //#include "strtools.h"
@@ -531,4 +531,140 @@ ReleaseSite::~ReleaseSite ()
     if (name != nullptr)
         delete name;
     delete latlon;
+}
+
+QString *ReleaseSite::getName() const
+{
+    return name;
+}
+
+void ReleaseSite::setName(QString *value)
+{
+    name = value;
+}
+
+RiverPoint *ReleaseSite::getLatlon() const
+{
+    return latlon;
+}
+
+void ReleaseSite::setLatlon(RiverPoint *value)
+{
+    latlon = value;
+}
+
+void ReleaseSite::setSeg(Reach *value)
+{
+    seg = value;
+}
+
+Reach *ReleaseSite::getSeg() const
+{
+    return seg;
+}
+
+float ReleaseSite::getSeg_mile() const
+{
+    return seg_mile;
+}
+
+void ReleaseSite::setSeg_mile(float value)
+{
+    seg_mile = value;
+}
+
+
+PassageStats::PassageStats ()
+{
+    firstDay = 0;
+    lastDay = 1;
+    totFishIn = 0;
+    totFishOut = 0;
+    mean = 0;
+    median = 0;
+    mode = 0;
+    std_dev = 0;
+}
+PassageStats::~PassageStats ()
+{}
+
+
+int PassageStats::getFirstDay() const
+{
+    return firstDay;
+}
+
+void PassageStats::setFirstDay(int value)
+{
+    firstDay = value;
+}
+
+int PassageStats::getLastDay() const
+{
+    return lastDay;
+}
+
+void PassageStats::setLastDay(int value)
+{
+    lastDay = value;
+}
+
+float PassageStats::getTotFishIn() const
+{
+    return totFishIn;
+}
+
+void PassageStats::setTotFishIn(float value)
+{
+    totFishIn = value;
+}
+
+float PassageStats::getTotFishOut() const
+{
+    return totFishOut;
+}
+
+void PassageStats::setTotFishOut(float value)
+{
+    totFishOut = value;
+}
+
+float PassageStats::getMean() const
+{
+    return mean;
+}
+
+void PassageStats::setMean(float value)
+{
+    mean = value;
+}
+
+float PassageStats::getMedian() const
+{
+    return median;
+}
+
+void PassageStats::setMedian(float value)
+{
+    median = value;
+}
+
+float PassageStats::getMode() const
+{
+    return mode;
+}
+
+void PassageStats::setMode(float value)
+{
+    mode = value;
+}
+
+float PassageStats::getStd_dev() const
+{
+    return std_dev;
+}
+
+void PassageStats::setStd_dev(float value)
+{
+    std_dev = value;
 }

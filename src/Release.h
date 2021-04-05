@@ -28,6 +28,20 @@ class ReleaseSite
 public:
     ReleaseSite (QString rsname = QString (""));
     ~ReleaseSite ();
+
+    QString *getName() const;
+    void setName(QString *value);
+
+    RiverPoint *getLatlon() const;
+    void setLatlon(RiverPoint *value);
+
+    void setSeg(Reach *value);
+    Reach *getSeg() const;
+
+    float getSeg_mile() const;
+    void setSeg_mile(float value);
+
+private:
     QString *name;            /**< Name of this site */
     RiverPoint *latlon;       /**< Geographic location */
     Reach *seg;               /**< Pointer to the segment */
@@ -42,14 +56,39 @@ public:
     PassageStats ();
     ~PassageStats ();
 
-        int  first;           /**< First day of passage */
-        int  last;            /**< Last day of passage */
-        float in;             /**< Total fish into segment */
-        float out;            /**< Total fish passage out (premort) */
-        float mean;           /**< Mean passage */
-        float median;         /**< Median passage */
-        float mode;           /**< Mode passage */
-        float std_dev;        /**< Standard deviation of passage */
+    int getFirstDay() const;
+    void setFirstDay(int value);
+
+    int getLastDay() const;
+    void setLastDay(int value);
+
+    float getTotFishIn() const;
+    void setTotFishIn(float value);
+
+    float getTotFishOut() const;
+    void setTotFishOut(float value);
+
+    float getMean() const;
+    void setMean(float value);
+
+    float getMedian() const;
+    void setMedian(float value);
+
+    float getMode() const;
+    void setMode(float value);
+
+    float getStd_dev() const;
+    void setStd_dev(float value);
+
+private:
+    int  firstDay;           /**< First day of passage */
+    int  lastDay;            /**< Last day of passage */
+    float totFishIn;             /**< Total fish into segment */
+    float totFishOut;            /**< Total fish passage out (premort) */
+    float mean;           /**< Mean passage */
+    float median;         /**< Median passage */
+    float mode;           /**< Mode passage */
+    float std_dev;        /**< Standard deviation of passage */
 };
 
 class ReleaseStats

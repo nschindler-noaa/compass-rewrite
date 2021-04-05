@@ -48,7 +48,7 @@ bool CompassFile::parse ()
 
     if (okay) okay = readHeader ();
     if (okay) okay = readInfo ();
-    if (okay) okay = readData ();
+//    if (okay) okay = readData ();
 
     close ();
     return okay;
@@ -57,7 +57,7 @@ bool CompassFile::parse ()
 bool CompassFile::readHeader ()
 {
     bool okay = true, end = false;
-    QString token ("");
+    QString token (""), val("");
 
     while (okay && !end)
     {
@@ -73,6 +73,10 @@ bool CompassFile::readHeader ()
         }
         else if (token.startsWith ("#"))
         {
+            val = popToken();
+            if (!isFloat(val))
+                val.prepend("   ");
+            pushToken (val);
             pushToken (token);
             okay = readString (token);
             header->append (token);
@@ -160,30 +164,30 @@ bool CompassFile::readInfo ()
     return okay;
 }
 
-bool CompassFile::readData ()
-{
-    bool okay = true;
-    return okay;
-}
+//bool CompassFile::readData ()
+//{
+//    bool okay = true;
+//    return okay;
+//}
 
-void CompassFile::writeData ()
-{
-    if (open (QIODevice::WriteOnly))
-    {
-        writeHeader ();
-        writeInfo ();
-        if (fileName ().endsWith ("rls", Qt::CaseInsensitive))
-        {
+//void CompassFile::writeData ()
+//{
+//    if (open (QIODevice::WriteOnly))
+//    {
+//        writeHeader ();
+//        writeInfo ();
+//        if (fileName ().endsWith ("rls", Qt::CaseInsensitive))
+//        {
 //            writeReleaseData (this);
-        }
-
-    }
-    else
-    {
-        Log::outlog->add (Log::Error, QString("Could not write to file: %1!")
-                               .arg (fileName ()));
-    }
-}
+//        }
+//
+//    }
+//    else
+//    {
+//        Log::outlog->add (Log::Error, QString("Could not write to file: %1!")
+//                               .arg (fileName ()));
+//    }
+//}
 
 void CompassFile::writeHeader ()
 {
@@ -221,14 +225,18 @@ bool CompassFile::readString (QString &string)
     string.clear ();
     if (tokens->count () > 0)
     {
-        string.append (tokens->takeFirst ());
+        QString token (tokens->takeFirst());
+        token.remove('\t'); token.remove(' ');
+        string.append (token);
         while (tokens->count() > 0)
         {
-            QString token (tokens->takeFirst());
-            token.remove('\t');
-            token.remove(' ');
-            string.append (' ');
-            string.append (token);
+            token = QString(tokens->takeFirst());
+
+            if (token.count() > 0)
+            {
+                string.append (' ');
+                string.append (token);
+            }
         }
     }
     else
@@ -236,6 +244,13 @@ bool CompassFile::readString (QString &string)
         okay = false;
     }
     return okay;
+}
+
+QStringList *CompassFile::splitString(QString &string)
+{
+    QString newstring(string.replace('\t',' '));
+    QStringList *tokens =new QStringList (newstring.split(' ', QString::SkipEmptyParts));
+    return tokens;
 }
 
 QString CompassFile::getToken ()
@@ -259,10 +274,10 @@ QString CompassFile::getToken ()
             line++;
         }
         delete tokens;
-        tokens = new QStringList (rline.split ('\t', QString::SkipEmptyParts));
-        readString (rline);
-        delete tokens;
-        tokens = new QStringList (rline.split(' ', QString::SkipEmptyParts));
+        tokens = splitString(rline); //new QStringList (rline.split ('\t', QString::SkipEmptyParts));
+//        readString (rline);
+//        delete tokens;
+//        tokens = new QStringList (rline.split(' ', QString::SkipEmptyParts));
     }
 
     return tokens->takeFirst ();
@@ -291,9 +306,8 @@ QString CompassFile::popToken ()
         if (rx.isEmpty())
             token = getToken ();
     }*/
-#ifdef DEBUG
-    Log::outlog->add (Log::Debug, QString ("size of token %1 is %2").arg
-                           (token, QString::number (token.size ())));
+#ifdef DEBUG_INPUT
+    qDebug("size of token %s is %u", token.toUtf8().data(), token.size());
 #endif
     return token;
 }
@@ -366,6 +380,11 @@ bool CompassFile::checkEnd (QString type, QString name)
                 printMessage (msg);
             }
         }
+    }
+    else if (token.contains(name.split(' ').at(0)))
+    {
+        QString msg (QString("{end} statement does not include type '%1'").arg (type));
+        printMessage (msg);
     }
     else
     {
@@ -454,14 +473,53 @@ bool CompassFile::readUnsigned (unsigned &val)
 bool CompassFile::readFloatArray (float *farray)
 {
     bool okay = true;
-
-
+    QString NA("");
+    okay = readFloatOrNa(NA, farray[0]);
     return okay;
 }
 
 bool CompassFile::readIntArray (int *iarray)
 {
     bool okay = true;
+    okay = readInt(iarray[0]);
+    return okay;
+}
+
+bool CompassFile::readIntList(QList<float> &ilist, int outSize, Data::DataConversion convert, unsigned mult, QString prompt)
+{
+    bool okay = true;
+//    QString NA("");
+    int value = 0;
+
+    for (int i = 0; i < ilist.count(); i++)
+    {
+        if (!okay)
+        {
+            qWarning("error reading int array");
+            break;
+        }
+        okay = readInt(value);
+        ilist[i] = value;
+    }
+    return okay;
+}
+
+bool CompassFile::readFloatList(QList<float> &flist, int inSize, Data::DataConversion convert, unsigned mult, QString prompt)
+{
+    bool okay = true;
+    QString NA ("");
+    int outSize = flist.count();
+
+    for (int i = 0; i < flist.count(); i++)
+    {
+        if (!okay)
+        {
+            printError(QString("error reading float array."));
+            break;
+        }
+        NA.clear();
+        okay = readFloatOrNa(NA, flist[i]);
+    }
 
     return okay;
 }
@@ -476,22 +534,69 @@ void CompassFile::writeSpace ()
     write (" ", 1);
 }
 
+void CompassFile::writeSeparator()
+{
+    write(COMMENT_SEPARATOR, 78);
+}
+
 void CompassFile::writeIndent (int indent)
 {
     for (int i = 0; i < indent; i++)
         write ("\t", 1);
 }
 
+void CompassFile::writeValue(int indent, QString keyword, float value, float *defaultValue)
+{
+    if (defaultValue == nullptr || floatIsNotEqual(value, *defaultValue))
+    {
+        QString valueString(QString::number(value));
+        writeString(indent, keyword, valueString);
+    }
+}
+
+void CompassFile::writeValue(int indent, QString keyword, int value, int *defaultValue)
+{
+    if (defaultValue == nullptr || value != *defaultValue)
+    {
+        QString valueString(QString::number(value));
+        writeString(indent, keyword, valueString);
+    }
+}
+
+void CompassFile::writeNumberedValue(int indent, QString keyword, int index, int value, int *defaultVal)
+{
+    if (defaultVal == nullptr || value != *defaultVal)
+    {
+        QString num(QString::number(index));
+        QString val(QString::number(value));
+        writeString(indent, keyword, num, val);
+    }
+}
+
+void CompassFile::writeNumberedValue(int indent, QString keyword, int index, float value, float *defaultVal)
+{
+    if (defaultVal == nullptr || floatIsNotEqual(value, *defaultVal))
+    {
+        QString num(QString::number(index));
+        QString val(QString::number(value));
+        writeString(indent, keyword, num, val);
+    }
+}
+
 void CompassFile::writeString (int indent, QString keyword, QString option1, QString option2)
 {
     writeIndent(indent);
     write (keyword.toUtf8());
-    writeSpace();
-    write (option1.toUtf8());
-    if (!option2.isEmpty())
+    if (!option1.isEmpty())
     {
         writeSpace();
-        write (option2.toUtf8());
+        write (option1.toUtf8());
+
+        if (!option2.isEmpty())
+        {
+            writeSpace();
+            write (option2.toUtf8());
+        }
     }
     writeNewline();
 }
@@ -524,7 +629,7 @@ void CompassFile::writeFloat (double val, Data::Type dtype)
         break;
 
     case Data::Integer:
-        write (QString::number((int)val).toUtf8());
+        writeInt(static_cast<int>(val+.5));
         break;
 
     case Data::Fixed:
@@ -532,15 +637,12 @@ void CompassFile::writeFloat (double val, Data::Type dtype)
         break;
 
     case Data::Precise:
-        write (QString::number(val, 'g', 6).toUtf8());
+        write (QString::number(val, 'g', 12).toUtf8());
         break;
 
     case Data::Scientific:
         write (QString::number(val, 'g', 6).toUtf8());
         break;
-
-    default:
-        Log::outlog->add(Log::Error, "no such data type");
     }
 }
 
@@ -549,7 +651,7 @@ void CompassFile::writeInt (int val)
     write (QString::number(val).toUtf8());
 }
 
-int CompassFile::convertInt(int val, Data::Conversion ctype)
+int CompassFile::convertInt(int val, Data::OutputConversion ctype)
 {
     int retval = 0;
 
@@ -562,19 +664,16 @@ int CompassFile::convertInt(int val, Data::Conversion ctype)
         break;
     case Data::AverageValues:
         break;
-    case Data::DamDay:
+    case Data::DamDayValues:
         break;
-    case Data::DamNight:
+    case Data::DamNightValues:
         break;
-
-    default:
-        Log::outlog->add(Log::Error, "no such data conversion type");
-    }
+   }
 
     return retval;
 }
 
-float CompassFile::convertFloat(float val, Data::Conversion ctype)
+float CompassFile::convertFloat(float val, Data::OutputConversion ctype)
 {
     float retval = 0.0;
 
@@ -587,19 +686,16 @@ float CompassFile::convertFloat(float val, Data::Conversion ctype)
         break;
     case Data::AverageValues:
         break;
-    case Data::DamDay:
+    case Data::DamDayValues:
         break;
-    case Data::DamNight:
+    case Data::DamNightValues:
         break;
-
-    default:
-        Log::outlog->add(Log::Error, "no such data conversion type");
     }
 
     return retval;
 }
 
-void CompassFile::writeFloatArray (int indent, float arry[], int size, Data::Conversion ctype,
+void CompassFile::writeFloatArray (int indent, float arry[], int size, Data::OutputConversion ctype,
                       Data::Type dtype, float *defaultval)
 {
     int num_on_line = 0;
@@ -662,12 +758,14 @@ void CompassFile::writeFloatArray (int indent, float arry[], int size, Data::Con
     }
     else
     {
+//        qWarning("Integer array is nullptr.");
         Log::outlog->add(Log::Error, QString("Integer array is nullptr."));
         writeFloat (0.0, dtype);
     }
 }
 
-void CompassFile::writeIntArray (int indent, int arry[], int size, Data::Conversion ctype, int *defaultval)
+void CompassFile::writeIntArray (int indent, int arry[], int size, Data::OutputConversion ctype,
+                                 int *defaultval)
 {
     int num_on_line = 0;
 
@@ -729,7 +827,8 @@ void CompassFile::writeIntArray (int indent, int arry[], int size, Data::Convers
     }
     else
     {
-        Log::outlog->add(Log::Error, QString("Float array is nullptr."));
+        qWarning("Float array is nullptr.");
+//        Log::outlog->add(Log::Error, QString("Float array is nullptr."));
         writeInt (0);
     }
 }
@@ -737,9 +836,13 @@ void CompassFile::writeIntArray (int indent, int arry[], int size, Data::Convers
 void CompassFile::printEOF (QString data)
 {
     if (data.isEmpty ())
+    {
         printMessage ("Found EOF.");
+    }
     else
+    {
         printError (QString ("Found EOF instead of %1."). arg (data));
+    }
 }
 
 void CompassFile::printMessage (QString msg)

@@ -49,7 +49,7 @@ public:
     bool getRunning() const;
     void setRunning(bool value);
 
-    bool getBatch() const;
+    bool getRunConsole() const;
     void setBatch(bool value);
 
     RunMode getRunmode() const;
@@ -139,7 +139,7 @@ private:
     /** A run is in progress, can be canceled with breakComputation */
     bool running;
     /** Batch mode is active, false if gui mode is active. */
-    bool batch;
+    bool runConsole;
     /** What kind of calculations to perform. Scenario, MonteCarlo, etc.
      *  see \ref runMode for valid options*/
     RunMode runmode;

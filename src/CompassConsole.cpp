@@ -34,7 +34,7 @@ CompassConsole::~CompassConsole()
 
 void CompassConsole::run ()
 {
-    bool okay = compassSettings->getBatch();//
+    bool okay = compassSettings->getRunConsole();//
 
     if (okay)
     {
@@ -43,9 +43,16 @@ void CompassConsole::run ()
 
         // read in river description file
         okay = fManager->readRiverDescFile (&scenario, compassSettings);
-        // put all the segments together - create headwaters if needed, etc.
-        okay = scenario.constructRiver (compassSettings);
 
+#ifdef DEBUG
+        if (okay) {
+            QString fn(QString("%1River.check").arg(scenario.river->rivers->at(0)->getName()));
+            okay = fManager->writeRiverDescFile (scenario.river, compassSettings, fn); //QString("columbiaRiver.check"));
+        }
+#endif
+        // put all the segments together - create headwaters if needed, etc.
+        if (okay)
+            okay = scenario.constructRiver (compassSettings);
         // read in scenario information file(s)
         if (okay)
         {
@@ -68,8 +75,10 @@ void CompassConsole::run ()
 
     }
     if (!okay)
+    {
         out->add(Log::Error, "Error in running COMPASS console application.");
-
+        qWarning("Error in running COMPASS console application.");
+    }
 //    delete compassSettings;
 
     emit done(okay);

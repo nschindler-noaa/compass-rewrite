@@ -29,30 +29,6 @@ public:
     /** Species-specific parameters for reaches */
     struct reach_species *species;
 #endif
-    int rclass;           /**< Reach class number which should be on
-                            * the interval [0..num_reach_classes-1] */
-    float length;         /**< Length of segment in miles */
-    float volume;         /**< Volume at maximum reservoir level in feet^3*/
-    float surface_area;   /**< Average area in feet^2 */
-    float depth;          /**< Average maximum depth in feet */
-    float upper_depth;    /**< Maximum depth at upper end of reach in feet */
-    float lower_depth;    /**< Maximum depth at lower end of reach in feet */
-    float lower_elev;     /**< Height above sea level, or bottom of
-                            *  river at the lower end of reach in feet. */
-    float slope;          /**< Angle of sides, from vertical; deg */
-    float elev_change[DAYS_IN_SEASON]; /**< Delta (difference) from maximum */
-
-    float cur_volume[STEPS_IN_SEASON]; /**< Current water volume */
-    float velocity[STEPS_IN_SEASON]; /**< Current water velocity */
-
-    float loss_max;       /**< Maximum loss at this reach */
-    float loss_min;       /**< Minimum loss at this reach */
-    float loss[DAYS_IN_SEASON]; /**< Loss given at each day */
-
-    float delta_temp[STEPS_IN_SEASON]; /**< Modifies water_temp, if needed */
-
-    float water_particle_tt; /**< particle travel time; computed */
-
     void clear ();
     void calculateFlow ();
     void calculateFlows ();
@@ -64,7 +40,61 @@ public:
     void calculateFish();
     void calculateStats();
 
+    int getRclass() const;
+    void setRclass(int value);
+
+    float getLength() const;
+    void setLength(float value);
+
+    float getVolume() const;
+    void setVolume(float value);
+
+    float getsurfaceArea() const;
+    void setsurfaceArea(float value);
+
+    float getDepth() const;
+    void setDepth(float value);
+
+    float getDepthUpper() const;
+    void setDepthUpper(float value);
+
+    float getDepthLower() const;
+    void setDepthLower(float value);
+
+    float getSlope() const;
+    void setSlope(float value);
+
+    float getLossMax() const;
+    void setLossMax(float value);
+
+    float getLossMin() const;
+    void setLossMin(float value);
+
 private:
+    int rclass;           /**< Reach class number which should be on
+                            * the interval [0..num_reach_classes-1] */
+    float length;         /**< Length of segment in miles */
+    float volume;         /**< Volume at maximum reservoir level in feet^3*/
+    float surfaceArea;   /**< Average area in feet^2 */
+    float depth;          /**< Average maximum depth in feet */
+    float depthUpper;    /**< Maximum depth at upper end of reach in feet */
+    float depthLower;    /**< Maximum depth at lower end of reach in feet */
+//    float elevLower;     /**< Height above sea level, or bottom of
+//                            *  river at the lower end of reach in feet. */
+    float slope;          /**< Angle of sides, from vertical; deg */
+    float elevChange[DAYS_IN_SEASON]; /**< Delta (difference) from maximum */
+
+    float volumeCurr[STEPS_IN_SEASON]; /**< Current water volume */
+    float velocity[STEPS_IN_SEASON]; /**< Current water velocity */
+
+    float lossMax;       /**< Maximum loss at this reach */
+    float lossMin;       /**< Minimum loss at this reach */
+    float loss[DAYS_IN_SEASON]; /**< Loss given at each day */
+
+    float tempDelta[STEPS_IN_SEASON]; /**< Modifies water_temp, if needed */
+
+    float waterParticleTT; /**< particle travel time; computed */
+
 };
 
 #endif // C_REACH_H

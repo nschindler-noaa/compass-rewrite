@@ -25,6 +25,7 @@ bool parseRiverDesc (CompassFile *cfile, RiverSystem *rs);
 bool parse_data (CompassFile *infile);
 bool parse_river (CompassFile *infile, RiverSystem *rs, River *river);//QString riv);
 bool parse_dam (CompassFile *infile, Dam *dam);//QString dam);
+bool parse_fishway (CompassFile *infile, Dam *dam);
 bool parse_reach (CompassFile *infile, Reach *rch);//QString rch);
 bool parse_headwater (CompassFile *infile, Headwater *hdw);//QString hdw);
 //bool parse_powerhouse (QFile *infile);
@@ -110,7 +111,7 @@ bool read_float_array (CompassFile *buffer, float array[],
 
 
 
-int write_separator (QFile *file);//int write_separator(FILE *outfile);
+//int write_separator (QFile *file);//int write_separator(FILE *outfile);
 
 void skip_to_end (QFile *infile, QString type, QString name = "");
 void skip_to_end (CompassFile *pfile, QString type, QString name = "");

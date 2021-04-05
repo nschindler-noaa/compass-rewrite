@@ -1,6 +1,8 @@
 #ifndef C_BASIN_H
 #define C_BASIN_H
 
+#include <QVector>
+
 #include "definitions.h"
 
 /** \class basin
@@ -10,10 +12,27 @@ class Basin
 {
 public:
     Basin();
+    ~Basin();
 
-    float volume[DAYS_IN_SEASON]; /**< Per day storage basin volumes */
-    float min_volume;         /**< Minimum allowable volume */
-    float max_volume;         /**< Maximum allowable volume */
+    void allocate(int numDays);
+
+    float getFlow(int day) const;
+    void setFlow(int day, const float &value);
+
+    float getVolumeMin() const;
+    void setVolumeMin(float value);
+
+    float getVolumeMax() const;
+    void setVolumeMax(float value);
+
+    float getVolume(int day) const;
+    void setVolume(int day, const float &value);
+
+private:
+    QList<float>  flow; /** flow from the basin to the associated dam. */
+    QList<float>  volume; /**< Per day storage basin volumes */
+    float volumeMin;         /**< Minimum allowable volume */
+    float volumeMax;         /**< Maximum allowable volume */
 
 };
 

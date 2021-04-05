@@ -33,37 +33,37 @@ public:
     RiverPoint(RiverPoint &other);
     ~RiverPoint ();
 
-    float setLon (float ln);
-    float setLon (int d, int m, int s);
-    float setLon (QString deg, QString min, QString sec);
+    double setLon (double ln);
+    double setLon (int d, int m, int s);
+    double setLon (QString deg, QString min, QString sec);
     void setLonDir (QString ew);
-    float getLon () {return lon;}
+    double getLon () {return lon;}
 
-    float setLat (float lt);
-    float setLat (int d, int m, int s);
-    float setLat (QString deg, QString min, QString sec);
+    double setLat (double lt);
+    double setLat (int d, int m, int s);
+    double setLat (QString deg, QString min, QString sec);
     void setLatDir (QString ns);
-    float getLat () {return lat;}
+    double getLat () {return lat;}
 
-    float setWidth (float wd);
-    float getWidth () {return width;}
+    double setWidth (const double wd);
+    double getWidth () {return width;}
 
     void reset ();
 
-    void copy (const RiverPoint &other);
-    RiverPoint & operator = (const RiverPoint &other);
+    void copy (RiverPoint &other);
+    RiverPoint & operator = (RiverPoint &other);
     bool equals (const RiverPoint rhs);
     bool operator == (const RiverPoint rhs);
 
     void setLatLon (QString txt);
     void setLatLon (QStringList items);
-    QString &getLatLon() const;
+    QString &getLatLon();
     QString &updateText();
 
 private:
-    float lat;
-    float lon;
-    float width;
+    double lat;
+    double lon;
+    double width;
     QString text;
 };
 

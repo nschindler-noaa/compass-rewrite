@@ -12,6 +12,20 @@ Species::~Species ()
     delete name;
 }
 
+void Species::allocate(int num)
+{
+    while (pprimeA.count() < num) {
+        pprimeA.append(0);
+        pprimeB.append(0);
+        reachPredCoef.append(0);
+    }
+    while (pprimeA.count() > num) {
+        pprimeA.takeLast();
+        pprimeB.takeLast();
+        reachPredCoef.takeLast();
+    }
+}
+
 Equation Species::getInriverLatentMortEqn() const
 {
     return inriverLatentMortEqn;

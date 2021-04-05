@@ -10,7 +10,7 @@
 Settings::Settings ()
 {
     running = false;
-    batch = false;
+    runConsole = false;
     montecarlo = false;
     multiscenario = false;
     realtime = false;
@@ -238,7 +238,7 @@ bool Settings::readArguments(QStringList arguments)
         // default for batch mode is monte carlo, for gui is scenario
         if (mode_flag == Settings::None)
         {
-            if (batch)
+            if (runConsole)
                 mode_flag = Settings::MonteCarlo;
             else
                 mode_flag = Settings::Scenario;
@@ -264,7 +264,7 @@ bool Settings::readArguments(QStringList arguments)
             calibData.isEmpty() &&
             postbnData.isEmpty()))
         {
-            if (batch)
+            if (runConsole)
             {
                 setInitialData (QString (DEFAULT_DATAFILE));
                 Log::outlog->add (Log::Message,
@@ -417,14 +417,14 @@ void Settings::setRunning(bool value)
     running = value;
 }
 
-bool Settings::getBatch() const
+bool Settings::getRunConsole() const
 {
-    return batch;
+    return runConsole;
 }
 
 void Settings::setBatch(bool value)
 {
-    batch = value;
+    runConsole = value;
 }
 
 Settings::RunMode Settings::getRunmode() const

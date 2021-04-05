@@ -46,6 +46,7 @@ public:
     QList<Tributary *> getTributaries() const;
 
     QList<RiverPoint *> getCourse() const;
+    bool addCoursePoint (RiverPoint *pt);
 
     bool getRegPoint() const;
     void setRegPoint(bool value);
@@ -142,11 +143,11 @@ protected:
     bool readFlows;
     float flowMax;
     float flowMin;
-    float flow[DAYS_IN_SEASON];
+    QList<float> flow;
     FlowLocation mainFlow;
     FlowLocation otherFlow;
 
-    float temp[DAYS_IN_SEASON];/**< Water temperature at each model day */
+    QList<float> temp;/**< Water temperature at each model day [DAYS_IN_SEASON]*/
     bool readTemps;     /**< true if reading temps from data file,
                           *   false if not. */
 
@@ -177,6 +178,7 @@ private:
 signals:
 
 public slots:
+    void allocate();
     void calculateFlows ();
     void calculateFlowInputs ();
     void calculateTemps ();
