@@ -19,7 +19,7 @@ CompassConsole::CompassConsole(QObject *parent) :
     compassSettings->getCurrentUserData();
 
 
-    out = Log::instance();//new Log (this);
+    out = Log::instance();
     fManager = new FileManager (this);
 //    sManager = new ScenarioManager (this);
 
@@ -74,12 +74,15 @@ void CompassConsole::run ()
             okay = fManager->writeSummary (&results, compassSettings->getOutputData());
 
     }
+    else
+    {
+        qFatal("Trying to run console without being in console mode.");
+    }
     if (!okay)
     {
         out->add(Log::Error, "Error in running COMPASS console application.");
         qWarning("Error in running COMPASS console application.");
     }
-//    delete compassSettings;
 
     emit done(okay);
 }
@@ -106,4 +109,34 @@ bool consoleMode (int argc, char *argv[])
     }
     return cmode;
 }
+
+// Installs a message handler for QtDebugMsg, QtInfoMsg, QtWarningMsg
+// QtCriticalMsg, QtFatalMsg, and QtSystemMsg
+// used by qDebug(), qInfo(), qWarning(), qCritical(), qFatal() - similar to fprint()
+// TODO:
+// We'll see if this works.
+void  consoleOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QByteArray localMsg = msg.toLocal8Bit();
+    const char *file = context.file ? context.file : "";
+    const char *function = context.function ? context.function : "";
+    switch (type) {
+    case QtDebugMsg:
+        fprintf(stdout, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    case QtInfoMsg:
+        fprintf(stdout, "Info:  %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    case QtWarningMsg:
+        fprintf(stdout, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    case QtCriticalMsg:
+        fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    case QtFatalMsg:
+        fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        break;
+    }
+}
+
 

@@ -161,3 +161,33 @@ void CompassGui::on_actionShow_Log_toggled(bool show)
     lw->setVisible (show);
 }*/
 
+void  guiOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QString file = context.file ? context.file : "";
+    QString function = context.function ? context.function : "";
+    QString title(QString("File: %1, line: %2, function: %3").arg(file).arg(context.line).arg(function));
+    switch (type) {
+    case QtDebugMsg:
+        title.prepend("Debug    -- ");
+        QMessageBox::information(nullptr, title, msg);
+        break;
+    case QtInfoMsg:
+        title.prepend("Info     -- ");
+        QMessageBox::information(nullptr, title, msg);
+        break;
+    case QtWarningMsg:
+        title.prepend("Warning  -- ");
+        QMessageBox::warning(nullptr, title, msg);
+        break;
+    case QtCriticalMsg:
+        title.prepend("Critical!-- ");
+        QMessageBox::critical(nullptr, title, msg);
+        break;
+    case QtFatalMsg:
+        title.prepend("Fatal!   -- ");
+        QMessageBox::critical(nullptr, title, msg);
+        break;
+    }
+}
+
+

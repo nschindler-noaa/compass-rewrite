@@ -56,4 +56,6 @@ private slots:
 
 };
 
+void  guiOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+
 #endif // C_COMPASSGUI_H
