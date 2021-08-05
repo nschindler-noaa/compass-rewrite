@@ -14,16 +14,18 @@ public:
     explicit CompassConsole (QObject *parent = nullptr);
     ~CompassConsole ();
 
+signals:
+    void done(bool);
+
+public slots:
     void run();
+
+private:
     Log *out;
     FileManager *fManager;
     ScenarioManager *sManager;
     Settings *compassSettings;
 
-signals:
-    void done(bool);
-
-public slots:
 };
 
 /** looks for a "-b" (batch mode flag) in the command arguments.

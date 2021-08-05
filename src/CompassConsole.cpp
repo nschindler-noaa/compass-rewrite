@@ -44,10 +44,10 @@ void CompassConsole::run ()
         // read in river description file
         okay = fManager->readRiverDescFile (&scenario, compassSettings);
 
-#ifdef DEBUG
+#ifdef DEBUG // write out river description file
         if (okay) {
             QString fn(QString("%1River.check").arg(scenario.river->rivers->at(0)->getName()));
-            okay = fManager->writeRiverDescFile (scenario.river, compassSettings, fn); //QString("columbiaRiver.check"));
+            okay = fManager->writeRiverDescFile (scenario.river, compassSettings, fn);
         }
 #endif
         // put all the segments together - create headwaters if needed, etc.
@@ -72,7 +72,6 @@ void CompassConsole::run ()
         // output results data, if requested
         if (okay && compassSettings->getSummary())
             okay = fManager->writeSummary (&results, compassSettings->getOutputData());
-
     }
     else
     {
@@ -122,19 +121,19 @@ void  consoleOutput(QtMsgType type, const QMessageLogContext &context, const QSt
     const char *function = context.function ? context.function : "";
     switch (type) {
     case QtDebugMsg:
-        fprintf(stdout, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        fprintf(stdout, "Debug:    %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
         break;
     case QtInfoMsg:
-        fprintf(stdout, "Info:  %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        fprintf(stdout, "Info:     %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
         break;
     case QtWarningMsg:
-        fprintf(stdout, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        fprintf(stdout, "Warning:  %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
         break;
     case QtCriticalMsg:
-        fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        fprintf(stderr, "Critical! %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
         break;
     case QtFatalMsg:
-        fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        fprintf(stderr, "Fatal!    %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
         break;
     }
 }

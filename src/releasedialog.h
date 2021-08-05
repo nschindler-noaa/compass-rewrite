@@ -14,13 +14,18 @@ class ReleaseDialog : public CommonDialog
 
 public:
     ReleaseDialog(QWidget *parent = nullptr);
-    ~ReleaseDialog();
+//    ~ReleaseDialog() override;
 
 public slots:
     void setReleases (QList<Release *> relList);
 
     void Cancel();
     void OK();
+
+    void closeEvent(QCloseEvent *evnt) override;
+
+signals:
+    void visibilityChanged(bool);
 
 private:
     ReleaseTool *tool;

@@ -6,6 +6,7 @@ ReleaseDialog::ReleaseDialog(QWidget *parent)
     : CommonDialog(parent)
 {
     tool = new ReleaseTool(this);
+    setMainWidget(tool);
 //    graph = new GraphDialog(this);
 //    schedule = new ScheduleDialog(this);
 
@@ -19,10 +20,10 @@ ReleaseDialog::ReleaseDialog(QWidget *parent)
 
 }
 
-ReleaseDialog::~ReleaseDialog()
+/*ReleaseDialog::~ReleaseDialog()
 {
     delete tool;
-}
+}*/
 
 void ReleaseDialog::setReleases(QList<Release *> relList)
 {
@@ -40,7 +41,8 @@ void ReleaseDialog::Cancel()
     close();
 }
 
-/*void ReleaseDialog::closeEvent(QCloseEvent *evnt)
+void ReleaseDialog::closeEvent(QCloseEvent *evnt)
 {
-    hide();
-}*/
+    setVisible(false);
+    emit visibilityChanged(false);
+}

@@ -15,7 +15,7 @@ class HelpDialog : public QDialog
 
 public:
     explicit HelpDialog(QWidget *parent = nullptr);
-    ~HelpDialog();
+    ~HelpDialog() override;
 
 private:
     Ui::HelpDialog *ui;
