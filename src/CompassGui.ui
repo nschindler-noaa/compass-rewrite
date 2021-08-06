@@ -60,12 +60,33 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
+          <widget class="QLabel" name="label_ioTitle">
+           <property name="geometry">
+            <rect>
+             <x>150</x>
+             <y>110</y>
+             <width>201</width>
+             <height>61</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Input / Output table</string>
+           </property>
+          </widget>
          </widget>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="page_map">
-       <layout class="QVBoxLayout" name="verticalLayout_8"/>
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <item>
+         <widget class="QLabel" name="label_mapTitle">
+          <property name="text">
+           <string>River Map</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -122,7 +143,7 @@
      <x>0</x>
      <y>0</y>
      <width>1035</width>
-     <height>31</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -263,8 +284,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>288</width>
-          <height>105</height>
+          <width>272</width>
+          <height>103</height>
          </rect>
         </property>
         <attribute name="icon">
@@ -280,8 +301,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>288</width>
-          <height>105</height>
+          <width>272</width>
+          <height>103</height>
          </rect>
         </property>
         <attribute name="icon">
@@ -482,8 +503,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>290</width>
-          <height>105</height>
+          <width>272</width>
+          <height>103</height>
          </rect>
         </property>
         <attribute name="icon">
@@ -600,8 +621,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>176</width>
-          <height>166</height>
+          <width>155</width>
+          <height>235</height>
          </rect>
         </property>
         <attribute name="icon">
@@ -617,8 +638,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>282</width>
-          <height>166</height>
+          <width>274</width>
+          <height>235</height>
          </rect>
         </property>
         <attribute name="icon">
@@ -753,6 +774,9 @@
    </property>
   </action>
   <action name="actionRelease_Tool">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="compass.qrc">
      <normaloff>:/icons/map_activesite_lg.png</normaloff>:/icons/map_activesite_lg.png</iconset>
@@ -762,6 +786,9 @@
    </property>
   </action>
   <action name="actionTransport_Tool">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="compass.qrc">
      <normaloff>:/icons/map_barge_lg.png</normaloff>:/icons/map_barge_lg.png</iconset>

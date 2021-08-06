@@ -25,6 +25,7 @@ CompassGui::CompassGui(QWidget *parent) :
     compassSettings->readArguments(args);
 
     ui->setupUi(this);
+
     ui->logWindow->hide();
     lw = new LogWidget (ui->logWindow);
     lw->setMessage(true);
@@ -41,6 +42,8 @@ CompassGui::CompassGui(QWidget *parent) :
     connect (ui->actionShow_Log, SIGNAL (triggered (bool)),
              ui->logWindow, SLOT (setVisible (bool)));
 
+    connect (ui->actionAbout_Qt, SIGNAL(triggered()), SLOT(aboutQt()));
+
     ui->dockWidget_tools->setFloating(false);
     connect (ui->dockWidget_tools, SIGNAL (visibilityChanged (bool)),
              ui->actionShow_Toolbox, SLOT (setChecked (bool)));
@@ -56,12 +59,13 @@ CompassGui::CompassGui(QWidget *parent) :
 
     rlsTool = new ReleaseDialog(this);
     rlsTool->setVisible(false);
-    connect (ui->actionRelease_Tool, SIGNAL(triggered(bool)), SLOT(showRlsTool(bool)));//showRlsTool()));
+    connect (ui->actionRelease_Tool, SIGNAL(toggled(bool)), this, SLOT(showRlsTool(bool)));
     connect (rlsTool, SIGNAL(visibilityChanged(bool)), ui->actionRelease_Tool, SLOT(setChecked(bool)));
 
-    HelpDialog hlp (this);
+    hManager = new HelpDialog(this);
+//    HelpDialog hlp (this);
 //    hlp.show ();
-    connect (ui->actionHelp_Dialog, SIGNAL(triggered()), &hlp, SLOT(show()));
+    connect (ui->actionHelp_Dialog, SIGNAL(triggered()), hManager, SLOT(show()));
 
 
 
@@ -70,6 +74,9 @@ CompassGui::CompassGui(QWidget *parent) :
     {
         lw->add (Log::Force, (QString ("\t") + args[i]));
     }
+
+    currWindow = IO;
+    showMap(false);
 
     run();
 }
@@ -90,26 +97,68 @@ void CompassGui::addLogWindow (QWidget *container)
 
 void CompassGui::run ()
 {
+    bool okay = true;
     // check for river description file, use default or ask
+    Scenario scenario (this);
+    Results results (compassSettings);
 
-    // read river desc file
+    // read in river description file
+    okay = fManager->readRiverDescFile (&scenario, compassSettings);
 
-    // add data to the map
+#ifdef DEBUG // write out river description file
+    if (okay) {
+        QString fn(QString("%1River.check").arg(scenario.river->rivers->at(0)->getName()));
+        okay = fManager->writeRiverDescFile (scenario.river, compassSettings, fn);
+    }
+#endif
+    // put all the segments together - create headwaters if needed, etc.
+    if (okay)
+        okay = scenario.constructRiver (compassSettings);
+    // read in scenario information file(s)
+    if (okay)
+    {
+        okay = fManager->readFiles (&scenario, compassSettings);
+    }
 
+    // check, fill in missing, and initialize data elements (flow, spill, etc.)
+    if (okay)
+    {
+        scenario.initialize ();
+    }
+/*    // run the scenario
+    if (okay)
+    {
+        okay = scenario.run (&results, compassSettings);
+    }
+    // output results data, if requested
+    if (okay && compassSettings->getSummary())
+    {
+        okay = fManager->writeSummary (&results, compassSettings->getOutputData());
+    }
+    // output specified data file(s), if any
+    if (okay)
+    {
+        okay = fManager->writeFiles (&scenario, compassSettings);
+    }
 
+    if (!okay)
+    {
+        qWarning("Error in running COMPASS console application.");
+    }*/
 }
 
 void CompassGui::showTool (Window page)
 {
     ui->stackedWidget->setCurrentIndex (page);
+    currWindow = page;
 }
 
 void CompassGui::showMap(bool show)
 {
     if (show)
-        ui->stackedWidget->setCurrentIndex(Map);
+        showTool(Map);
     else
-        ui->stackedWidget->setCurrentIndex(0);
+        showTool(IO);
 }
 
 void CompassGui::showRlsTool(bool show)
@@ -151,11 +200,16 @@ void CompassGui::on_action_About_triggered()
     h.exec ();
 }
 
-void CompassGui::on_action_About_Qt_triggered()
+void CompassGui::aboutQt()
+{
+    QMessageBox::aboutQt(this, tr("About Qt"));
+}
+
+/*void CompassGui::on_action_About_Qt_triggered()
 {
     QMessageBox::aboutQt(this,tr("About Qt"));
 }
-/*
+
 void CompassGui::on_actionShow_Log_toggled(bool show)
 {
     lw->setVisible (show);

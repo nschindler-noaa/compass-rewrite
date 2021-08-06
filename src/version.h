@@ -24,8 +24,8 @@
 #define COMPASS_VERSION_MINOR_STRING    "0" /**< Minor version number string */
 #define COMPASS_BUGFIX_LEVEL             1  /**< Bugfix level number */
 #define COMPASS_BUGFIX_LEVEL_STRING     "1" /**< Bugfix level number string */
-#define COMPASS_RELEASE_LEVEL_CHAR      'a' /**< Release level  */
-#define COMPASS_RELEASE_LEVEL_STRING    "a" /**< Release level string */
+#define COMPASS_RELEASE_LEVEL_CHAR      'x' /**< Release level  */
+#define COMPASS_RELEASE_LEVEL_STRING    "x" /**< Release level string */
 
 #define COMPASS_VERSION_RELEASE_DATE_STRING  __DATE__ /**< Date of build */
 

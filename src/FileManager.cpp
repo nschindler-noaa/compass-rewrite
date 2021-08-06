@@ -42,7 +42,7 @@ bool FileManager::readRiverDescFile (Scenario *scn, Settings *set)//QString file
     else
     {
         QString msg (QString ("River description file {%1} not found.").arg (filename));
-        Log::outlog->add (Log::Error, msg);
+//        Log::outlog->add (Log::Error, msg);
         okay = false;
     }
     return okay;
@@ -439,7 +439,8 @@ bool FileManager::writeFileHeader (QFile *outfile, Settings *settings)
     }
     else {
         okay = false;
-        Log::outlog->add(Log::Error, QString("Could not open file to read: %1").arg(outfile->fileName()));
+        qInfo("%s", QString("Could not open file to read: %1").arg(outfile->fileName()).toUtf8().data());
+//        Log::outlog->add(Log::Error, QString("Could not open file to read: %1").arg(outfile->fileName()));
     }
 
     return okay;
@@ -530,7 +531,8 @@ bool FileManager::findFile (QString filename, QString path, Settings *&set)
     if (!exist)
     {
         QString msg (QString ("File {%1} not found.").arg (filename));
-        Log::outlog->add (Log::Error, msg);
+        qWarning("%s", msg.toUtf8().data());
+//        Log::outlog->add (Log::Error, msg);
     }
 
     return exist;

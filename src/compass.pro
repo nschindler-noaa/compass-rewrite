@@ -14,6 +14,7 @@ HEADERS += \
     Log.h \
     RiverSegment.h \
     RiverPoint.h \
+    transporttool.h \
     version.h \
     LogWidget.h \
     settings.h \
@@ -80,6 +81,7 @@ SOURCES += \
     Stock.cpp \
     Equation.cpp \
     parseUtil.cpp \
+    transporttool.cpp \
     writeUtil.cpp \
     Transport.cpp \
     Release.cpp \
@@ -110,7 +112,8 @@ FORMS += \
     releasetool.ui \
     mainwindow.ui \
     mapwidget.ui \
-    CommonDialog.ui
+    CommonDialog.ui \
+    transporttool.ui
 
 OTHER_FILES += \
     readme.txt

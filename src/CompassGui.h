@@ -8,6 +8,7 @@
 #include "ScenarioManager.h"
 #include "settings.h"
 #include "releasedialog.h"
+#include "HelpDialog.h"
 
 enum Window {
     IO,
@@ -32,10 +33,11 @@ public:
     ScenarioManager *sManager;
     Settings *compassSettings;
     ReleaseDialog *rlsTool;
+    HelpDialog *hManager;
 
 public slots:
     void run ();
-    void showTool (Window wd);
+    void showTool (Window page);
     void showMap (bool show);
     void showRlsTool (bool show);
 
@@ -47,9 +49,12 @@ private:
     void makeWindowTitle ();
     void addLogWindow (QWidget *container);
 
+    Window currWindow;
+
 private slots:
+    void aboutQt();
     void on_action_About_triggered();
-    void on_action_About_Qt_triggered();
+//    void on_action_About_Qt_triggered();
 //    void on_action_Help_triggered();
 //    void on_actionShow_Log_toggled(bool show);
     void on_actionE_xit_triggered();

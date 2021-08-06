@@ -1,5 +1,5 @@
 #include "commondialog.h"
-#include "ui_commondialog.h"
+#include "ui_CommonDialog.h"
 
 
 CommonDialog::CommonDialog(QWidget *parent) :
