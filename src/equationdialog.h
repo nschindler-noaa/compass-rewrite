@@ -1,22 +1,34 @@
 #ifndef C_EQUATIONDIALOG_H
 #define C_EQUATIONDIALOG_H
 
-#include <QDialog>
+#include "commondialog.h"
+#include "cmpequation.h"
 
-namespace Ui {
-class EquationDialog;
-}
+#include <QChart>
+#include <QChartView>
+#include <QLineSeries>
+#include <QAreaSeries>
 
-class EquationDialog : public QDialog
+
+class EquationDialog : public CommonDialog
 {
     Q_OBJECT
-    
+
 public:
     explicit EquationDialog(QWidget *parent = nullptr);
-    ~EquationDialog();
-    
+    EquationDialog(cmpEquation *eqn, QWidget *parent = nullptr);
+    ~EquationDialog() override;
+
+    void setEquation(cmpEquation *eqn);
+
+//    void showParameters();
+
 private:
-    Ui::EquationDialog *ui;
+    cmpEquation *equation;
+    QChart      *eqnChart;
+    QChartView  *eqnChartView;
+    QLineSeries *eqnLine;
+    QAreaSeries *eqnArea;
 };
 
 #endif // C_EQUATIONDIALOG_H

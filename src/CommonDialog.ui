@@ -333,6 +333,13 @@ p, li { white-space: pre-wrap; }
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButton_ResetAll">
+       <property name="text">
+        <string>Reset All</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="spacer_ButtonRow">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -356,9 +363,29 @@ p, li { white-space: pre-wrap; }
       </widget>
      </item>
      <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <widget class="QPushButton" name="pushButton_Apply">
        <property name="text">
         <string>Apply</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_ApplyAll">
+       <property name="text">
+        <string>Apply All</string>
        </property>
       </widget>
      </item>

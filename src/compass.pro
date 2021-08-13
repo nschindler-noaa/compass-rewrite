@@ -8,6 +8,8 @@ TEMPLATE = app
 
 
 HEADERS += \
+    cmpequation.h \
+    cmpequationdialog.h \
     help.h \
     CompassConsole.h \
     CompassGui.h \
@@ -55,6 +57,8 @@ HEADERS += \
     damstructures.h
 
 SOURCES += \
+    cmpequation.cpp \
+    cmpequationdialog.cpp \
     main.cpp \
     help.cpp \
     CompassConsole.cpp \
@@ -108,6 +112,7 @@ FORMS += \
     ScheduleDialog.ui \
     MapWindow.ui \
     IOWindow.ui \
+    cmpequationdialog.ui \
     equationdialog.ui \
     releasetool.ui \
     mainwindow.ui \

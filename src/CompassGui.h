@@ -8,7 +8,9 @@
 #include "ScenarioManager.h"
 #include "settings.h"
 #include "releasedialog.h"
+#include "transporttool.h"
 #include "HelpDialog.h"
+#include "equationdialog.h"
 
 enum Window {
     IO,
@@ -27,12 +29,13 @@ class CompassGui : public QMainWindow
 
 public:
     explicit CompassGui(QWidget *parent = nullptr);
-    ~CompassGui();
+    ~CompassGui() override;
 
     FileManager *fManager;
     ScenarioManager *sManager;
     Settings *compassSettings;
     ReleaseDialog *rlsTool;
+    TransportTool *transTool;
     HelpDialog *hManager;
 
 public slots:
@@ -48,16 +51,17 @@ private:
     Ui::CompassGui *ui;
     void makeWindowTitle ();
     void addLogWindow (QWidget *container);
+    EquationDialog *eqnDialog;
 
     Window currWindow;
 
 private slots:
     void aboutQt();
-    void on_action_About_triggered();
-//    void on_action_About_Qt_triggered();
-//    void on_action_Help_triggered();
-//    void on_actionShow_Log_toggled(bool show);
-    void on_actionE_xit_triggered();
+    void about();
+    void exit();
+
+    void selectFiles();
+    void showEquation(cmpEquation *eqn = nullptr);
 
 };
 

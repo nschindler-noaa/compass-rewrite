@@ -15,25 +15,35 @@ class CommonDialog : public QDialog
 
 public:
     explicit CommonDialog(QWidget *parent = nullptr);
-    ~CommonDialog();
+    ~CommonDialog() override;
 
     void setMainWidget (QWidget *main);
+    void setWindowTitle (QString wtitle);
     void setTitle (QString title);
-    void setClean (bool flag = true);
-    void setDirty () {setClean(false);}
+    void setClean (){setDirty(false);}
+    void setDirty (bool flag = true);
 
 public slots:
-
+    void showReset(bool flag = true);
+    void showResetAll(bool flag = true);
+    void showApply(bool flat = true);
+    void showApplyAll(bool flag = true);
+    void showOk(bool flag = true);
+    void showCancel(bool flag = true);
+    void showHelp(bool flag = true);
 
 signals:
     void Reset();
+    void ResetAll();
     void Apply();
+    void ApplyAll();
     void OK();
     void Cancel();
     void Help();
 
 private:
     Ui::CommonDialog *ui;
+    QWidget *mainWidget;
 };
 
 

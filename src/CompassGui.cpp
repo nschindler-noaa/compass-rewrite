@@ -26,6 +26,9 @@ CompassGui::CompassGui(QWidget *parent) :
 
     ui->setupUi(this);
 
+    makeWindowTitle();
+
+    // message logging
     ui->logWindow->hide();
     lw = new LogWidget (ui->logWindow);
     lw->setMessage(true);
@@ -42,6 +45,27 @@ CompassGui::CompassGui(QWidget *parent) :
     connect (ui->actionShow_Log, SIGNAL (triggered (bool)),
              ui->logWindow, SLOT (setVisible (bool)));
 
+    fManager = new FileManager (this);
+    sManager = new ScenarioManager (this);
+    connect (ui->actionOpen_River_desc_File, SIGNAL(triggered()), fManager,
+             SLOT(readRiverDescriptionFile(sManager->getScenario(), compassSettings)));
+    connect (ui->actionOpen_Data_File, SIGNAL(triggered()), fManager,
+             SLOT(readDataFiles(sManager->getScenario(), compassSettings)));
+    connect (ui->actionSave_Data_File, SIGNAL(triggered()), fManager,
+             SLOT(writeDataFiles(sManager->getScenario(), compassSettings)));
+
+    // set up tools
+    rlsTool = new ReleaseDialog(this);
+    rlsTool->setVisible(false);
+    connect (ui->actionRelease_Tool, SIGNAL(toggled(bool)), this, SLOT(showRlsTool(bool)));
+    connect (rlsTool, SIGNAL(visibilityChanged(bool)), ui->actionRelease_Tool, SLOT(setChecked(bool)));
+
+    eqnDialog = nullptr;
+    connect (ui->actionShow_Equation, SIGNAL(triggered()), this, SLOT(showEquation()));
+
+    hManager = new HelpDialog(this);
+    connect (ui->actionHelp_Dialog, SIGNAL(triggered()), hManager, SLOT(show()));
+    connect (ui->action_About, SIGNAL(triggered()), SLOT());
     connect (ui->actionAbout_Qt, SIGNAL(triggered()), SLOT(aboutQt()));
 
     ui->dockWidget_tools->setFloating(false);
@@ -51,23 +75,6 @@ CompassGui::CompassGui(QWidget *parent) :
              ui->dockWidget_tools, SLOT (setVisible (bool)));
 
     connect (ui->actionShow_Map, SIGNAL (triggered (bool)), SLOT (showMap (bool)));
-
-    makeWindowTitle();
-
-    fManager = new FileManager (this);
-    sManager = new ScenarioManager (this);
-
-    rlsTool = new ReleaseDialog(this);
-    rlsTool->setVisible(false);
-    connect (ui->actionRelease_Tool, SIGNAL(toggled(bool)), this, SLOT(showRlsTool(bool)));
-    connect (rlsTool, SIGNAL(visibilityChanged(bool)), ui->actionRelease_Tool, SLOT(setChecked(bool)));
-
-    hManager = new HelpDialog(this);
-//    HelpDialog hlp (this);
-//    hlp.show ();
-    connect (ui->actionHelp_Dialog, SIGNAL(triggered()), hManager, SLOT(show()));
-
-
 
     lw->add (Log::Force, QString ("Running COMPASS in gui mode with the following arguments:\n"));
     for (int i = 0; i < args.count (); i++)
@@ -93,6 +100,11 @@ void CompassGui::addLogWindow (QWidget *container)
 //    logw = static_cast <LogWindow *> (outlog);
 
 //    container->layout ()->addWidget (logw);
+}
+
+void CompassGui::selectFiles()
+{
+
 }
 
 void CompassGui::run ()
@@ -189,12 +201,12 @@ void CompassGui::makeWindowTitle ()
     setWindowTitle (title);
 }
 
-void CompassGui::on_actionE_xit_triggered()
+void CompassGui::exit()
 {
     close();
 }
 
-void CompassGui::on_action_About_triggered()
+void CompassGui::about()
 {
     QMessageBox h (QMessageBox::Question, "About COMPASS", "some text.");
     h.exec ();
@@ -214,6 +226,21 @@ void CompassGui::on_actionShow_Log_toggled(bool show)
 {
     lw->setVisible (show);
 }*/
+
+void CompassGui::showEquation(cmpEquation *eqn)
+{
+// this is to test the window
+    if (eqn == nullptr)
+        eqn = new cmpEquation();
+//
+    if (eqn != nullptr)
+    {
+        if (eqnDialog == nullptr)
+            eqnDialog = new EquationDialog(eqn, this);
+        eqnDialog->setWindowTitle("Dam or Reach");
+        eqnDialog->show();
+    }
+}
 
 void  guiOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
