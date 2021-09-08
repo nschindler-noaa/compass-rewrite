@@ -235,6 +235,7 @@ bool cmpEqnParameter::isEqual(const cmpEqnParameter &rhs)
         equal = false;
     else if (rhs.getMax() != max)
         equal = false;
+    return equal;
 }
 
 const QString &cmpEqnParameter::getName() const
