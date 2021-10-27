@@ -49,6 +49,9 @@
    </item>
    <item row="2" column="0" colspan="3">
     <widget class="QTabWidget" name="tabWidget">
+     <property name="tabShape">
+      <enum>QTabWidget::Triangular</enum>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -303,6 +306,9 @@
        </item>
        <item row="7" column="0" colspan="5">
         <widget class="QTabWidget" name="tabWidget_restart">
+         <property name="tabShape">
+          <enum>QTabWidget::Triangular</enum>
+         </property>
          <property name="currentIndex">
           <number>1</number>
          </property>
