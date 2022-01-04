@@ -35,12 +35,19 @@ void Tributary::setCourse(const QList<RiverPoint *> &value)
 
 RiverPoint * Tributary::getPoint(int index) const
 {
-    return course.at(index);
+    if (index < course.count())
+        return course.at(index);
+    else
+        return nullptr;
 }
 
 void Tributary::setPoint(int index, RiverPoint *point)
 {
+    while (index > course.count())
+        course.append(nullptr);
     RiverPoint *pt = course.takeAt(index);
-    delete pt;
+    if (pt != nullptr)
+        delete pt;
     course.insert(index, point);
 }
+

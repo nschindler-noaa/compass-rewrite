@@ -18,12 +18,17 @@ public:
 
     QList<RiverPoint *> getCourse() const;
     void setCourse(const QList<RiverPoint *> &value);
+
     RiverPoint * getPoint(int index = 0) const;
     void setPoint (int index, RiverPoint * point);
+
+    float getFlow(int index);
+    void setFlow(int index, float flw);
 
 protected:
     QString name;
     QList<RiverPoint *> course;
+    QList<float> flow;
 };
 
 #endif // C_TRIBUTARY_H

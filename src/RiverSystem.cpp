@@ -504,7 +504,7 @@ Release * RiverSystem::findRelease(QString name)
     for (int i = 0; i < releases->count(); i++)
     {
         rel = releases->at (i);
-        if (rel->name->compare(name) == 0)
+        if (rel->getName().compare(name) == 0)
             break;
     }
     return rel;

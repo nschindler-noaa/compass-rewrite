@@ -77,18 +77,20 @@ public:
     float getMode() const;
     void setMode(float value);
 
-    float getStd_dev() const;
-    void setStd_dev(float value);
+    float getStdDev() const;
+    void setStdDev(float value);
+
+    void computeStats(QList<float> &dailyNum);
 
 private:
-    int  firstDay;           /**< First day of passage */
-    int  lastDay;            /**< Last day of passage */
-    float totFishIn;             /**< Total fish into segment */
-    float totFishOut;            /**< Total fish passage out (premort) */
+    int  firstDay;        /**< First day of passage */
+    int  lastDay;         /**< Last day of passage */
+    float totFishIn;      /**< Total fish into segment */
+    float totFishOut;     /**< Total fish passage out (premort) */
     float mean;           /**< Mean passage */
     float median;         /**< Median passage */
     float mode;           /**< Mode passage */
-    float std_dev;        /**< Standard deviation of passage */
+    float stdDev;        /**< Standard deviation of passage */
 };
 
 class ReleaseStats
@@ -213,31 +215,72 @@ public:
     Release (Release &rhs);
     ~Release ();
 
-    QString *name;
+    const QString &getName() const;
+    void setName(const QString &newName);
+
+    ReleaseSite *getSite() const;
+    void setSite(ReleaseSite *newSite);
+
+    Species *getSpecies() const;
+    void setSpecies(Species *newSpecies);
+
+    Stock *getStock() const;
+    void setStock(Stock *newStock);
+
+    int getStartDay() const;
+    void setStartDay(int newStartDay);
+
+    const QList<float> &getDayNumber();
+    const float &getNumber(int day) const;
+    void setNumber(int day, const float &num);
+
+    RtInfo *getRtinfo() const;
+    void setRtinfo(RtInfo *newRtinfo);
+
+    int getAddSetting() const;
+    void setAddSetting(int newAddSetting);
+
+    int getDirtyFlag() const;
+    void setDirtyFlag(int newDirtyFlag);
+
+    float getInitialSpillExperience() const;
+    void setInitialSpillExperience(float newInitialSpillExperience);
+
+    float getTotalReleased() const;
+    void setTotalReleased(float newTotalReleased);
+
+    float getMigrOnsetMedian() const;
+    void setMigrOnsetMedian(float newMigrOnsetMedian);
+
+    void appendRelSegment(ReleaseSegment *relseg);
+
+    ReleaseStats &getReleaseStats();
+
+private:
+    QString name;
     ReleaseSite *site;
     Species *species;
     Stock *stock;
     int startDay;        /**< Offset into season */
-    QList<QPointF> fishReleased;/**< The release distribution up to [Days_IN_SEASON] - startDay*/
-    QList<float> number;
+    QList<float> number; /**< The release distribution up to [Days_IN_SEASON] - startDay*/
 #ifdef REALTIME
-    RtInfo *rt;               /**< Realtime info (optional) */
+    RtInfo *rtinfo;               /**< Realtime info (optional) */
 #endif
 
-    void activate ();
+    void activate (bool = true);
 
-    int    add_setting;       /**< For determining how to add the release to the
+    int   addSetting;       /**< For determining how to add the release to the
                                                            * system. */
-    int    dirty_flag;        /**< For use by GUI release editor. */
+    int   dirtyFlag;        /**< For use by GUI release editor. */
 
-    float   initial_spill_experience;/**< If the release is made in a segment
+    float initialSpillExperience;/**< If the release is made in a segment
                                * that isn't immediately downstream from a dam,
                                * then the dam spill experience will be filled
                                * in with this value */
-    float   total_released;  /**< Total fish in last run */
-    QList<ReleaseSegment *> segments; /** List of release segments (hold data and stats) */
+    float totalReleased;  /**< Total fish in last run */
+    QList<ReleaseSegment *> relSegments; /** List of release segments (hold data and stats) */
     ReleaseStats stats; /**< Summary statistics for this release */
-    float   migr_onset_median;/**< Migration onset, median value
+    float migrOnsetMedian;/**< Migration onset, median value
                                 *  in days (computed) */
 };
 /* Various structures to handle release sites and release tracking statistics.

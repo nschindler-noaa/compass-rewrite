@@ -9,6 +9,7 @@
  */
 #include <iostream>
 #include <cstdlib>
+#include <cmath>
 
 #include "Log.h"
 //#include "batch.h"
@@ -50,14 +51,13 @@ Release::Release()
  */
 Release::Release (Release &rhs)
 {
-    name = new QString (*rhs.name);
+    name = rhs.getName();
     site = rhs.site;
     species = rhs.species;
     stock = rhs.stock;
     startDay = rhs.startDay;
-    fishReleased.clear();
-    for (int i = 0; i < rhs.fishReleased.count(); i++)
-        fishReleased.append(rhs.fishReleased[i]);
+    number.clear();
+    number = rhs.getDayNumber();
 #ifdef REALTIME
 //    if (rhs.rt)
 //        rt = clone_rtinfo (rhs.rt);
@@ -74,8 +74,84 @@ Release::~Release ()
 #ifdef REALTIME
 //    destroy_rtinfo (&rt);
 #endif
-    delete name;
-//   segments.clear ();
+    //   segments.clear ();
+}
+
+const QString &Release::getName() const
+{
+    return name;
+}
+
+void Release::setName(const QString &newName)
+{
+    name = newName;
+}
+
+ReleaseSite *Release::getSite() const
+{
+    return site;
+}
+
+void Release::setSite(ReleaseSite *newSite)
+{
+    site = newSite;
+}
+
+Species *Release::getSpecies() const
+{
+    return species;
+}
+
+void Release::setSpecies(Species *newSpecies)
+{
+    species = newSpecies;
+}
+
+Stock *Release::getStock() const
+{
+    return stock;
+}
+
+void Release::setStock(Stock *newStock)
+{
+    stock = newStock;
+}
+
+int Release::getStartDay() const
+{
+    return startDay;
+}
+
+void Release::setStartDay(int newStartDay)
+{
+    startDay = newStartDay;
+}
+
+const QList<float> &Release::getDayNumber()
+{
+    return number;
+}
+
+const float &Release::getNumber(int day) const
+{
+    int index = day - startDay;
+    return number.at(index);
+}
+
+void Release::setNumber(int day, const float &num)
+{
+    int index = day - startDay;
+    number[index] = num;
+}
+
+RtInfo *Release::getRtinfo() const
+{
+    return rtinfo;
+}
+
+void Release::setRtinfo(RtInfo *newRtinfo)
+{
+    rtinfo = newRtinfo;
 }
 
 /** Dump all releases in the system. */
@@ -85,9 +161,69 @@ Release::~Release ()
 /** Insert an allocated release into the system release list.  Construct
  * subsidary data areas (e.g. rls_seg) as necessary.
  */
-void Release::activate ()
+void Release::activate (bool)
 {
 
+}
+
+float Release::getMigrOnsetMedian() const
+{
+    return migrOnsetMedian;
+}
+
+void Release::setMigrOnsetMedian(float newMigrOnsetMedian)
+{
+    migrOnsetMedian = newMigrOnsetMedian;
+}
+
+float Release::getTotalReleased() const
+{
+    return totalReleased;
+}
+
+void Release::setTotalReleased(float newTotalReleased)
+{
+    totalReleased = newTotalReleased;
+}
+
+float Release::getInitialSpillExperience() const
+{
+    return initialSpillExperience;
+}
+
+void Release::setInitialSpillExperience(float newInitialSpillExperience)
+{
+    initialSpillExperience = newInitialSpillExperience;
+}
+
+int Release::getDirtyFlag() const
+{
+    return dirtyFlag;
+}
+
+void Release::setDirtyFlag(int newDirtyFlag)
+{
+    dirtyFlag = newDirtyFlag;
+}
+
+int Release::getAddSetting() const
+{
+    return addSetting;
+}
+
+void Release::setAddSetting(int newAddSetting)
+{
+    addSetting = newAddSetting;
+}
+
+void Release::appendRelSegment(ReleaseSegment *relseg)
+{
+    relSegments.append(relseg);
+}
+
+ReleaseStats &Release::getReleaseStats()
+{
+    return stats;
 }
 /*
 void activate_release (struct release *rls)
@@ -583,7 +719,7 @@ PassageStats::PassageStats ()
     mean = 0;
     median = 0;
     mode = 0;
-    std_dev = 0;
+    stdDev = 0;
 }
 PassageStats::~PassageStats ()
 {}
@@ -659,12 +795,64 @@ void PassageStats::setMode(float value)
     mode = value;
 }
 
-float PassageStats::getStd_dev() const
+float PassageStats::getStdDev() const
 {
-    return std_dev;
+    return stdDev;
 }
 
-void PassageStats::setStd_dev(float value)
+void PassageStats::setStdDev(float value)
 {
-    std_dev = value;
+    stdDev = value;
+}
+
+void PassageStats::computeStats(QList<float> &dailyNum)
+{
+    int first = 0;
+    int last = 0;
+    float total = 0;
+    float meanTotal = 0;
+    int i = 0;
+    // find first
+    while (first == 0)
+    {
+        if (dailyNum.at(i) > 0)
+            first = i;
+    }
+    // then find last
+    for (; i < dailyNum.count(); i++)
+    {
+        total += dailyNum.at(i);
+        meanTotal += total * i;
+        if (dailyNum.at(i) > 0)
+            last = i;
+    }
+    // compute mean
+    mean = meanTotal / total;
+    // compute median
+    float half = total / 2;
+    float halfTotal = 0;
+    i = 0;
+    while (halfTotal < half)
+    {
+        halfTotal += dailyNum.at(i++);
+    }
+    median = (i - 1) + (halfTotal - half);
+    // compute mode
+    for (i = first; i < last; i++)
+    {
+        if (dailyNum.at(i) > dailyNum.at(i+1))
+            mode = i + dailyNum.at(i) - dailyNum.at(i+1);
+    }
+    // compute standard deviation
+    float meanSq = 0;
+    float totalMeanSq = 0;
+    float meanSqMean = 0;
+    for (i = first; i <= last; i++)
+    {
+        meanSq = dailyNum.at(i) - mean;
+        meanSq *= meanSq;
+        totalMeanSq += meanSq;
+    }
+    meanSqMean = totalMeanSq / (last - first + 1);
+    stdDev = sqrt(meanSqMean);
 }
