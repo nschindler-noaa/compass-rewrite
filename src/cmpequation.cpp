@@ -25,6 +25,12 @@ cmpEquation::cmpEquation(const cmpEquation &rhs)
     copy (rhs);
 }
 
+cmpEquation &cmpEquation::operator=(const cmpEquation &rhs)
+{
+    copy (rhs);
+    return *this;
+}
+
 cmpEquation::~cmpEquation()
 {
     while(parameters.count() > 0)
@@ -42,6 +48,11 @@ cmpEquation *cmpEquation::copy(const cmpEquation &rhs)
     for (int i = 0; i < totalParams; i++)
         addParameter(rhs.getParameter(i));
     return this;
+}
+
+bool cmpEquation::operator==(const cmpEquation &rhs)
+{
+    return isEqual(rhs);
 }
 
 bool cmpEquation::isEqual(const cmpEquation &rhs)

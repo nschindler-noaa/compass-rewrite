@@ -1,31 +1,9 @@
 #ifndef C_RIVERPOINT_H
 #define C_RIVERPOINT_H
 
-#include <QString>
-/*
+#include <QStringList>
 
-class RiverPoint
-{
-public:
-    explicit RiverPoint(QObject *parent = nullptr);
-    RiverPoint (const RiverPoint &other);
 
-    const float lat () {return latitude;}
-    const float lon () {return longitude;}
-    const float width () {return wide;}
-
-    float setLon (int d, int m, int s);
-    float setLat (int d, int m, int s);
-    float setLon (const float x);
-    float setLat (const float x);
-    float setWidth (const float w);
-
-private:
-    float latitude;
-    float longitude;
-    float wide;
-};
-*/
 class RiverPoint
 {
 public:

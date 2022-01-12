@@ -8,16 +8,16 @@
  * Other modules should use these rather than malloc'ing releases on their own.
  */
 
-#include <QPointF>
-#include <QList>
-
+#include "RiverPoint.h"
 #include "Reach.h"
-//#include "delayed_mort.h"
 #include "Stock.h"
 #include "Species.h"
 #include "Realtime.h"
 #include "definitions.h"
 #include "Period.h"
+
+#include <QPointF>
+#include <QList>
 
 class Reach;
 

@@ -129,45 +129,14 @@ bool RiverPoint::operator == (const RiverPoint rhs)
 QString &RiverPoint::getLatLon ()
 {
     return text;
-/*    QString *txt = new QString("latlon ");
-    float absLon = abs(lon);
-    float absLat = abs(lat);
-    int d, m, s;
-    d = static_cast<int>(absLon);
-    m = static_cast<int>((absLon - d) * 60.0);
-    s = static_cast<int>((absLon - d - (m / 60.0)) * 60.0);
-    txt->append (QString::number (d));
-    txt->append (' ');
-    txt->append (QString::number (m));
-    txt->append (' ');
-    txt->append (QString::number (s));
-    txt->append (' ');
-    if (lon > 0)
-        txt->append ("E ");
-    else
-        txt->append ("W ");
-
-    d = static_cast<int>(absLat);
-    m = static_cast<int>((absLat - d) * 60.0);
-    s = static_cast<int>((absLat - d - (m / 60.0)) * 60.0);
-    txt->append (QString::number (d));
-    txt->append (' ');
-    txt->append (QString::number (m));
-    txt->append (' ');
-    txt->append (QString::number (s));
-    txt->append (' ');
-    if (lat > 0)
-        txt->append ("N ");
-    else
-        txt->append ("S ");
-
-    text = *txt;*/
 }
 
 void RiverPoint::setLatLon(const QString txt)
 {
     QStringList items;
     items = txt.split(' ', QString::SkipEmptyParts);
+    if (items.at(0).compare("latlon", Qt::CaseInsensitive) == 0)
+        items.takeFirst();
     setLatLon(items);
 }
 

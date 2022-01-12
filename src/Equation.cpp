@@ -21,45 +21,76 @@ Equation Equation::copy (const Equation &rhs)
     name = rhs.name;
     id = rhs.id;
     formula = rhs.formula;
-    validParameters = rhs.validParameters;
-    for (i = 0; i < rhs.validParameters; i++)
+    setNumParameters(rhs.getNumParameters());
+    setNumCoefficients(rhs.getNumCoefficients());
+    for (i = 0; i < parameters.count(); i++)
     {
-//        const Parameter p = rhs.parameters[i];
-        parameters[i].name = rhs.parameters[i].name;
-        parameters[i].value = rhs.parameters[i].value;
-        parameters[i].min = rhs.parameters[i].min;
-        parameters[i].max = rhs.parameters[i].max;
+//        Parameter *par = rhs.getParameter(i);
+        parameters[i]->setName(rhs.parameters[i]->getName());
+        parameters[i]->setValue(rhs.parameters[i]->getValue());
+        parameters[i]->setMin(rhs.parameters[i]->getMin());
+        parameters[i]->setMax(rhs.parameters[i]->getMax());
     }
-    for (; i < MAX_PARAMETERS; i++)
+    for (i = 0; i < coefficients.count(); i++)
     {
-//        const Parameter p = *rhs.getParameter(i);
-        parameters[i].name = rhs.parameters[i].name;
-        parameters[i].value = rhs.parameters[i].value;
-        parameters[i].min = rhs.parameters[i].min;
-        parameters[i].max = rhs.parameters[i].max;
+        coefficients[i]->setName(rhs.coefficients[i]->getName());
+        coefficients[i]->setValue(rhs.coefficients[i]->getValue());
+        coefficients[i]->setMin(rhs.coefficients[i]->getMin());
+        coefficients[i]->setMax(rhs.coefficients[i]->getMax());
     }
 
     return *this;
 }
+
+void Equation::setNumParameters(int num)
+{
+    while (parameters.count() < num)
+        parameters.append(new Parameter());
+    while (parameters.count() > num)
+        parameters.takeLast();
+}
+
+int Equation::getNumParameters() const
+{
+    return parameters.count();
+}
+
+void Equation::setNumCoefficients(int num)
+{
+    while (coefficients.count() < num)
+        coefficients.append(new Parameter());
+    while (coefficients.count() > num)
+        coefficients.takeLast();
+}
+
+int Equation::getNumCoefficients() const
+{
+    return coefficients.count();
+}
+
 
 void Equation::addParameter (QString name, double val, double mn, double mx)
 {
     Parameter *par = getParameter(name);
     if (par != nullptr)
     {
-        par->value = val;
-        par->min = mn;
-        par->max = mx;
+        par->setValue(val);
+        par->setMin(mn);
+        par->setMax(mx);
     }
 }
 
 void Equation::addParameter (int num, double val, double mn, double mx)
 {
-    if (num < validParameters)
+    if (num < parameters.count())
     {
-        parameters[num].value = val;
-        parameters[num].min = mn;
-        parameters[num].max = mx;
+        setParameter(num, val, mn, mx);
+    }
+    else
+    {
+        parameters[num]->setValue(val);
+        parameters[num]->setMin(mn);
+        parameters[num]->setMax(mx);
     }
 }
 
@@ -68,9 +99,9 @@ void Equation::setParameter (QString name, double val, double mn, double mx)
     Parameter *par = getParameter(name);
     if (par != nullptr)
     {
-        par->value = val;
-        par->min = mn;
-        par->max = mx;
+        par->setValue(val);
+        par->setMin(mn);
+        par->setMax(mx);
     }
 }
 
@@ -78,9 +109,9 @@ void Equation::setParameter (int num, double val, double mn, double mx)
 {
     if (num < validParameters)
     {
-        parameters[num].value = val;
-        parameters[num].min = mn;
-        parameters[num].max = mx;
+        parameters[num]->setValue(val);
+        parameters[num]->setMin(mn);
+        parameters[num]->setMax(mx);
     }
 }
 
@@ -96,27 +127,126 @@ double Equation::value (double xval)
     return xval;
 }
 
-Equation::Parameter *Equation::getParameter (int num)
+Parameter *Equation::getParameter (int num)
 {
-    Equation::Parameter *parm = nullptr;
-    if (num < MAX_PARAMETERS)
-        parm = &parameters[num];
+    Parameter *parm = nullptr;
+    if (num < parameters.count())
+        parm = parameters[num];
     return parm;
 }
 
-Equation::Parameter *Equation::getParameter (QString name)
+Parameter *Equation::getParameter (QString name)
 {
-    Equation::Parameter *parm = nullptr;
+    Parameter *parm = nullptr;
     int i;
 
-    for (i = 0; i < MAX_PARAMETERS; i++)
+    for (i = 0; i < parameters.count(); i++)
     {
-        if (parameters[i].name.compare (name) == 0)
+        if (parameters[i]->getName().compare (name) == 0)
         {
-            parm = &parameters[i];
+            parm = parameters[i];
             break;
         }
     }
     return parm;
 }
 
+Parameter *Equation::getCoefficient(int num)
+{
+    Parameter *parm = nullptr;
+    if (num < coefficients.count())
+        parm = coefficients[num];
+    return parm;
+}
+
+Parameter *Equation::getCoefficient (QString name)
+{
+    Parameter *parm = nullptr;
+    int i;
+
+    for (i = 0; i < coefficients.count(); i++)
+    {
+        if (coefficients[i]->getName().compare (name) == 0)
+        {
+            parm = coefficients[i];
+            break;
+        }
+    }
+    return parm;
+}
+
+const QString &Equation::getName() const
+{
+    return name;
+}
+
+void Equation::setName(const QString &newName)
+{
+    name = newName;
+}
+
+int Equation::getId() const
+{
+    return id;
+}
+
+void Equation::setId(int newId)
+{
+    id = newId;
+}
+
+void Equation::setFormula(const QString &newFormula)
+{
+    formula = newFormula;
+}
+
+
+Parameter::Parameter ()
+{
+
+}
+
+Parameter::~Parameter ()
+{
+
+}
+
+const QString &Parameter::getName() const
+{
+    return name;
+}
+
+void Parameter::setName(const QString &newName)
+{
+    name = newName;
+}
+
+double Parameter::getValue() const
+{
+    return value;
+}
+
+void Parameter::setValue(double newValue)
+{
+    value = newValue;
+}
+
+double Parameter::getMin() const
+{
+    return min;
+}
+
+void Parameter::setMin(double newMin)
+{
+    min = newMin;
+}
+
+double Parameter::getMax() const
+{
+    return max;
+}
+
+void Parameter::setMax(double newMax)
+{
+    max = newMax;
+}

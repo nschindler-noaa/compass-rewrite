@@ -44,9 +44,11 @@ public:
     cmpEquation(QString eqname);
     cmpEquation(const cmpEquation &rhs);
     virtual ~cmpEquation();
+    cmpEquation &operator = (const cmpEquation &rhs);
 
     /** Equality */
     bool isEqual(const cmpEquation &rhs);
+    bool operator == (const cmpEquation &rhs);
 
     /** Set up all aspects of equation for its id: parameters, name, formula, etc. */
     void setupEquation();
