@@ -8,14 +8,33 @@ TEMPLATE = app
 
 
 HEADERS += \
+    cmpbasin.h \
+    cmpdam.h \
+    cmpdamspecies.h \
     cmpequation.h \
     cmpequationdialog.h \
+    cmpfile.h \
+    cmpfishway.h \
+    cmpheadwater.h \
+    cmpmontecarlomulti.h \
+    cmppowerhouse.h \
+    cmpriver.h \
+    cmpriverpoint.h \
+    cmpriversegment.h \
+    cmpriversystem.h \
+    cmprsw.h \
+    cmprunsettings.h \
+    cmpsettings.h \
+    cmpspecies.h \
+    cmpspillway.h \
+    cmpstock.h \
+    cmptransport.h \
+    cmptributary.h \
+    cmpusersettings.h \
     help.h \
     CompassConsole.h \
     CompassGui.h \
     Log.h \
-    RiverSegment.h \
-    RiverPoint.h \
     transporttool.h \
     version.h \
     LogWidget.h \
@@ -29,9 +48,7 @@ HEADERS += \
     PowerHouse.h \
     Dam.h \
     Reach.h \
-    Tributary.h \
     Headwater.h \
-    Basin.h \
     Period.h \
     Species.h \
     Stock.h \
@@ -41,7 +58,6 @@ HEADERS += \
     writeUtil.h \
     Transport.h \
     Release.h \
-    CompassFile.h \
     dataConversion.h \
     MapWindow.h \
     IOWindow.h \
@@ -57,15 +73,34 @@ HEADERS += \
     damstructures.h
 
 SOURCES += \
+    cmpbasin.cpp \
+    cmpdam.cpp \
+    cmpdamspecies.cpp \
     cmpequation.cpp \
     cmpequationdialog.cpp \
+    cmpfile.cpp \
+    cmpfishway.cpp \
+    cmpheadwater.cpp \
+    cmpmontecarlomulti.cpp \
+    cmppowerhouse.cpp \
+    cmpriver.cpp \
+    cmpriverpoint.cpp \
+    cmpriversegment.cpp \
+    cmpriversystem.cpp \
+    cmprsw.cpp \
+    cmprunsettings.cpp \
+    cmpsettings.cpp \
+    cmpspecies.cpp \
+    cmpspillway.cpp \
+    cmpstock.cpp \
+    cmptransport.cpp \
+    cmptributary.cpp \
+    cmpusersettings.cpp \
     main.cpp \
     help.cpp \
     CompassConsole.cpp \
     CompassGui.cpp \
     Log.cpp \
-    RiverSegment.cpp \
-    RiverPoint.cpp \
     LogWidget.cpp \
     settings.cpp \
     HelpDialog.cpp \
@@ -77,9 +112,7 @@ SOURCES += \
     PowerHouse.cpp \
     Dam.cpp \
     Reach.cpp \
-    Tributary.cpp \
     Headwater.cpp \
-    Basin.cpp \
     Period.cpp \
     Species.cpp \
     Stock.cpp \
@@ -89,7 +122,6 @@ SOURCES += \
     writeUtil.cpp \
     Transport.cpp \
     Release.cpp \
-    CompassFile.cpp \
     MapWindow.cpp \
     IOWindow.cpp \
     Scenario.cpp \

@@ -92,18 +92,6 @@ Settings::~Settings()
 
 }
 
-/*bool Settings::re
-
-bool set_settings(QStringList argList, Settings *set)
-{
-    bool okay = true;
-    // get command list arguments first
-    okay = parse_arguments(argList, set);
-    // get user data settings
-    okay = get_user_data (set);
-
-    return okay;
-}*/
 
 /** Parse the command line arguments into the settings structure */
 bool Settings::readArguments(QStringList arguments)
@@ -200,7 +188,7 @@ bool Settings::readArguments(QStringList arguments)
             else
             {
                 if (arg.contains ('b'))
-                    setBatch (true);
+                    setRunConsole (true);
                 if (arg.contains ('s'))
                     setMontecarlo (false);
 //                    mode_flag = Settings::Scenario;
@@ -422,7 +410,7 @@ bool Settings::getRunConsole() const
     return runConsole;
 }
 
-void Settings::setBatch(bool value)
+void Settings::setRunConsole(bool value)
 {
     runConsole = value;
 }

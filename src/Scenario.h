@@ -19,7 +19,7 @@ enum ReturnHypothesis
     Latent_Mortality,     /**< Latent mortality */
     Constant_D,           /**< Constant delayed mortality*/
     S3_vs_WTT,            /**< S3 vs water travel time */
-    NumOceanHyp         /**< The number of hypotheses */
+    NumOceanHyp           /**< The number of hypotheses */
 };
 /** The actual input tokens for Ocean hypothesis
  *  selection.
@@ -28,16 +28,16 @@ extern QStringList post_bonneville_hypothesis_names;//[NUM_POST_BONNEVILLE];*/
  *  not allowed in input tokens.
 extern QStringList post_bonneville_hypothesis_names_formatted;//[NUM_POST_BONNEVILLE];*/
 
-enum MortalityClass
-{
-    Gas_and_Predation = 0,/**< Gas and predation survival model */
-    XT_Survival,          /**< XT reservoir survival model */
-    Custom_Survival,      /**< Custom reservoir survival model (also uses distance and time, see custom_survival.h) */
-    NumMortalityClasses   /**< Valid number of mortality classes. The run struct mortality_class must
-                            *  be in range [0..NumMortalityClasses-1] */
-};
+//enum MortalityClass
+//{
+//    Gas_and_Predation = 0,/**< Gas and predation survival model */
+//    XT_Survival,          /**< XT reservoir survival model */
+//    Custom_Survival,      /**< Custom reservoir survival model (also uses distance and time, see custom_survival.h) */
+//    NumMortalityClasses   /**< Valid number of mortality classes. The run struct mortality_class must
+//                            *  be in range [0..NumMortalityClasses-1] */
+//};
 /** Names of mortality classes for use as input tokens */
-extern QStringList mortalityClassNames;
+//extern QStringList mortalityClassNames;
 
 /** Performing XT calculations
 #define DO_XT        (mortality_class == XTSurvival)*/
@@ -47,12 +47,12 @@ extern QStringList mortalityClassNames;
 /** Average system-wide water particle travel time for transport mort */
 struct water_travel_time
 {
-    RiverSegment *upper;  /**< Upper seg for computation */
-    RiverSegment *lower;  /**< Lower seg for computation */
-    int first_day;			      /**< First day for computation */
-    int last_day;			      /**< Last day for computation */
+    RiverSegment *upper;    /**< Upper seg for computation */
+    RiverSegment *lower;    /**< Lower seg for computation */
+    int first_day;          /**< First day for computation */
+    int last_day;           /**< Last day for computation */
 
-    float time;				      /**< Computed water travel time */
+    float time;             /**< Computed water travel time */
 };
 /** Entire run parameters */
 class Scenario : public QObject
@@ -87,7 +87,7 @@ public:
 #endif
     float min_migr_rate;	      /**<  Minimum migration rate for the entire run */
 
-    RiverSegment *flow_seg;/**< Segment with indicative flow	 */
+    RiverSegment *flow_seg;       /**< Segment with indicative flow	 */
 #ifdef REALTIME
     QString  rt_report_date;      /**< Realtime report date */
 #endif

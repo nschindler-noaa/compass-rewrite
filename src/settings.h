@@ -1,10 +1,13 @@
 #ifndef C_SETTINGS_H
 #define C_SETTINGS_H
 
+#include "definitions.h"
+#include "cmprunsettings.h"
+//#include "cmpsettings.h"
+
 #include <QString>
 #include <QStringList>
-
-#include "definitions.h"
+#include <QSettings>
 
 // default files are in the application directory
 #define DEFAULT_RIVER_DESC  "columbia.desc"
@@ -13,8 +16,8 @@
 /** Check if a realtime run configured (mode is RT_SCENARIO or RT_MONTE) */
 #define RT_MODE_ACTIVE(flag) ((flag)==RTScenario || (flag)==RTMonteCarlo)
 
-/** \brief A struct that holds various data that is global in nature. Saved
- *  settings (such as user name and default directory), command line
+/** \class cmpSettings \brief A class that holds various data that are global in nature.
+ *  Saved settings (such as user name and default directory), command line
  *  parameters, file names, and run information (run_mode, activity, etc.). */
 class Settings
 {
@@ -50,7 +53,7 @@ public:
     void setRunning(bool value);
 
     bool getRunConsole() const;
-    void setBatch(bool value);
+    void setRunConsole(bool value);
 
     RunMode getRunmode() const;
     void setRunmode(const RunMode &value);
@@ -134,12 +137,16 @@ public:
     void setTspd4Print4Flag(int value);
 
 private:
+    /** Whether console (batch) mode is active, false if gui mode is active. */
+    bool runConsole;
+
     /** A file is being read - don't disturb. */
     bool loading;
     /** A run is in progress, can be canceled with breakComputation */
     bool running;
-    /** Batch mode is active, false if gui mode is active. */
-    bool runConsole;
+    /** Cancel computations, exit smoothly and produce no errors */
+    bool breakComputation;
+
     /** What kind of calculations to perform. Scenario, MonteCarlo, etc.
      *  see \ref runMode for valid options*/
     RunMode runmode;
@@ -150,8 +157,6 @@ private:
     bool calibration;   /**< Produce calibration output */
     /** Produce a summary.altn or summary.dat file */
     bool summary;
-    /** Cancel computations, exit smoothly and produce no errors */
-    bool breakComputation;
 //    /** Pointer used in monte carlo mode */
  //   struct monte_carlo_data *monte_data;
 
@@ -170,13 +175,17 @@ private:
     /** Current date - set once at beginning of session */
     QString currentDate;
 
-    // Input file names
+    /** Input file names */
     /** River description (.desc) file */
     QString riverDesc;
-    /** The initial data file to load (.dat, .scn, or .ctrl) */
+    /** The initial data file to load (.dat, .scn, or .ctrl). This file
+     *  will have all (or most) of the information in the files detailed
+     *  below. The information in the last file loaded will overwrite
+     *  previously read data. */
     QString initialData;
-    /* The following files allow the user to select water year, operations,
-     * calibration, release and post-Bonneville data */
+    /** The following files allow the user to select water year, operations,
+     * calibration, release and post-Bonneville data. They are usually
+     * combined in a .ctrl file using the 'include' command. */
     /** River environment (river year) file to load */
     QString riverData;
     /** Dam operations file to load */
@@ -203,7 +212,7 @@ private:
     QString outputData;
     /** Whether all GUI options should be exposed */
     bool fullGui;
-    /** This is a mild hack, it equals 1 if in adult model travel time
+    /* This is a mild hack, it equals 1 if in adult model travel time
      *  calibration mode (use -t command line option). It causes
      *  output at 4 timesteps per day (if using 4 timesteps per day).
      *  Otherwise, output is coerced to 2 timesteps per day to

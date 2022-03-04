@@ -1,27 +1,18 @@
 #ifndef C_RIVERSYSTEM_H
 #define C_RIVERSYSTEM_H
 
-#include <QObject>
-#include <QStringList>
-//#include <QList>
 #include "RiverSegment.h"
 #include "Species.h"
 #include "Transport.h"
 #include "Release.h"
 
+#include <QObject>
+#include <QStringList>
+
 class Release;
 class ReleaseSite;
 
-/*struct river {
 
-    QString * name;
-    float flowMax;
-    float flowMin;
-};
-typedef struct river River;
-River * newRiver (QString name = QString (""));
-void deleteRiver (River *riv);
-*/
 class River : public QObject
 {
 public:

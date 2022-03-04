@@ -40,8 +40,8 @@ public:
     /* Transport speed */
     float rate;               /**< Rate of transport 100-500 mi per day */
 
-    QString source_seg;       /**< Dam transported from */
-    QString target_seg;       /**< Release point, where fish rejoin river */
+    QString source_seg;       /**< Segment transported from */
+    QString target_seg;       /**< Segment where fish rejoin river */
 };
 
 

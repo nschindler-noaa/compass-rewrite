@@ -31,6 +31,7 @@ void CommonDialog::setMainWidget(QWidget *main)
 {
     mainWidget = main;
     repaint();
+    setClean();
 //    mainWidget->setParent(this);
 }
 
@@ -79,4 +80,31 @@ void CommonDialog::showCancel(bool flag)
 void CommonDialog::showHelp(bool flag)
 {
     ui->pushButton_Help->setVisible(flag);
+}
+
+bool CommonDialog::getChangeAll() const
+{
+    return changeAll;
+}
+
+void CommonDialog::setChangeAll(bool newChangeAll)
+{
+    changeAll = newChangeAll;
+    showResetAll(newChangeAll);
+    showApplyAll(newChangeAll);
+    setClean();
+}
+
+bool CommonDialog::getChange() const
+{
+    return change;
+}
+
+void CommonDialog::setChange(bool newChange)
+{
+    change = newChange;
+    setChangeAll(newChange);
+    showReset(newChange);
+    showApply(newChange);
+    setClean();
 }

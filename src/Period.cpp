@@ -80,3 +80,4 @@ bool BoolPeriod::getValue () const
     return value;
 }
 
+

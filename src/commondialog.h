@@ -23,6 +23,12 @@ public:
     void setClean (){setDirty(false);}
     void setDirty (bool flag = true);
 
+    bool getChange() const;
+    void setChange(bool newChange);
+
+    bool getChangeAll() const;
+    void setChangeAll(bool newChangeAll);
+
 public slots:
     void showReset(bool flag = true);
     void showResetAll(bool flag = true);
@@ -44,6 +50,9 @@ signals:
 private:
     Ui::CommonDialog *ui;
     QWidget *mainWidget;
+
+    bool change;
+    bool changeAll;
 };
 
 

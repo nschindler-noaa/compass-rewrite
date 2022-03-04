@@ -17,12 +17,30 @@
    <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
     <layout class="QHBoxLayout" name="layoutTitle">
-     <property name="margin">
+     <property name="leftMargin">
+      <number>5</number>
+     </property>
+     <property name="topMargin">
+      <number>5</number>
+     </property>
+     <property name="rightMargin">
+      <number>5</number>
+     </property>
+     <property name="bottomMargin">
       <number>5</number>
      </property>
      <item>
@@ -43,7 +61,16 @@
    <item>
     <widget class="QWidget" name="displayWidget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,2">
-      <property name="margin">
+      <property name="leftMargin">
+       <number>5</number>
+      </property>
+      <property name="topMargin">
+       <number>5</number>
+      </property>
+      <property name="rightMargin">
+       <number>5</number>
+      </property>
+      <property name="bottomMargin">
        <number>5</number>
       </property>
       <item>
@@ -66,7 +93,7 @@
               <item>
                <widget class="QToolButton" name="toolButton_Expand">
                 <property name="text">
-                 <string>Expnd All</string>
+                 <string>Expand All</string>
                 </property>
                 <property name="shortcut">
                  <string>Alt++</string>
@@ -76,7 +103,7 @@
               <item>
                <widget class="QToolButton" name="toolButton_Contract">
                 <property name="text">
-                 <string>Cntrct All</string>
+                 <string>Contract All</string>
                 </property>
                 <property name="shortcut">
                  <string>Alt+-</string>
@@ -121,7 +148,7 @@
           <item>
            <widget class="QToolButton" name="toolButton_Home">
             <property name="text">
-             <string>Hm</string>
+             <string>Home</string>
             </property>
             <property name="shortcut">
              <string>Alt+Home</string>

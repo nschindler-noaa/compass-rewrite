@@ -12,3 +12,13 @@ cmpEquationDialog::~cmpEquationDialog()
 {
     delete ui;
 }
+
+cmpEquation *cmpEquationDialog::getEquation() const
+{
+    return equation;
+}
+
+void cmpEquationDialog::setEquation(cmpEquation *newEquation)
+{
+    equation = newEquation;
+}

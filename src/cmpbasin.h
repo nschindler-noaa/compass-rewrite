@@ -1,18 +1,19 @@
-#ifndef C_BASIN_H
-#define C_BASIN_H
-
-#include <QVector>
+#ifndef CMPBASIN_H
+#define CMPBASIN_H
 
 #include "definitions.h"
+
+#include <QStringList>
 
 /** \class basin
  * \brief A structure to represent a storage basin associated with a dam.
  */
-class Basin
+
+class cmpBasin
 {
 public:
-    Basin();
-    ~Basin();
+    cmpBasin();
+    ~cmpBasin();
 
     void allocate(int numDays);
 
@@ -36,4 +37,4 @@ private:
 
 };
 
-#endif // C_BASIN_H
+#endif // CMPBASIN_H

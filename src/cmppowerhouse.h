@@ -1,16 +1,22 @@
-#ifndef C_POWERHOUSE_H
-#define C_POWERHOUSE_H
+#ifndef CMPPOWERHOUSE_H
+#define CMPPOWERHOUSE_H
 
 #include "Period.h"
-#include "definitions.h"
 
-class PowerHouse
+#include <QStringList>
+
+/** \class cmpPowerhouse
+ * \brief A structure to represent a powerhouse associated with a dam.
+ *   This includes the number of the powerhouse, its priority (which can be changed),.
+ */
+
+class cmpPowerhouse
 {
 public:
-    PowerHouse(int num = 0);
-    ~PowerHouse ();
+    cmpPowerhouse(int num = 0);
+    ~cmpPowerhouse ();
 
-    void allocate ();
+    void allocate (int days, int slices);
 
     int getPriority() const;
     void setPriority(int value = 0);
@@ -21,7 +27,7 @@ public:
     float getCapacity() const;
     void setCapacity(float value);
 
-    void setActive (int day, int st, int sp, bool active = true);
+    void setActive (int day, int start, int stop, bool active = true);
     bool getActive (int day, int slice);
 
     void setFlowFraction (int day, float fraction);
@@ -47,4 +53,4 @@ private:
     QList<float> flowFraction;
 };
 
-#endif // C_POWERHOUSE_H
+#endif // CMPPOWERHOUSE_H

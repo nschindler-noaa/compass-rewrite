@@ -305,14 +305,12 @@ bool FileManager::outputSegment(RiverSegment *rseg, CompassFile *outfile)
             outfile->writeValue(0, "gate_width", dam->getSpillway()->getGateWidth(), &defaultFloat);
             outfile->writeValue(0, "basin_length", dam->getLengthBasin(), &defaultFloat);
             outfile->writeValue(0, "sgr", dam->getSpecGrav(), &defaultFloat);
-            if (dam->getNumFishways() > 0) {
+            if (dam->getFishway() != nullptr) {
                 outfile->writeString(1, "fishway");
-                for (int i = 0; i < dam->getNumFishways(); i++) {
-                    outfile->writeString(2, "type", QString::number(i), dam->getFishway(i)->getTypeString());
-                    outfile->writeNumberedValue(2, "length", i, dam->getFishway(i)->getLength());
-                    outfile->writeNumberedValue(2, "capacity", i, dam->getFishway(i)->getCapacity());
-                    outfile->writeNumberedValue(2, "velocity", i, dam->getFishway(i)->getVelocity());
-                }
+                outfile->writeString(2, "type", dam->getFishway()->getTypeString());
+                outfile->writeValue(2, "length", dam->getFishway()->getLength());
+                outfile->writeValue(2, "capacity", dam->getFishway()->getCapacity());
+                outfile->writeValue(2, "velocity", dam->getFishway()->getVelocity());
                 outfile->writeString(1, "end", "fishway");
             }
             outfile->writeString(1, "latlon", dam->getCourse().at(0)->getLatLon());

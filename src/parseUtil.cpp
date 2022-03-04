@@ -1,6 +1,6 @@
 #include "parseUtil.h"
 #include "information.h"
-#include "Basin.h"
+#include "cmpbasin.h"
 
 
 /** The main entry point for reading any file. This will call the
@@ -251,7 +251,7 @@ bool parse_dam (CompassFile *cfile, Dam *dam)
                 tempInt = tokenlist.at(1).toInt() - 1;
             val = cfile->popToken ();
             read_float (val, &tempFloat, QString ("powerhouse capacity"));
-            PowerHouse *phouse = new PowerHouse(tempInt);
+            cmpPowerhouse *phouse = new cmpPowerhouse(tempInt);
 
             index = dam->setPowerhouse(phouse, tempInt);
             Log::outlog->add(Log::Debug,QString ("powerhouse index %1").arg(
@@ -271,7 +271,7 @@ bool parse_dam (CompassFile *cfile, Dam *dam)
         }
         else if (token.compare ("storage_basin", Qt::CaseInsensitive) == 0)
         {
-            Basin *bsn = new Basin ();
+            cmpBasin *bsn = new cmpBasin ();
             dam->setBasin(bsn);
             val = cfile->popToken();
 
@@ -339,39 +339,23 @@ bool parse_fishway (CompassFile *cfile, Dam *dam)
 
         else if (token.contains ("type", Qt::CaseInsensitive))
         {
-            temp_int = cfile->popToken().toInt(&okay);
-            if (temp_int >= dam->getNumFishways())
-                dam->setNumFishways(temp_int + 1);
-
             token = cfile->popToken();
-            dam->getFishway(temp_int)->setType(token);
+            dam->getFishway()->setType(token);
         }
         else if (token.contains ("length", Qt::CaseInsensitive))
         {
-            temp_int = cfile->popToken().toInt(&okay);
-            if (temp_int >= dam->getNumFishways())
-                dam->setNumFishways(temp_int + 1);
-
             token = cfile->popToken();
-            dam->getFishway(temp_int)->setLength(token.toFloat());
+            dam->getFishway()->setLength(token.toFloat());
         }
         else if (token.contains ("capacity", Qt::CaseInsensitive))
         {
-            temp_int = cfile->popToken().toInt(&okay);
-            if (temp_int >= dam->getNumFishways())
-                dam->setNumFishways(temp_int + 1);
-
             token = cfile->popToken();
-            dam->getFishway(temp_int)->setCapacity(token.toFloat());
+            dam->getFishway()->setCapacity(token.toFloat());
         }
         else if (token.contains ("velocity", Qt::CaseInsensitive))
         {
-            temp_int = cfile->popToken().toInt(&okay);
-            if (temp_int >= dam->getNumFishways())
-                dam->setNumFishways(temp_int + 1);
-
             token = cfile->popToken();
-            dam->getFishway(temp_int)->setVelocity(token.toFloat());
+            dam->getFishway()->setVelocity(token.toFloat());
         }
         else if (token.contains ("end"))
         {

@@ -55,6 +55,11 @@ private:
     int stop;
     bool value;
 };
+
+
+typedef QList<bool> BoolList;
+typedef QList<BoolList> Bool2TierList;
+
 /*
 template <class T>
 class PeriodSubPeriod : public Period<T>
@@ -134,7 +139,6 @@ typedef Period<bool>  boolPeriod;
 typedef Period<float> floatPeriod;
 
 typedef QList<intPeriod>   IntPeriodList;
-typedef QList<BoolPeriod>  BoolPeriodList;
 typedef QList<floatPeriod> FloatPeriodList;
 
 

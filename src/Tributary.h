@@ -22,6 +22,7 @@ public:
     RiverPoint * getPoint(int index = 0) const;
     void setPoint (int index, RiverPoint * point);
 
+    int getFlowCount() {return flow.count();}
     float getFlow(int index);
     void setFlow(int index, float flw);
 

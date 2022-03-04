@@ -1,99 +1,29 @@
-#ifndef C_DAM_H
-#define C_DAM_H
+#ifndef CMPDAM_H
+#define CMPDAM_H
 
-#include <QList>
-
-#include "RiverSegment.h"
-#include "cmppowerhouse.h"
-#include "Period.h"
+#include "cmpriversegment.h"
 #include "cmpbasin.h"
-#include "cmpfishway.h"
-#include "cmpspillway.h"
 #include "cmprsw.h"
-#include "Equation.h"
-#include "Species.h"
-#include "Transport.h"
-#include "damstructures.h"
-
-/** \struct dam_species
- * \brief Species-specific information at a dam */
-struct dam_species
-{
-        float spill_mort;     /**< Mortality in conventional spillways */
-        float bypass_mort;    /**< Mortality in the bypass */
-        float sluiceway_mort; /**< Mortality in the sluiceway */
-        float turbine_mort;   /**< Mortality in the turbines */
-        float transport_mort; /**< Mortality in transport */
-        float rsw_mort;       /**< Mortality in the RSWs */
-        float mean_forebay_transit_time; /**< In hours, for forebay pred mort */
-        float separation_prob;/**< Chance of non-collection during a transport
-                                * operation */
-//	float pred[DAM_TIME_SLC];/* Predation given at each dam time slice */
-
-//	float pred_pop_mean;  /* Predation population in the forebay */
-//	float pred_pop_tailrace;/* Predation population in the tailrace */
-
-        Equation spill_eqn;   /**< Spill equation to determine the proportion of
-                                * fish routed to spillways (both conventional and RSW) */
-        Equation fge_eqn;     /**< Fish guidance efficiency for determining the
-                                * proportion of non-spilled fish routed through the bypass system */
-        Equation trans_eqn;   /**< Transport mortality equation to estimate
-                                * transport mortality based on water particle travel time */
-
-        /** Delay equation that determines delay of fish at a dam depending on
-         * species, time of day, season, and flow (relative to hydraulic
-         * capacity). Yield a passage probability. Note that this has been mostly
-         * superseded by the newer dam delay model that allows for simulating diel
-         * passage. See \ref new_dam_delay. */
-        Equation delay_eqn;
-        Equation rsw_eqn;     /**< RSW efficiency which determines the proportion of
-                                * fish that go through RSW */
-
-        /** Proportion of non-spilled fish that pass through SBC or sluicway */
-        float sluiceway_prop;
-
-        float day_fge;        /**< Day time FGE */
-        float night_fge;      /**< Night time FGE */
-
-        /* Extra delay for passage routes */
-        float spill_delay;    /**< Extra delay for fish entering conventional spillways */
-        float bypass_delay;   /**< Extra delay for fish entering bypass system */
-        float sluiceway_delay;/**< Extra delay for fish entering sluiceway */
-        float turbine_delay;  /**< Extra delay for fish entering turbines */
-        float rsw_delay;      /**< Extra delay for fish entering RSW */
-        /* Probability that a fish arriving during the day will pass at night */
-        float spill_day;      /**< Extra delay for fish arriving during the day when
-                                * entering conventional spillways*/
-        float bypass_day;     /**< Extra delay for fish arriving during the day when
-                                * entering bypass system*/
-        float sluiceway_day;  /**< Extra delay for fish arriving during the day
-                                * when entering sluiceway*/
-        float turbine_day;    /**< Extra delay for fish arriving during the day
-                                * when entering turbines*/
-        float rsw_day;        /**< Extra delay for fish arriving during the day when
-                                * entering RSW */
-};
+#include "cmptransport.h"
+#include "cmpspillway.h"
+#include "cmpfishway.h"
+#include "cmppowerhouse.h"
+#include "cmpdamspecies.h"
 
 /** \class Dam
  * \brief Dam-specific segment data (i.e. the dam parameters) */
-class Dam : public RiverSegment
+class cmpDam : public cmpRiverSegment
 {
 public:
-    enum Location {
-        Right,
-        Left,
-        Middle,
-        None
-    };
-
-    Dam (QString dname, QString rivName = QString (""), QObject *parent = nullptr);
-    Dam (const Dam &rhs);
-    ~Dam ();
+    explicit cmpDam(QObject *parent = nullptr);
+    cmpDam (QString dname, QString rivName = QString (""), QObject *parent = nullptr);
+    cmpDam (const cmpDam &rhs);
+    ~cmpDam ();
     void clear ();
-    bool parse (CompassFile *infile);
-    bool parseToken (QString token, CompassFile *infile);
+    bool parse (cmpFile *infile);
+    bool parseToken (QString token, cmpFile *infile);
 
-    void outputDesc (CompassFile *outfile);
+    void outputDesc (cmpFile *outfile);
 
     cmpSpillway *getSpillway() const;
     void setSpillway(cmpSpillway *value);
@@ -101,7 +31,8 @@ public:
     cmpBasin *getBasin() const;
     void setBasin(cmpBasin *value);
 
-    dam_species *getSpecies() const;
+    cmpDamSpecies *getSpecies() const;
+    void setSpecies(cmpDamSpecies *spec);
 
     cmpPowerhouse *getPowerhouse(int index);
     const QList<cmpPowerhouse *> &getPowerhouses() const;
@@ -186,8 +117,8 @@ public:
     float getFlowRiverMin() const;
     void setFlowRiverMin(float value);
 
-    Transport *getTransport() const;
-    void setTransport(Transport *value);
+    cmpTransport *getTransport() const;
+    void setTransport(cmpTransport *value);
 
     QList<float> getDepthForebayDay() const;
     void setDepthForebayDay(const QList<float> &value);
@@ -218,8 +149,8 @@ private:
 
     cmpFishway *fishway;   /**< Fishway pointer holds information about the fishway for adult migration only. */
 
-    /** Pointer to the dam-species information struct */
-    struct dam_species *species;
+    /** Pointer to the dam species information */
+    cmpDamSpecies *species;
 
     /** List of pointers to powerhouses. This may be empty. */
     QList<cmpPowerhouse *> powerhouses;
@@ -283,7 +214,7 @@ private:
 //    QList<float> flow;/**< Flow in KCFS given at each day [DAYS_IN_SEASON]*/
 
     /* Transport info */
-    Transport *transport;/**< Pointer to transport operation information
+    cmpTransport *transport;/**< Pointer to transport operation information
                              * started at this dam. (this may be nullptr) */
 
     /* nsat stuff */
@@ -322,6 +253,4 @@ public slots:
     void deleteSpill ();
 };
 
-#endif // C_DAM_H
-
-
+#endif // CMPDAM_H

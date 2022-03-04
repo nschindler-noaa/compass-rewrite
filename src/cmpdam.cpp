@@ -1,19 +1,23 @@
-#include "Dam.h"
+#include "cmpdam.h"
 
+cmpDam::cmpDam(QObject *parent) : cmpRiverSegment(parent)
+{
 
-Dam::Dam(QString dname, QString rivName, QObject *parent) :
-    RiverSegment (rivName, parent)
+}
+
+cmpDam::cmpDam(QString dname, QString rivName, QObject *parent) :
+    cmpRiverSegment (rivName, parent)
 {
     name = new QString (dname);
-    type = RiverSegment::Dam;
+    type = cmpRiverSegment::Dam;
     clear ();
 }
 
-Dam::~Dam ()
+cmpDam::~cmpDam ()
 {
 }
 
-void Dam::clear()
+void cmpDam::clear()
 {
     basin = nullptr;
     species = nullptr;
@@ -47,7 +51,7 @@ void Dam::clear()
     transport = nullptr;
 }
 
-void Dam::allocate()
+void cmpDam::allocate()
 {
     while (depthForebayDay.count() < DAYS_IN_SEASON)
     {
@@ -92,18 +96,18 @@ void Dam::allocate()
     }
 }
 
-void Dam::calculateFlow()
+void cmpDam::calculateFlow()
 {
     calculateFlowInputs();
     calculateFlows();
 }
 
-void Dam::calculateFlows()
+void cmpDam::calculateFlows()
 {
 
 }
 
-void Dam::calculateTemp()
+void cmpDam::calculateTemp()
 {
     if (!readTemps)
     {
@@ -112,32 +116,32 @@ void Dam::calculateTemp()
     }
 }
 
-void Dam::calculateTemps()
+void cmpDam::calculateTemps()
 {
 
 }
 
-void Dam::calculateSpill()
+void cmpDam::calculateSpill()
 {
 
 }
 
-void Dam::calculateFish()
+void cmpDam::calculateFish()
 {
 
 }
 
-void Dam::calculateStats()
+void cmpDam::calculateStats()
 {
 
 }
 
-void Dam::deleteSpill()
+void cmpDam::deleteSpill()
 {
 
 }
 
-bool Dam::parse (CompassFile *cfile)
+bool cmpDam::parse (cmpFile *cfile)
 {
     bool okay = true, end = false;
     QString token ("");
@@ -164,7 +168,7 @@ bool Dam::parse (CompassFile *cfile)
     return okay;
 }
 
-bool Dam::parseToken (QString token, CompassFile *cfile)
+bool cmpDam::parseToken (QString token, cmpFile *cfile)
 {
     bool okay = true;
     QString na ("");
@@ -187,13 +191,13 @@ bool Dam::parseToken (QString token, CompassFile *cfile)
     }
     else
     {
-        okay = RiverSegment::parseToken (token, cfile);
+        okay = cmpRiverSegment::parseToken (token, cfile);
     }
 
     return okay;
 }
 
-void Dam::outputDesc(CompassFile *outfile)
+void cmpDam::outputDesc(cmpFile *outfile)
 {
     if (!outfile->isOpen())
         outfile->open(QIODevice::WriteOnly);
@@ -254,32 +258,37 @@ void Dam::outputDesc(CompassFile *outfile)
     }
 }
 
-cmpSpillway *Dam::getSpillway() const
+cmpSpillway *cmpDam::getSpillway() const
 {
     return spillway;
 }
 
-void Dam::setSpillway(cmpSpillway *value)
+void cmpDam::setSpillway(cmpSpillway *value)
 {
     spillway = value;
 }
 
-cmpBasin *Dam::getBasin() const
+cmpBasin *cmpDam::getBasin() const
 {
     return basin;
 }
 
-void Dam::setBasin(cmpBasin *value)
+void cmpDam::setBasin(cmpBasin *value)
 {
     basin = value;
 }
 
-dam_species *Dam::getSpecies() const
+cmpDamSpecies *cmpDam::getSpecies() const
 {
     return species;
 }
 
-cmpPowerhouse *Dam::getPowerhouse(int index)
+void cmpDam::setSpecies(cmpDamSpecies *spec)
+{
+    species = spec;
+}
+
+cmpPowerhouse *cmpDam::getPowerhouse(int index)
 {
     cmpPowerhouse *phouse = nullptr;
     if (index >= 0 && index < powerhouses.count())
@@ -287,17 +296,17 @@ cmpPowerhouse *Dam::getPowerhouse(int index)
     return phouse;
 }
 
-const QList<cmpPowerhouse *> &Dam::getPowerhouses() const
+const QList<cmpPowerhouse *> &cmpDam::getPowerhouses() const
 {
     return powerhouses;
 }
 
-void Dam::setPowerhouses(const QList<cmpPowerhouse *> &value)
+void cmpDam::setPowerhouses(const QList<cmpPowerhouse *> &value)
 {
     powerhouses = value;
 }
 
-int Dam::setPowerhouse(cmpPowerhouse *house, int num)
+int cmpDam::setPowerhouse(cmpPowerhouse *house, int num)
 {
     if (house != nullptr)
     {
@@ -308,7 +317,7 @@ int Dam::setPowerhouse(cmpPowerhouse *house, int num)
     return num;
 }
 
-int Dam::getNumPowerhouses()
+int cmpDam::getNumPowerhouses()
 {
     int num = 0;
     if (!powerhouses.isEmpty())
@@ -316,212 +325,212 @@ int Dam::getNumPowerhouses()
     return num;
 }
 
-Dam::Location Dam::getPhouseSide() const
+cmpDam::Location cmpDam::getPhouseSide() const
 {
     return phouseSide;
 }
 
-void Dam::setPhouseSide(const Location &value)
+void cmpDam::setPhouseSide(const Location &value)
 {
     phouseSide = value;
 }
 
-float Dam::getWidthTailrace() const
+float cmpDam::getWidthTailrace() const
 {
     return widthTailrace;
 }
 
-void Dam::setWidthTailrace(float value)
+void cmpDam::setWidthTailrace(float value)
 {
     widthTailrace = value;
 }
 
-float Dam::getLengthTailrace() const
+float cmpDam::getLengthTailrace() const
 {
     return lengthTailrace;
 }
 
-void Dam::setLengthTailrace(float value)
+void cmpDam::setLengthTailrace(float value)
 {
     lengthTailrace = value;
 }
 
-float Dam::getElevBase() const
+float cmpDam::getElevBase() const
 {
     return elevBase;
 }
 
-void Dam::setElevBase(float value)
+void cmpDam::setElevBase(float value)
 {
     elevBase = value;
 }
 
-float Dam::getElevForebay() const
+float cmpDam::getElevForebay() const
 {
     return elevForebay;
 }
 
-void Dam::setElevForebay(float value)
+void cmpDam::setElevForebay(float value)
 {
     elevForebay = value;
 }
 
-float Dam::getElevTailrace() const
+float cmpDam::getElevTailrace() const
 {
     return elevTailrace;
 }
 
-void Dam::setElevTailrace(float value)
+void cmpDam::setElevTailrace(float value)
 {
     elevTailrace = value;
 }
 
-float Dam::getFullHead() const
+float cmpDam::getFullHead() const
 {
     return fullHead;
 }
 
-void Dam::setFullHead(float value)
+void cmpDam::setFullHead(float value)
 {
     fullHead = value;
 }
 
-float Dam::getDepthForebay() const
+float cmpDam::getDepthForebay() const
 {
     return depthForebay;
 }
 
-void Dam::setDepthForebay(float value)
+void cmpDam::setDepthForebay(float value)
 {
     depthForebay = value;
 }
 
-float Dam::getDepthTailrace() const
+float cmpDam::getDepthTailrace() const
 {
     return depthTailrace;
 }
 
-void Dam::setDepthTailrace(float value)
+void cmpDam::setDepthTailrace(float value)
 {
     depthTailrace = value;
 }
 
-float Dam::getHeightBypass() const
+float cmpDam::getHeightBypass() const
 {
     return heightBypass;
 }
 
-void Dam::setHeightBypass(float value)
+void cmpDam::setHeightBypass(float value)
 {
     heightBypass = value;
 }
 
-int Dam::getCollector() const
+int cmpDam::getCollector() const
 {
     return collector;
 }
 
-void Dam::setCollector(int value)
+void cmpDam::setCollector(int value)
 {
     collector = value;
 }
 
-float Dam::getLengthBasin() const
+float cmpDam::getLengthBasin() const
 {
     return lengthBasin;
 }
 
-void Dam::setLengthBasin(float value)
+void cmpDam::setLengthBasin(float value)
 {
     lengthBasin = value;
 }
 
-float Dam::getSpecGrav() const
+float cmpDam::getSpecGrav() const
 {
     return specGrav;
 }
 
-void Dam::setSpecGrav(float value)
+void cmpDam::setSpecGrav(float value)
 {
     specGrav = value;
 }
 
-QList<float> Dam::getSpill() const
+QList<float> cmpDam::getSpill() const
 {
     return spill;
 }
 
-void Dam::setSpill(const QList<float> &value)
+void cmpDam::setSpill(const QList<float> &value)
 {
     spill = value;
 }
 
-QList<float> Dam::getSpillPlanned() const
+QList<float> cmpDam::getSpillPlanned() const
 {
     return spillPlanned;
 }
 
-void Dam::setSpillPlanned(const QList<float> &value)
+void cmpDam::setSpillPlanned(const QList<float> &value)
 {
     spillPlanned = value;
 }
 
-FloatPeriodList *Dam::getSpillPlannedDay() const
+FloatPeriodList *cmpDam::getSpillPlannedDay() const
 {
     return spillPlannedDay;
 }
 
-void Dam::setSpillPlannedDay(FloatPeriodList *value)
+void cmpDam::setSpillPlannedDay(FloatPeriodList *value)
 {
     spillPlannedDay = value;
 }
 
-FloatPeriodList *Dam::getSpillPlannedNight() const
+FloatPeriodList *cmpDam::getSpillPlannedNight() const
 {
     return spillPlannedNight;
 }
 
-void Dam::setSpillPlannedNight(FloatPeriodList *value)
+void cmpDam::setSpillPlannedNight(FloatPeriodList *value)
 {
     spillPlannedNight = value;
 }
 
-FloatPeriodList *Dam::getSpillLegacyPlanned() const
+FloatPeriodList *cmpDam::getSpillLegacyPlanned() const
 {
     return spillLegacyPlanned;
 }
 
-void Dam::setSpillLegacyPlanned(FloatPeriodList *value)
+void cmpDam::setSpillLegacyPlanned(FloatPeriodList *value)
 {
     spillLegacyPlanned = value;
 }
 
-FloatPeriodList *Dam::getSpillLegacyFish() const
+FloatPeriodList *cmpDam::getSpillLegacyFish() const
 {
     return spillLegacyFish;
 }
 
-void Dam::setSpillLegacyFish(FloatPeriodList *value)
+void cmpDam::setSpillLegacyFish(FloatPeriodList *value)
 {
     spillLegacyFish = value;
 }
 
-float Dam::getSpillMax() const
+float cmpDam::getSpillMax() const
 {
     return spillMax;
 }
 
-void Dam::setSpillMax(float value)
+void cmpDam::setSpillMax(float value)
 {
     spillMax = value;
 }
 
-QString &Dam::getSpillSideText()
+QString &cmpDam::getSpillSideText()
 {
     return spillSideText;
 }
 
-void Dam::setSpillSideText(const QString &text)
+void cmpDam::setSpillSideText(const QString &text)
 {
     spillSideText = QString(text);
     if (text.contains("right", Qt::CaseInsensitive))
@@ -534,12 +543,12 @@ void Dam::setSpillSideText(const QString &text)
         spillSide = None;
 }
 
-Dam::Location Dam::getSpillSide() const
+cmpDam::Location cmpDam::getSpillSide() const
 {
     return spillSide;
 }
 
-void Dam::setSpillSide(const Location &value)
+void cmpDam::setSpillSide(const Location &value)
 {
     spillSide = value;
     switch (spillSide) {
@@ -557,112 +566,112 @@ void Dam::setSpillSide(const Location &value)
     }
 }
 
-float Dam::getRswSpillMax() const
+float cmpDam::getRswSpillMax() const
 {
     return spillWeir->getMaxSpill();
 }
 
-void Dam::setRswSpillMax(float value)
+void cmpDam::setRswSpillMax(float value)
 {
     spillWeir->setMaxSpill(value);
 }
 
-cmpRSW *Dam::getRswActive() const
+cmpRSW *cmpDam::getRswActive() const
 {
     return spillWeir;
 }
 
-void Dam::setRswActive(cmpRSW *value)
+void cmpDam::setRswActive(cmpRSW *value)
 {
     spillWeir = value;
 }
 
-float Dam::getFlowProjectMin() const
+float cmpDam::getFlowProjectMin() const
 {
     return flowProjectMin;
 }
 
-void Dam::setFlowProjectMin(float value)
+void cmpDam::setFlowProjectMin(float value)
 {
     flowProjectMin = value;
 }
 
-float Dam::getFlowRiverMin() const
+float cmpDam::getFlowRiverMin() const
 {
     return flowRiverMin;
 }
 
-void Dam::setFlowRiverMin(float value)
+void cmpDam::setFlowRiverMin(float value)
 {
     flowRiverMin = value;
 }
 
-Transport *Dam::getTransport() const
+cmpTransport *cmpDam::getTransport() const
 {
     return transport;
 }
 
-void Dam::setTransport(Transport *value)
+void cmpDam::setTransport(cmpTransport *value)
 {
     transport = value;
 }
 
-QList<float> Dam::getDepthForebayDay() const
+QList<float> cmpDam::getDepthForebayDay() const
 {
     return depthForebayDay;
 }
 
-void Dam::setDepthForebayDay(const QList<float> &value)
+void cmpDam::setDepthForebayDay(const QList<float> &value)
 {
     depthForebayDay = value;
 }
 
-QList<float> Dam::getDepthTailraceDay() const
+QList<float> cmpDam::getDepthTailraceDay() const
 {
     return depthTailraceDay;
 }
 
-void Dam::setDepthTailraceDay(const QList<float> &value)
+void cmpDam::setDepthTailraceDay(const QList<float> &value)
 {
     depthTailraceDay = value;
 }
 
-QList<float> Dam::getDropRatioDay() const
+QList<float> cmpDam::getDropRatioDay() const
 {
     return dropRatioDay;
 }
 
-void Dam::setDropRatioDay(const QList<float> &value)
+void cmpDam::setDropRatioDay(const QList<float> &value)
 {
     dropRatioDay = value;
 }
 
-QList<float> Dam::getDropRatioDayTR() const
+QList<float> cmpDam::getDropRatioDayTR() const
 {
     return dropRatioDayTR;
 }
 
-void Dam::setDropRatioDayTR(const QList<float> &value)
+void cmpDam::setDropRatioDayTR(const QList<float> &value)
 {
     dropRatioDayTR = value;
 }
 
-QList<float> Dam::getDaylightProportion() const
+QList<float> cmpDam::getDaylightProportion() const
 {
     return daylightProportion;
 }
 
-void Dam::setDaylightProportion(const QList<float> &value)
+void cmpDam::setDaylightProportion(const QList<float> &value)
 {
     daylightProportion = value;
 }
 
-cmpFishway *Dam::getFishway() const
+cmpFishway *cmpDam::getFishway() const
 {
     return fishway;
 }
 
-void Dam::setFishway(cmpFishway *value)
+void cmpDam::setFishway(cmpFishway *value)
 {
     fishway = value;
 }

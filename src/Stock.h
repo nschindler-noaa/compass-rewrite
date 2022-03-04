@@ -10,6 +10,8 @@
 #include "definitions.h"
 #include "Equation.h"
 //#include "var.h"
+#include "cmpsettings.h"
+#include "cmpequation.h"
 
 /**
  * \class Stock

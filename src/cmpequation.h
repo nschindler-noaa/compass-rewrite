@@ -49,6 +49,7 @@ public:
     /** Equality */
     bool isEqual(const cmpEquation &rhs);
     bool operator == (const cmpEquation &rhs);
+    bool operator == (cmpEquation &rhs);
 
     /** Set up all aspects of equation for its id: parameters, name, formula, etc. */
     void setupEquation();

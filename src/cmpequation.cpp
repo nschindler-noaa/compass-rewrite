@@ -55,6 +55,11 @@ bool cmpEquation::operator==(const cmpEquation &rhs)
     return isEqual(rhs);
 }
 
+bool cmpEquation::operator==(cmpEquation &rhs)
+{
+    return isEqual(rhs);
+}
+
 bool cmpEquation::isEqual(const cmpEquation &rhs)
 {
     bool equal = true;
