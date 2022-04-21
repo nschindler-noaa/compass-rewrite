@@ -147,6 +147,9 @@ private:
     int post_bonneville_hypothesis; /**< Which hypothesis should be used for
                                * post-Bonneville calculations \ref PostBonHypothesis */
 
+    bool FlowRouting;
+    bool RealTime;
+
     bool debug;
     bool debugInput;
     bool debugCalib;
