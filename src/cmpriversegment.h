@@ -1,6 +1,7 @@
 #ifndef CMPRIVERSEGMENT_H
 #define CMPRIVERSEGMENT_H
 
+#include "definitions.h"
 #include "cmpfile.h"
 #include "cmptributary.h"
 
@@ -25,6 +26,7 @@ public:
 
     cmpRiverSegment &operator =(const cmpRiverSegment &rhs);
     void setup ();
+
     bool parseToken (QString token, cmpFile *infile);
 
     virtual bool parse (cmpFile *infile);
@@ -45,7 +47,7 @@ public:
     QString *getAbbrev() const;
     void setAbbrev(QString *value);
 
-    QList<cmpTributary *> getTributaries() const;
+    const QList<cmpTributary *> &getTributaries() const;
 
     QList<cmpRiverPoint *> getCourse() const;
     bool addCoursePoint (cmpRiverPoint *pt);
@@ -64,8 +66,8 @@ public:
 
     /** Division of river into separate flows */
     enum FlowLocation {
-        Right,         /**< Right side of the segment */
-        Left,          /**< Left side of the segment */
+        FlowRight,         /**< Right side of the segment */
+        FlowLeft,          /**< Left side of the segment */
         FlowDivisions  /**< Number of flow divisions */
     };
     FlowLocation getMainFlow () const;
@@ -111,6 +113,9 @@ public:
 
     float getElevLower() const;
     void setElevLower(float value);
+
+    int getTemp_1() const;
+    void setTemp_1(int newTemp_1);
 
 protected:
     cmpRiverSegment &copy (cmpRiverSegment &rhs);
@@ -180,19 +185,17 @@ private:
 signals:
 
 public slots:
-    void allocate();
+    void allocateDays(int days = DAYS_IN_SEASON);
     void calculateFlows ();
     void calculateFlowInputs ();
     void calculateTemps ();
-    void calculateTempInputs ();
+    void calculateTempInputs (int steps = STEPS_IN_SEASON, int daysteps = STEPS_PER_DAY);
     virtual void calculateFlow ();
     virtual void calculateTemp ();
     virtual void calculateFish ();
     virtual void calculateStats ();
 
 
-public:
-    cmpRiverSegment();
 };
 
 #endif // CMPRIVERSEGMENT_H

@@ -48,7 +48,7 @@ void cmpRiverSegment::setup ()
     flowMin = 0.0;
     temp.append(0);
     flow.append(0);
-    allocate();
+    allocateDays();
     readTemps = false;
     up = nullptr;
     down = nullptr;
@@ -199,7 +199,7 @@ void cmpRiverSegment::setAbbrev(QString *value)
     abbrev = value;
 }
 
-QList<cmpTributary *> cmpRiverSegment::getTributaries() const
+const QList<cmpTributary *> &cmpRiverSegment::getTributaries() const
 {
     return tributaries;
 }
@@ -267,10 +267,10 @@ cmpRiverSegment::FlowLocation cmpRiverSegment::getMainFlow() const
 void cmpRiverSegment::setMainFlow(FlowLocation loc)
 {
     mainFlow = loc;
-    if (loc == FlowLocation::Right)
-        otherFlow = FlowLocation::Left;
+    if (loc == FlowLocation::FlowRight)
+        otherFlow = FlowLocation::FlowLeft;
     else
-        otherFlow = FlowLocation::Right;
+        otherFlow = FlowLocation::FlowRight;
 }
 
 cmpRiverSegment::FlowLocation cmpRiverSegment::getOtherFlow() const
@@ -281,10 +281,10 @@ cmpRiverSegment::FlowLocation cmpRiverSegment::getOtherFlow() const
 void cmpRiverSegment::setOtherFlow(FlowLocation loc)
 {
     otherFlow = loc;
-    if (loc == FlowLocation::Right)
-        mainFlow = FlowLocation::Left;
+    if (loc == FlowLocation::FlowRight)
+        mainFlow = FlowLocation::FlowLeft;
     else
-        mainFlow = FlowLocation::Right;
+        mainFlow = FlowLocation::FlowRight;
 }
 
 bool cmpRiverSegment::getReadTemps() const
@@ -367,6 +367,16 @@ void cmpRiverSegment::setElevLower(float value)
     elevLower = value;
 }
 
+int cmpRiverSegment::getTemp_1() const
+{
+    return temp_1;
+}
+
+void cmpRiverSegment::setTemp_1(int newTemp_1)
+{
+    temp_1 = newTemp_1;
+}
+
 void cmpRiverSegment::calculateFlow ()
 {
     calculateFlowInputs();
@@ -399,17 +409,17 @@ void cmpRiverSegment::calculateFlowInputs()
     }
 }
 
-void cmpRiverSegment::allocate()
+void cmpRiverSegment::allocateDays(int days)
 {
-    while (flow.count() < DAYS_IN_SEASON)
+    while (flow.count() < days)
         flow.append(0);
-    while (flow.count() > DAYS_IN_SEASON)
+    while (flow.count() > days)
         flow.takeLast();
-    while (temp.count() < DAYS_IN_SEASON)
+    while (temp.count() < days)
         temp.append(0);
-    while (temp.count() > DAYS_IN_SEASON)
+    while (temp.count() > days)
         temp.takeLast();
-    for (int i = 0; i < DAYS_IN_SEASON; i++)
+    for (int i = 0; i < days; i++)
     {
         flow[i] = 0;
         temp[i] = 0;
@@ -430,21 +440,28 @@ void cmpRiverSegment::calculateTemp ()
     }
 }
 
-void cmpRiverSegment::calculateTempInputs()
+void cmpRiverSegment::calculateTempInputs(int steps, int daysteps)
 {
+    int day = 0;
+    int step = 0;
     if (up != nullptr)
     {
         up->calculateTemp();
-        for (int i = 0; i < STEPS_IN_SEASON; i++)
-            temp[i] = up->temp[i];
+        for (step = 0; step < steps; step++)
+        {
+            temp[step] = up->temp[step];
+        }
 
         if (fork != nullptr)
         {
             fork->calculateTemp();
-            for (int i = 0; i < STEPS_IN_SEASON; i++)
-                temp[i] = ((up->temp[i] * up->flow[i/2]) +
-                           (fork->temp[i] * fork->flow[i/2])) /
-                           (up->flow[i/2] + fork->flow[i/2]);
+            for (step = 0; step < steps; step++)
+            {
+                day = step / daysteps;
+                temp[step] = ((up->temp[step] * up->flow[day]) +
+                             (fork->temp[step] * fork->flow[day])) /
+                             (up->flow[day] + fork->flow[day]);
+            }
         }
     }
     else  // ends at all headwaters - already calculated

@@ -18,6 +18,11 @@ HEADERS += \
     cmpheadwater.h \
     cmpmontecarlomulti.h \
     cmppowerhouse.h \
+    cmpreach.h \
+    cmprealtime.h \
+    cmprelease.h \
+    cmpreleasesegmentdata.h \
+    cmpreleasesite.h \
     cmpriver.h \
     cmpriverpoint.h \
     cmpriversegment.h \
@@ -83,6 +88,11 @@ SOURCES += \
     cmpheadwater.cpp \
     cmpmontecarlomulti.cpp \
     cmppowerhouse.cpp \
+    cmpreach.cpp \
+    cmprealtime.cpp \
+    cmprelease.cpp \
+    cmpreleasesegmentdata.cpp \
+    cmpreleasesite.cpp \
     cmpriver.cpp \
     cmpriverpoint.cpp \
     cmpriversegment.cpp \

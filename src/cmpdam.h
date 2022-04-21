@@ -241,7 +241,7 @@ private:
                            * slice. [DAM_SLICES_IN_SEASON]*/
 
 public slots:
-    void allocate();
+    void allocateDays();
     void calculateFlow ();
     void calculateFlows ();
     void calculateTemp ();

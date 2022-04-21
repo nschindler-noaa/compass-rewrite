@@ -13,7 +13,7 @@ public:
     bool parse (cmpFile *infile);
     bool parseToken (QString token, cmpFile *infile);
 
-    void allocate(int numdays);
+    void allocateDays(int numdays);
     void calculateFlow ();
     void fillRegulated ();   /**< fills headwaters that are regulated and labels them as such. */
     void fillUnRegulated (); /**< fills headwaters not filled in previous - fillRegulated must be called first. */

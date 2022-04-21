@@ -389,7 +389,7 @@ cmpReleaseSite * cmpRiverSystem::findReleaseSite(QString name)
     for (int i = 0; i < releaseSites->count(); i++)
     {
         site = releaseSites->at (i);
-        if (site->getName()->compare(name) == 0)
+        if (site->getName().compare(name) == 0)
             break;
     }
     return site;
@@ -498,7 +498,7 @@ void cmpRiverSystem::computeSpill ()
 {
 //    computeSegSpill (getMouth());
     for (int i = 0; i < segments->count(); i++)
-    if (segments->at (i)->getType() == cmpRiverSegment::cmpDam)
+    if (segments->at (i)->getType() == cmpRiverSegment::Dam)
     {
         static_cast <cmpDam *> (segments->at (i))->calculateSpill ();
     }
@@ -506,7 +506,7 @@ void cmpRiverSystem::computeSpill ()
 
 void cmpRiverSystem::computeSegSpill(cmpRiverSegment *seg)
 {
-    if (seg->getType() == cmpRiverSegment::cmpDam)
+    if (seg->getType() == cmpRiverSegment::Dam)
     {
         static_cast <cmpDam *> (seg)->calculateSpill ();
     }
@@ -520,7 +520,7 @@ void cmpRiverSystem::deleteReleases ()
 void cmpRiverSystem::deleteSpill ()
 {
     for (int i = 0; i < segments->count(); i++)
-    if (segments->at (i)->getType() == cmpRiverSegment::cmpDam)
+    if (segments->at (i)->getType() == cmpRiverSegment::Dam)
     {
         static_cast <cmpDam *> (segments->at (i))->deleteSpill ();
     }

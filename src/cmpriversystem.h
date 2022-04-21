@@ -9,8 +9,8 @@
 #include "cmpdam.h"
 #include "cmpreach.h"
 #include "cmpheadwater.h"
-//#include "cmpreleasesite.h"
-//#include "cmprelease.h"
+#include "cmpreleasesite.h"
+#include "cmprelease.h"
 
 #include <QObject>
 
@@ -30,8 +30,8 @@ public:
     QList <cmpSpecies *> *species;
     QList <cmpStock *> *stocks;
     QList <cmpTransport *> *transports;
-//    QList <cmpRelease *> *releases;
-//    QList <cmpReleaseSite *> *releaseSites;
+    QList <cmpRelease *> *releases;
+    QList <cmpReleaseSite *> *releaseSites;
 
     QStringList *speciesNames;
     QStringList *stockNames;
@@ -47,8 +47,8 @@ public:
     cmpSpecies *findSpecies (QString name);
     cmpStock *findStock (QString name);
     cmpTransport *findTransport (QString name);
-//    cmpRelease *findRelease (QString name);
-//    cmpReleaseSite *findReleaseSite (QString name);
+    cmpRelease *findRelease (QString name);
+    cmpReleaseSite *findReleaseSite (QString name);
 
 signals:
     void constructed (bool okay);

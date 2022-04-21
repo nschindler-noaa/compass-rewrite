@@ -46,12 +46,12 @@ void cmpDam::clear()
     flowProjectMin = 0.0;
     flowRiverMin = 0.0;
 
-    allocate();
+    allocateDays();
 
     transport = nullptr;
 }
 
-void cmpDam::allocate()
+void cmpDam::allocateDays()
 {
     while (depthForebayDay.count() < DAYS_IN_SEASON)
     {

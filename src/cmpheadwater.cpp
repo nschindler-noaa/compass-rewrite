@@ -9,7 +9,7 @@ cmpHeadwater::cmpHeadwater (QString hname, QString rivName, QObject *parent) :
     reset ();
 }
 
-void cmpHeadwater::allocate(int numdays)
+void cmpHeadwater::allocateDays(int numdays)
 {
     elevChange.clear();
     for (int i = 0; i < numdays; i++)
