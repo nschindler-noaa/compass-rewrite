@@ -14,31 +14,72 @@ class cmpRelease
 public:
     cmpRelease();
 
-    void activate (bool = true);
+    void activate (bool newActive = true);
 
 
+    const QString &getName() const;
+    void setName(const QString &newName);
+
+    void setSite(cmpReleaseSite *newSite);
+
+    void setSpecies(cmpSpecies *newSpecies);
+
+    void setStock(cmpStock *newStock);
+
+    int getStartDay() const;
+    void setStartDay(int newStartDay);
+
+    RtInfo *getRtinfo() const;
+    void setRtinfo(RtInfo *newRtinfo);
+
+    const float &getNumber(int i) const;
+    void setNumber(int i, const float &newNumber);
+
+    int getAddSetting() const;
+    void setAddSetting(int newAddSetting);
+
+    bool getDirtyFlag() const;
+    void setDirtyFlag(bool newDirtyFlag);
+
+    float getInitialSpillExperience() const;
+    void setInitialSpillExperience(float newInitialSpillExperience);
+
+    float getTotalReleased() const;
+    void setTotalReleased(float newTotalReleased);
+
+    const QList<cmpReleaseSegmentData *> &getRelSegments() const;
+    void setRelSegments(const QList<cmpReleaseSegmentData *> &newRelSegments);
+
+    const cmpReleaseSegmentStats &getStats() const;
+    void setStats(const cmpReleaseSegmentStats &newStats);
+
+    float getMigrOnsetMedian() const;
+    void setMigrOnsetMedian(float newMigrOnsetMedian);
+
+private:
     QString name;
+    bool active;
     cmpReleaseSite *site;
     cmpSpecies *species;
     cmpStock *stock;
     int startDay;        /**< Offset into season */
-    QList<float> number; /**< The release distribution up to [Days_IN_SEASON] - startDay*/
+    QList<float> number; /**< The release distribution up to [DAYS_IN_SEASON] - startDay*/
 #ifdef REALTIME
     RtInfo *rtinfo;               /**< Realtime info (optional) */
 #endif
 
     int   addSetting;       /**< For determining how to add the release to the
                                                            * system. */
-    int   dirtyFlag;        /**< For use by GUI release editor. */
+    bool  dirtyFlag;        /**< For use by GUI release editor. */
 
     float initialSpillExperience;/**< If the release is made in a segment
                                * that isn't immediately downstream from a dam,
                                * then the dam spill experience will be filled
                                * in with this value */
-    float totalReleased;  /**< Total fish in last run */
+    float totalReleased;    /**< Total fish in last run */
     QList<cmpReleaseSegmentData *> relSegments; /** List of release segments (hold data and stats) */
-    cmpReleaseStats stats; /**< Summary statistics for this release */
-    float migrOnsetMedian;/**< Migration onset, median value
+    cmpReleaseSegmentStats stats; /**< Summary statistics for this release */
+    float migrOnsetMedian;  /**< Migration onset, median value
                                 *  in days (computed) */
 };
 
