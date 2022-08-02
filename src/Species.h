@@ -2,7 +2,7 @@
 #define C_SPECIES_H
 
 #include "Equation.h"
-#include "Stock.h"
+
 
 /** \brief Species parameters. This definition includes default or generic
  *  Stock values.
@@ -18,10 +18,10 @@
  * All float arrays are dimensioned by number of \ref reach classes.
  */
 
-class Species : public Stock
+class Species
 {
 public:
-    Species (QString name = QString (""));
+    Species (QString name);
     ~Species ();
 
     void allocate (int num); /**< allocate enough room for all reach classes*/
@@ -60,8 +60,15 @@ public:
     void setReachPredCoef(int index, const float &value);
 
 protected:
-    //    QString *name;               /**< Name of species */
+    QString name;               /**< Name of species */
+
     //    Stock stock;             /**< Generic stock params this species */
+
+    // Migration
+
+    // Survival / Mortality 
+
+    // Predation
     QList<float> reachPredCoef;    /**< Reach predation coefficients [10]*/
     QList<float> pprimeA;       /**< Used to calculate 'p' for growth algorithm. [10]*/
     QList<float> pprimeB;       /**< Used to calculate 'p' for growth algorithm. [10]*/
@@ -71,16 +78,16 @@ protected:
     Equation gasMortEqn;       /**< Gas bubble disease mortality equation */
     Equation fishDensEqn;       /**< Used in gas mortality calculations */
 
-    float inriverLatentMort;/**< Latent mortality for post-Bonneville
+
+    // Post River System (past last detection point)
+    float inriverLatentMort;/**< Latent mortality for post-System
                                * calculations (inriver) */
-    float transportLatentMort;/**< Latent mortality for post-Bonneville
+    float transportLatentMort;/**< Latent mortality for post-System
                                * calculations (transported) */
-
-    /** Differential return for post-Bonneville calculations */
+    /** Differential return for post-System calculations */
     float differentialReturn;
-
     /** This equation is used to estimate latent mortality of inriver fish
-     *  and is used in the S3 vs WTT post-Bonneville algorithm */
+     *  and is used in the S3 vs WTT post-System algorithm */
     Equation inriverLatentMortEqn;
 
     /* any other parameters of the model that might vary by species */

@@ -4,14 +4,16 @@
  *  \brief Defines the data structure for stocks (groups of fish from a common
  *         release point with similar characteristics).
  */
+ #include "Species.h"
+ #include "definitions.h"
+ #include "Equation.h"
+ //#include "var.h"
+ #include "cmpsettings.h"
+ #include "cmpequation.h"
+
 #include <QString>
 #include <QList>
 
-#include "definitions.h"
-#include "Equation.h"
-//#include "var.h"
-#include "cmpsettings.h"
-#include "cmpequation.h"
 
 /**
  * \class Stock
@@ -35,10 +37,10 @@
  * these defaults are written out. Thus, old parameters that are
  * generally disabled are hidden. */
 
-class Stock
+class Stock : public Species
 {
 public:
-    Stock(QString &nm);
+    Stock(QString stockname);
     ~Stock();
 
     void allocate (int num);
@@ -84,35 +86,34 @@ public:
     void setReachSurvivalCoef(int index, const float &value);
 
 protected:
-    QString  *name;      /**< Name of the stock */
+    QString stockName;      /**< Name of the stock */
+
     QList<Equation *>  migrationEqn;/**< list of migration equations for reach classes [num_reach_classes]*/
     QList<float> mvcoef;		/**< migration variance [num_reach_classes]*/
     QList<float> distanceCoeff;  /**< "a" in "sqrt( a * x^2 + b * t^2 )" [num_reach_classes]*/
     QList<float> timeCoeff;      /**< "b" in "sqrt( a * x^2 + b * t^2 )" [num_reach_classes]*/
 
-    QList<float> sigmaD;	/**< reach survival error parameter [num_reach_classes]*/
-
     QList<QList<float>> migrB1Factor; /**< constant for each step computed first and held here [num_reach_classes][STEPS_IN_SEASON] */
     QList<float> vvar;   /**< Herterogeneity of species - travel time distribution [num_reach_classes]*/
 
+    /* COMPASS reservoir survival model stuff */
+    QList<float> sigmaD;	/**< reach survival error parameter [num_reach_classes]*/
+    /** Reach survival coefficient (alpha) [num_reach_classes]*/
+    QList<float> reachSurvivalCoef;
+    /* Reach survival time coefficient (bee) */
+    /* float	time_coef[10]; */ /* Already in species for XT model */
     /** This equation is used with the CUSTOM_CLASS mortality class so that
      * additional X-T-Theta models may be implemented and used easily. [num_reach_classes]*/
     QList<Equation *>  customSurvivalEqn;
 
+    /* Predator capture distance equation (gee of turbidity)
+    equation  pred_capture_dist_eqn[10]; */
     QList<Equation *>  predTempResponseEqn;
 
     /* These equations are used to estimate a return rate for adults based on
      * arrival timing at the transport destination (i.e. below Bonneville) */
     Equation * inriverReturnEqn; /**< return rate for inriver fish */
     Equation * transportReturnEqn;/**< return rate for transported fish */
-
-    /* COMPASS reservoir survival model stuff */
-    /** Reach survival coefficient (alpha) [num_reach_classes]*/
-    QList<float> reachSurvivalCoef;
-    /* Reach survival time coefficient (bee) */
-    /* float	time_coef[10]; */ /* Already in species for XT model */
-    /* Predator capture distance equation (gee of turbidity)
-    equation  pred_capture_dist_eqn[10]; */
 
 };
 

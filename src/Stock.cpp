@@ -1,8 +1,8 @@
 #include "Stock.h"
 
-Stock::Stock(QString &nm)
+Stock::Stock(QString stockname)
 {
-    setName(nm);
+    setName(stockname);
 
     inriverReturnEqn = nullptr;
     transportReturnEqn = nullptr;
@@ -67,15 +67,12 @@ void Stock::deleteAll()
 
 QString &Stock::getName() const
 {
-    return *name;
+    return stockName;
 }
 
 void Stock::setName(QString &value)
 {
-    if (value.isEmpty ())
-        name = new QString ("Generic");
-    else
-        name = new QString(value);
+  stockName = value;
 }
 
 Equation * Stock::getMigrationEqn(int index) const
