@@ -3,7 +3,7 @@
 cmpHeadwater::cmpHeadwater (QString hname, QString rivName, QObject *parent) :
     cmpRiverSegment (rivName, parent)
 {
-    name = new QString(hname);
+    name = QString(hname);
     type = cmpRiverSegment::Headwater;
 
     reset ();
@@ -43,7 +43,7 @@ void cmpHeadwater::fillRegulated()
     else
     {
         regulated = true;
-        msg = QString (QString ("Filling regulated headwater %1, regulated at %2").arg(*name, *downseg->getName()));
+        msg = QString (QString ("Filling regulated headwater %1, regulated at %2").arg(name, downseg->getName()));
 //        cmpLog::outlog->add(cmpLog::Debug, msg);
 
 
@@ -59,7 +59,7 @@ void cmpHeadwater::fillUnRegulated()
     if (readFlows || regulated)
         return;
 
-    msg = QString (QString ("Filling unregulated headwater %1").arg(*name));
+    msg = QString (QString ("Filling unregulated headwater %1").arg(name));
 //    cmpLog::outlog->add(cmpLog::Debug, msg);
 
 }
@@ -131,7 +131,7 @@ bool cmpHeadwater::parse (cmpFile *cfile)
         }
         else if (token.compare("end", Qt::CaseInsensitive) == 0)
         {
-            okay = cfile->checkEnd("headwater", *name);
+            okay = cfile->checkEnd("headwater", name);
             end = true;
         }
         else

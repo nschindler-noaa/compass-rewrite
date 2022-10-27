@@ -6,7 +6,9 @@
 #include <QStringList>
 
 /** \class basin
- * \brief A structure to represent a storage basin associated with a dam.
+ * \brief A class that represents a storage basin that can be
+ * associated with a dam.
+ * volume and flow are stored per day.
  */
 
 class cmpBasin

@@ -7,6 +7,8 @@
 
 #include <QObject>
 
+class cmpRiver;
+
 class cmpRiverSegment : public QObject
 {
     Q_OBJECT
@@ -19,17 +21,21 @@ public:
         None
     };
 
-    cmpRiverSegment (QObject *parent = nullptr);
-    cmpRiverSegment (QString rivName, QObject *parent = nullptr);
+    cmpRiverSegment (cmpRiver *parent = nullptr);
+    cmpRiverSegment (QString segName, cmpRiver *parent = nullptr);
     cmpRiverSegment (const cmpRiverSegment &rhs);
-    ~cmpRiverSegment ();
+    ~cmpRiverSegment () override;
 
     cmpRiverSegment &operator =(const cmpRiverSegment &rhs);
+
     void setup ();
 
     bool parseToken (QString token, cmpFile *infile);
 
     virtual bool parse (cmpFile *infile);
+
+    virtual bool parseDesc (cmpFile *descfile);
+    virtual void outputDesc(cmpFile *ofile);
 
     cmpRiverPoint * getCurrentPoint ();
     cmpRiverPoint * getTopPoint ();
@@ -37,15 +43,16 @@ public:
     cmpRiverPoint * getNextPointUp ();
     cmpRiverPoint * getNextPointDn ();
     void appendPoint (cmpRiverPoint *pt);
+    QList<cmpRiverPoint *> &getCourse() {return course;}
 
-    QString *getRiverName() const;
-    void setRiverName(QString *value);
+    QString getRiverName() const;
+    void setRiverName(QString value);
 
-    QString *getName() const;
-    void setName(QString *value);
+    QString getName() const;
+    void setName(QString value);
 
-    QString *getAbbrev() const;
-    void setAbbrev(QString *value);
+    QString getAbbrev() const;
+    void setAbbrev(QString value);
 
     const QList<cmpTributary *> &getTributaries() const;
 
@@ -117,14 +124,23 @@ public:
     int getTemp_1() const;
     void setTemp_1(int newTemp_1);
 
+    int getDaysPerSeason() const;
+    void setDaysPerSeason(int newDays_per_season);
+
+    int getDaysPerYear() const;
+    void setDaysPerYear(int newDays_per_year);
+
+    int getStepsPerDay() const;
+    void setStepsPerDay(int newStepsPerDay);
+
 protected:
-    cmpRiverSegment &copy (cmpRiverSegment &rhs);
+    cmpRiverSegment &copy (const cmpRiverSegment &rhs);
 
     //    River *river;
 
-    QString *riverName = new QString();
-    QString *name;
-    QString *abbrev;
+    QString riverName;
+    QString name;
+    QString abbrev;
 
     QList<cmpRiverPoint *> course;
     cmpRiverPoint *currentPoint;
@@ -137,6 +153,9 @@ protected:
     float widthUpper;
     float widthAve;         /**< Average width in feet */
     float widthLower;
+
+    float depthUpper;
+    float depthLower;
 
     float elevUpper;
     float elevLower;
@@ -154,7 +173,7 @@ protected:
     FlowLocation mainFlow;
     FlowLocation otherFlow;
 
-    QList<float> temp;/**< Water temperature at each model day [DAYS_IN_SEASON]*/
+    QList<float> temp;/**< Water temperature at each model day [days_per_season]*/
     bool readTemps;     /**< true if reading temps from data file,
                           *   false if not. */
 
@@ -165,6 +184,9 @@ protected:
 
     int temp_1; /**< temporary value used in some calculations. */
 
+    int daysPerSeason;
+    int daysPerYear;
+    int stepsPerDay;
 
 private:
 /*    GasDistribution *gas_in; *< Input gas distribution */
@@ -185,11 +207,11 @@ private:
 signals:
 
 public slots:
-    void allocateDays(int days = DAYS_IN_SEASON);
+    void allocateDays(int days);
     void calculateFlows ();
     void calculateFlowInputs ();
     void calculateTemps ();
-    void calculateTempInputs (int steps = STEPS_IN_SEASON, int daysteps = STEPS_PER_DAY);
+    void calculateTempInputs ();
     virtual void calculateFlow ();
     virtual void calculateTemp ();
     virtual void calculateFish ();

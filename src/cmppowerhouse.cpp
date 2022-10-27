@@ -1,5 +1,5 @@
 #include "cmppowerhouse.h"
-#include "cmprunsettings.h"
+#include "cmpdatasettings.h"
 
 cmpPowerhouse::cmpPowerhouse(int num)
 {

@@ -1,17 +1,28 @@
 #include "cmpriver.h"
 
-cmpRiver::cmpRiver(QObject *parent) : QObject (parent)
+#include "cmpriversystem.h"
+
+cmpRiver::cmpRiver(cmpRiverSystem *parent) : QObject (parent)
 {
-    name = QString ("");
-    flowMax = 0.0;
-    flowMin = 0.0;
+    setup(QString(), parent);
+//    name = QString ("");
+//    flowMax = 0.0;
+//    flowMin = 0.0;
 }
 
-cmpRiver::cmpRiver(QString rname, QObject *parent) :
+cmpRiver::cmpRiver(QString rname, cmpRiverSystem *parent) :
     QObject (parent)
 {
-    name = QString (rname);
-    flowMax = 0.0;
+    setup(QString(), parent);
+//    name = QString (rname);
+//    flowMax = 0.0;
+//    flowMin = 0.0;
+}
+
+void cmpRiver::setup(QString name, cmpRiverSystem *parent)
+{
+    rs = parent;
+    flowMax = 1.0;
     flowMin = 0.0;
 }
 
@@ -85,27 +96,133 @@ int cmpRiver::getNumSegments()
 
 bool cmpRiver::parseDesc(cmpFile *descfile)
 {
-    bool okay = true;
-    if (descfile->isReadable())
-        ;
-    else {
-        okay = false;
-    }
+    bool okay = true, end = false;
+    QString token (""), val ("");
+    float tempFloat = 0;
+    int tempInt = 0;
 
+
+    while (okay && !end)
+    {
+        token = descfile->popToken ();
+        if (token.compare ("EOF") == 0)
+        {
+            descfile->printEOF ("river data");
+            okay = false;
+        }
+        else if (token.compare ("flow_max") == 0)
+        {
+            okay = descfile->readFloatOrNa(token, tempFloat);
+            setFlowMax(tempFloat);
+        }
+        else if (token.compare ("flow_min") == 0)
+        {
+            okay = descfile->readFloatOrNa(token, tempFloat);
+            setFlowMin(tempFloat);
+        }
+        else if (token.compare ("reach") == 0)
+        {
+            QString reachName ("");
+            okay = descfile->readString (reachName);
+            if (okay)
+            {
+                cmpReach *reach = new cmpReach (this);
+                reach->setName(reachName);
+                rs->reaches.append (reachName);
+                rs->segments.append ((cmpRiverSegment *) reach);
+                reach->setRiverName(getName());
+                okay = reach->parseDesc(descfile);
+                addSegment(reach);
+            }
+        }
+        else if (token.compare ("dam") == 0)
+        {
+            QString damName ("");
+            okay = descfile->readString (damName);
+            if (okay)
+            {
+                cmpDam *dam = new cmpDam (damName);
+                rs->dams.append (damName);
+                rs->segments.append ((cmpRiverSegment *) dam);
+                dam->setRiverName(getName());
+                okay = dam->parseDesc(descfile);
+                addSegment(dam);
+            }
+        }
+        else if (token.compare ("headwater") == 0)
+        {
+            QString hwName ("");
+            okay = descfile->readString (hwName);
+            if (okay)
+            {
+                cmpHeadwater *head = new cmpHeadwater (hwName);
+                rs->headwaters.append (hwName);
+                rs->segments.append ((cmpRiverSegment *) head);
+                head->setRiverName(getName());
+                okay = head->parseDesc(descfile);
+                addSegment(head);
+            }
+        }
+        else if (token.contains ("end"))
+        {
+            end = descfile->checkEnd("river", name);
+        }
+        else
+        {
+            descfile->unknownToken(token, name);
+            descfile->skipLine ();
+        }
+    }
+    // we have ended, but is it at a headwater?
+    // create headwater of this river, if it doesn't exist
+    cmpRiverSegment *cur = rs->segments.last();
+    if (okay && cur->getType() != cmpRiverSegment::Headwater)
+    {
+        QString hname (getName());
+        hname.append(" Headwater");
+        cur->setUpperSegment(new cmpHeadwater (hname, getName()));
+        cur->getUpperSegment()->setLowerSegment(cur);
+        rs->segments.append (cur->getUpperSegment());
+        rs->headwaters.append(hname);
+        descfile->printMessage(QString("Adding headwater %1").arg(hname));
+//        cmpLog::outlog->add(cmpLog::Debug, QString (
+//                  QString("adding headwater %1").arg(hname)));
+    }
     return okay;
 }
 
 bool cmpRiver::outputDesc(cmpFile *descfile)
 {
-    bool okay = true;
-    if (descfile->isReadable())
-        ;
-    else {
+    bool okay = true, end = false;
+    QString token, val;
+
+    if (descfile->open(QIODevice::WriteOnly))
+    {
+        // output river values
+        descfile->writeString(0, QString("river"), name);
+        descfile->writeValue(0, QString("flow_max"), flowMax);
+        descfile->writeValue(0, QString("flow_min"), flowMin);
+        descfile->writeNewline();
+
+        // output river segments
+        for (int i = 0; i < segments.count(); i++)
+            segments.at(i)->outputDesc(descfile);
+        descfile->writeNewline();
+
+        // output end statement
+        descfile->writeEnd(0, QString("river"), name);
+        descfile->writeNewline();
+    }
+    else
+    {
+
         okay = false;
     }
 
+
     return okay;
 }
+
 
 bool cmpRiver::output(cmpFile *cfile)
 {

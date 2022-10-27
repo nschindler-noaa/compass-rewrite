@@ -51,6 +51,8 @@ void cmpSpecies::setDefaults()
     transportLatentMort = 0;
     differentialReturn = 1;
     inriverLatentMortEqn = new cmpEquation(EQ_LATENT_MORT_WTT);
+    inriverReturnEqn = new cmpEquation(51);
+    transportReturnEqn = new cmpEquation(51);
 }
 
 const QList<float> &cmpSpecies::getReachPredCoef() const
@@ -151,6 +153,26 @@ float cmpSpecies::getDifferentialReturn() const
 void cmpSpecies::setDifferentialReturn(float newDifferentialReturn)
 {
     differentialReturn = newDifferentialReturn;
+}
+
+cmpEquation *cmpSpecies::getInriverReturnEqn() const
+{
+    return inriverReturnEqn;
+}
+
+void cmpSpecies::setInriverReturnEqn(cmpEquation *newInriverReturnEqn)
+{
+    inriverReturnEqn = newInriverReturnEqn;
+}
+
+cmpEquation *cmpSpecies::getTransportReturnEqn() const
+{
+    return transportReturnEqn;
+}
+
+void cmpSpecies::setTransportReturnEqn(cmpEquation *newTransportReturnEqn)
+{
+    transportReturnEqn = newTransportReturnEqn;
 }
 
 cmpEquation *cmpSpecies::getInriverLatentMortEqn() const

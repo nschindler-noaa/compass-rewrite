@@ -2,6 +2,11 @@
 
 #include "definitions.h"
 
+#include <cstdio>
+#include <iostream>
+
+using namespace std;
+
 cmpFile::cmpFile(QObject *parent) :
     QFile(parent)
 {
@@ -17,24 +22,24 @@ cmpFile::cmpFile (const QString &name, QObject *parent) :
 void cmpFile::setup ()
 {
     header = new QStringList ();
-    data_version = 0;
-    creator = new QString("");
-    created_date = new QString("");
-    modifier = new QString("");
-    modified_date = new QString("");
-    notes = new QString("");
-    line = 0;
+    dataVersion = 0;
+    creator = new QString();
+    createdDate = new QString();
+    modifier = new QString();
+    modifiedDate = new QString();
+    notes = new QStringList();
+    lineNum = 0;
     tokens = new QStringList ();
-    outputoption = Data::OutputAll;
+//    outputoption = Data::OutputAll;
 }
 
 cmpFile::~cmpFile ()
 {
     delete header;
     delete creator;
-    delete created_date;
+    delete createdDate;
     delete modifier;
-    delete modified_date;
+    delete modifiedDate;
     delete notes;
     delete tokens;
 //    ~QFile();
@@ -56,6 +61,7 @@ bool cmpFile::readHeader ()
 {
     bool okay = true, end = false;
     QString token (""), val("");
+    seek(0);
 
     while (okay && !end)
     {
@@ -103,15 +109,15 @@ bool cmpFile::readInfo ()
         }
         else if (token.contains ("version"))
         {
-            okay = readInt (data_version);
+            okay = readInt (dataVersion);
         }
         else if (token.contains ("file_creation_date"))
         {
             okay = readString (token);
             if (okay)
             {
-                delete created_date;
-                created_date = new QString (token);
+                delete createdDate;
+                createdDate = new QString (token);
             }
         }
         else if (token.contains ("file_creator"))
@@ -128,8 +134,8 @@ bool cmpFile::readInfo ()
             okay = readString (token);
             if (okay)
             {
-                delete modified_date;
-                modified_date = new QString(token);
+                delete modifiedDate;
+                modifiedDate = new QString(token);
             }
         }
         else if (token.contains ("file_modifier"))
@@ -141,13 +147,13 @@ bool cmpFile::readInfo ()
                 modifier = new QString (token);
             }
         }
-        else if (token.contains ("notes"))
+        else if (token.contains ("note"))
         {
             okay = readString (token);
             if (okay)
             {
                 delete notes;
-                notes = new QString (token);
+                notes->append(QString (token));
             }
             end = true;
         }
@@ -157,7 +163,7 @@ bool cmpFile::readInfo ()
             end = true;
         }
     }
-//    if (data_version < 9)
+//    if (data_version < 13)
 //        Log::outlog->add (Log::Debug, QString ("Old data version %1").arg(QString::number(data_version)));
     return okay;
 }
@@ -201,17 +207,17 @@ void cmpFile::writeHeader ()
 
 void cmpFile::writeInfo (QString notes)
 {
-    QString version (QString::number(data_version));
+    QString version (QString::number(dataVersion));
     open (QIODevice::WriteOnly);
     write (version.toUtf8());
     if (!creator->isEmpty())
         write (creator->toUtf8());
-    if (!created_date->isEmpty())
-        write (created_date->toUtf8());
+    if (!createdDate->isEmpty())
+        write (createdDate->toUtf8());
     if (!modifier->isEmpty())
         write (modifier->toUtf8());
-    if (!modified_date->isEmpty())
-        write (modified_date->toUtf8());
+    if (!modifiedDate->isEmpty())
+        write (modifiedDate->toUtf8());
     if (!notes.isEmpty())
         write (notes.toUtf8());
 }
@@ -269,7 +275,7 @@ QString cmpFile::getToken ()
                 rline.remove('\n');
                 rline.remove('\r');
             }
-            line++;
+            lineNum++;
         }
         delete tokens;
         tokens = splitString(rline); //new QStringList (rline.split ('\t', QString::SkipEmptyParts));
@@ -388,6 +394,7 @@ bool cmpFile::checkEnd (QString type, QString name)
     {
         okay = false;
     }
+    skipToEnd();
     return okay;
 }
 
@@ -547,9 +554,9 @@ void cmpFile::writeSpace ()
     write (" ", 1);
 }
 
-void cmpFile::writeSeparator()
+void cmpFile::writeBorder()
 {
-    write(COMMENT_SEPARATOR, 78);
+    write(HEADER_BORDER, 78);
 }
 
 void cmpFile::writeIndent (int indent)
@@ -684,6 +691,20 @@ int cmpFile::convertInt(int val, Data::OutputConversion ctype)
    }
 
     return retval;
+}
+
+void cmpFile::writeEnd(int indent, QString keyword, QString name)
+{
+    writeIndent(indent);
+    write ("end ");
+    write (keyword.toUtf8());
+    if (!name.isEmpty())
+    {
+        write (" (");
+        write (name.toUtf8());
+        write (")");
+    }
+    writeNewline();
 }
 
 float cmpFile::convertFloat(float val, Data::OutputConversion ctype)
@@ -858,24 +879,38 @@ void cmpFile::printEOF (QString data)
     }
 }
 
+void cmpFile::obsoleteToken(QString token, QString segment)
+{
+    QString msg(QString("Token %1 is no longer used for %2, obsolete.").arg(token, segment));
+    printMessage(msg);
+}
+
+void cmpFile::unknownToken(QString token, QString segment)
+{
+    QString msg(QString("Token %1 is not found for %2.").arg(token, segment));
+    printMessage(msg);
+}
+
 void cmpFile::printMessage (QString msg)
 {
 //    qWarning(msg);
 //    Log::outlog->add (Log::Message, msg);
-    getFileLine ();
+    cout << msg.toStdString() << endl;
+    cout << getFileLine().toStdString() << endl;
 }
 
 void cmpFile::printError (QString errmsg)
 {
 //    qWarning(msg);
 //    Log::outlog->add (Log::Error, errmsg);
-    getFileLine ();
+    cout << errmsg.toStdString() << endl;
+    cout << getFileLine().toStdString() << endl;
 }
 
 QString cmpFile::getFileLine ()
 {
    return QString((QString("File: %1, Line: %2").arg
-                      (fileName(), QString::number(line))));
+                      (fileName(), QString::number(lineNum))));
 //    qDebug(fileline);
 //    Log::outlog->add (Log::Force, fileline);
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.15.1, 2022-04-21T15:51:31. -->
+<!-- Written by QtCreator 4.15.1, 2022-10-26T18:32:06. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -299,11 +299,13 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:C:/Users/Neal.Schindler/Documents/working/nwfsc-github/compass/compassRewrite/src/compass.pro</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">C:/Users/Neal.Schindler/Documents/working/nwfsc-github/compass/compassRewrite/src/compass.pro</value>
+    <value type="QString" key="RunConfiguration.Arguments">-bsu -lwmd -r columbia-adult.desc -f real2015_sthd.ctrl</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory">C:/COMPASS</value>
     <value type="QString" key="RunConfiguration.WorkingDirectory.default">C:/Users/Neal.Schindler/Documents/working/nwfsc-github/compass/compassRewrite/build</value>
    </valuemap>
    <value type="int" key="ProjectExplorer.Target.RunConfigurationCount">1</value>

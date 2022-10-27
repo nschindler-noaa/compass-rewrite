@@ -63,10 +63,10 @@ private:
     cmpSpecies *species;
     cmpStock *stock;
     int startDay;        /**< Offset into season */
-    QList<float> number; /**< The release distribution up to [DAYS_IN_SEASON] - startDay*/
-#ifdef REALTIME
+    QList<float> number; /**< The release distribution up to [days_per_season] - startDay*/
+//#ifdef REALTIME
     RtInfo *rtinfo;               /**< Realtime info (optional) */
-#endif
+//#endif
 
     int   addSetting;       /**< For determining how to add the release to the
                                                            * system. */

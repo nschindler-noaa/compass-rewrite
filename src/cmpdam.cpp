@@ -8,13 +8,14 @@ cmpDam::cmpDam(QObject *parent) : cmpRiverSegment(parent)
 cmpDam::cmpDam(QString dname, QString rivName, QObject *parent) :
     cmpRiverSegment (rivName, parent)
 {
-    name = new QString (dname);
+    name = QString (dname);
     type = cmpRiverSegment::Dam;
     clear ();
 }
 
 cmpDam::~cmpDam ()
 {
+    clear();
 }
 
 void cmpDam::clear()
@@ -46,21 +47,22 @@ void cmpDam::clear()
     flowProjectMin = 0.0;
     flowRiverMin = 0.0;
 
-    allocateDays();
+    allocateDays(366, 2);
 
     transport = nullptr;
+    fishway = nullptr;
 }
 
-void cmpDam::allocateDays()
+void cmpDam::allocateDays(int days, int slices)
 {
-    while (depthForebayDay.count() < DAYS_IN_SEASON)
+    while (depthForebayDay.count() < days)
     {
         depthForebayDay.append(0);
         depthTailraceDay.append(0);
         dropRatioDay.append(0);
         dropRatioDayTR.append(0);
     }
-    while (depthForebayDay.count() > DAYS_IN_SEASON)
+    while (depthForebayDay.count() > days)
     {
         depthForebayDay.takeLast();
         depthTailraceDay.takeLast();
@@ -68,27 +70,27 @@ void cmpDam::allocateDays()
         dropRatioDayTR.takeLast();
     }
 
-    while (daylightProportion.count() < DAM_SLICES_IN_SEASON)
+    while (daylightProportion.count() < slices)
     {
         spill.append(0);
         spillPlanned.append(0);
         daylightProportion.append(0);
     }
-    while (daylightProportion.count() > DAM_SLICES_IN_SEASON)
+    while (daylightProportion.count() > slices)
     {
         spill.takeLast();
         spillPlanned.takeLast();
         daylightProportion.takeLast();
     }
 
-    for (int i = 0; i < DAYS_IN_SEASON; i++)
+    for (int i = 0; i < days; i++)
     {
         depthForebayDay[i] = 0.0;
         depthTailraceDay[i] = 0.0;
         dropRatioDay[i] = 0.0;
         dropRatioDayTR[i] = 0.0;
     }
-    for (int i = 0; i < DAM_SLICES_IN_SEASON; i++)
+    for (int i = 0; i < slices; i++)
     {
         spill[i] = 0.0;
         spillPlanned[i] = 0.0;
@@ -156,7 +158,7 @@ bool cmpDam::parse (cmpFile *cfile)
         }
         else if (token.compare("end", Qt::CaseInsensitive) == 0)
         {
-            okay = cfile->checkEnd("dam", *name);
+            okay = cfile->checkEnd("dam", name);
             end = true;
         }
         else
@@ -205,8 +207,8 @@ void cmpDam::outputDesc(cmpFile *outfile)
     if (outfile->isOpen())
     {
         int num = getNumPowerhouses();
-        outfile->writeString(0, "dam", *name);
-        outfile->writeString(1, "abbrev", *getAbbrev());
+        outfile->writeString(0, "dam", name);
+        outfile->writeString(1, "abbrev", getAbbrev());
         for (int i = 0; i < num; i++)
         {
             if (i == 0)
@@ -254,7 +256,7 @@ void cmpDam::outputDesc(cmpFile *outfile)
         }
         outfile->writeString(1, "latlon", getCourse().at(0)->getLatLon());
 
-        outfile->writeString(0, "end", QString("(%1)").arg(*name));
+        outfile->writeString(0, "end", QString("(%1)").arg(name));
     }
 }
 

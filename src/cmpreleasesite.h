@@ -2,6 +2,7 @@
 #define CMPRELEASESITE_H
 
 #include "cmpriverpoint.h"
+#include "cmpfile.h"
 
 #include <QObject>
 
@@ -14,6 +15,9 @@ class cmpReleaseSite
 public:
     cmpReleaseSite(QString rsname = QString (""));
     ~cmpReleaseSite ();
+
+    bool parseDesc (cmpFile *cfile);
+    bool outputDesc (cmpFile *cfile);
 
     const QString &getName() const;
     void setName(QString &value);

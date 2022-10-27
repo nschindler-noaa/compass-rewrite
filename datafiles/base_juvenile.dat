@@ -34,6 +34,7 @@ species Steelhead
 end species (Steelhead)
 
 stock Snake_River_Steelhead
+	species Steelhead
 	v_var Class_0 122.050003
 	migration_eqn	Class_0 59
 		parameter 0  1.000000
@@ -60,16 +61,19 @@ stock Snake_River_Steelhead
 end stock (Snake_River_Steelhead)
 
 stock Snaketrap_Ch1
+	species Chinook_1
 	custom_survival_eqn	Class_0 57
 	end custom_survival_eqn (Class_0)
 end stock (Snaketrap_Ch1)
 
 stock UC_Steelhead
+	species Steelhead
 	custom_survival_eqn	Class_0 57
 	end custom_survival_eqn (Class_0)
 end stock (UC_Steelhead)
 
 stock UC_Chinook1
+	species Chinook_1
  	custom_survival_eqn	Class_0 57
 	end custom_survival_eqn (Class_0)
 end stock (UC_Chinook1)

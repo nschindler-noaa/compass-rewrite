@@ -2,11 +2,11 @@
  * Realtime mode function implementations. */
 
 #include "cmprealtime.h"
-#include "compass.h"
+//#include "compass.h"
 //#include "monte.h"
 //#include "run_mode.h"
-#include "log.h"
-
+//#include "log.h"
+//
 //#include "batch.h"
 //#include "compass_tokens.h"
 //#include "fpe.h"
@@ -152,7 +152,7 @@ int realtime_output_datafile_daily (struct run *current_run)
 
     if (!(output->open (QIODevice::WriteOnly)))// = fopen(outputpath, "w")))
         return -1;
-
+/*
     assoc_list = rt_associate_releases(current_run->release_list);
     output_string (output, 0, "# Easy-parse Real-time Data (as used in hospitals)");
     output_string (output, 0, TKS_RT_REPORT_DATE, runs[0].rt_report_date);
@@ -190,10 +190,10 @@ int realtime_output_datafile_daily (struct run *current_run)
     {
         if (HDWPTR(segment)->initial_gas != nullptr)
             fput_special_array(output, "Nsat", 1, 0, (runMode.dam_slices_per_day),
-                   HDWPTR(segment)->initial_gas, 1);
-/* 	    fput_float_array(output, "Nsat", 1, DAYS_IN_SEASON,
+                   HDWPTR(segment)->initial_gas, 1);*/
+/* 	    fput_float_array(output, "Nsat", 1, days_per_season,
                  HDWPTR(segment)->nsat); */
-    }
+//    }
     for (int cnt = 0; cnt < assoc_list.count(); cnt++)
 //	for (assocp = assoc_list; assocp; assocp = assocp->next)
     {
@@ -201,13 +201,13 @@ int realtime_output_datafile_daily (struct run *current_run)
 //	    LIST *release_list = (LIST *) assocp->item;
         int first_day;
         float rls_total;
-        struct release_seg_data *data = collapse_release_data(release_list, segment,
-                    &first_day, &rls_total);
+//        struct release_seg_data *data = collapse_release_data(release_list, segment,
+//                    &first_day, &rls_total);
 
         /* grab the first release for header info */
         struct release *release = (struct release *) release_list.first();
 
-        if (data)
+/*        if (data)
         {
             output_string_nr (output, 0, "Release", *(release->site->name));
             output_string_nr (output, 0, " Species", *(release->species->name));
@@ -247,9 +247,9 @@ int realtime_output_datafile_daily (struct run *current_run)
                    first_day,
                    STEPS_PER_DAY, data->bypass_pass, 0);
         if (all && data->sluiceway_pass && data->bypass_pass && data->turbine_pass && data->spillway_pass && data->rsw_pass)
-        {
+        {*/
             /* project_out represents pre-tailrace mort passage */
-            int i;
+/*            int i;
             float *project_out = (float *) calloc (STEPS_IN_SEASON, sizeof(float));
 //		    bzero((char *)project_out, sizeof(float)*STEPS_IN_SEASON);
             for (i=first_day*STEPS_PER_DAY; i < STEPS_IN_SEASON; ++i)
@@ -260,8 +260,8 @@ int realtime_output_datafile_daily (struct run *current_run)
             fput_special_array(output, "Project_out", 1,
                        first_day,
                        STEPS_PER_DAY, project_out, 0);
-            free (project_out);
-        }
+            free (project_out);*/
+        }/*
 #endif
         if (all)
         {
@@ -283,7 +283,7 @@ int realtime_output_datafile_daily (struct run *current_run)
 
     output->close();
 //    fclose(output);
-    free_assoc_list(assoc_list);
+    free_assoc_list(assoc_list);*/
     return 0;
 }
 
@@ -316,7 +316,7 @@ int realtime_output_datafile_stepwise (struct run *current_run)
     if (!(output->open (QIODevice::WriteOnly)))// = fopen(outputpath, "w")))
         return -1;
 
-    assoc_list = rt_associate_releases(current_run->release_list);
+/*    assoc_list = rt_associate_releases(current_run->release_list);
     output_string (output, 0, "# Easy-parse Real-time Data (as used in hospitals)");
     output_string (output, 0, TKS_RT_REPORT_DATE, runs[0].rt_report_date);
 
@@ -364,9 +364,9 @@ int realtime_output_datafile_stepwise (struct run *current_run)
         float rls_total;
         struct release_seg_data *data = collapse_release_data(release_list, segment,
                     &first_day, &rls_total);
-
+*/
         /* grab the first release for header info */
-        struct release *release = (struct release *) release_list.first();
+/*        struct release *release = (struct release *) release_list.first();
 
         if (data)
         {
@@ -405,9 +405,9 @@ int realtime_output_datafile_stepwise (struct run *current_run)
             fput_step_array(output, "Bypass_out", 1, first_day, STEPS_PER_DAY,
                              data->bypass_pass);
             if (data->sluiceway_pass && data->bypass_pass && data->turbine_pass && data->spillway_pass && data->rsw_pass)
-            {
+            {*/
                 /* project_out represents pre-tailrace mort passage */
-                int i;
+/*                int i;
                 float *project_out = (float *) calloc (STEPS_IN_SEASON, sizeof(float));
 //                bzero((char *)project_out, sizeof(float)*STEPS_IN_SEASON);
                 for (i=first_day*STEPS_PER_DAY; i < STEPS_IN_SEASON; ++i)
@@ -437,7 +437,7 @@ int realtime_output_datafile_stepwise (struct run *current_run)
 
     output->close();
 
-    free_assoc_list(assoc_list);
+    free_assoc_list(assoc_list);*/
     return 0;
 }
 
@@ -446,45 +446,45 @@ int realtime_output_datafile_stepwise (struct run *current_run)
  * Some arrays require special treatment, consisting of collapsing the
  * timesteps into days.  This is done by dumping to temp array before
  * output.  It is assumed that the arrays passed in are of size
- * DAYS_IN_SEASON * STEPS_(or SLICES)_PER_DAY.  After collapsing to daily
- * values, the range from start date to DAYS_IN_SEASON is output.
+ * days_per_season * STEPS_(or SLICES)_PER_DAY.  After collapsing to daily
+ * values, the range from start date to days_per_season is output.
  */
 void fput_special_array(QFile *fp, QString title, unsigned char indent_count,
                 int start_date, int slice_size,
                 float *farray, int percentiles)
 {
-    float *outvec = (float *) calloc ((runMode.days_in_season), sizeof(float));//0;
+/*    float *outvec = (float *) calloc ((runMode.days_per_season), sizeof(float));//0;
     int i = 0;
 
     if (!farray) return;
     if (!outvec)  return;
-
+*/
     /* percentiles are combined by averaging, others by summing */
-    if (percentiles)
-        for (i = 0; i < (runMode.days_in_season) * slice_size; ++i)
+/*    if (percentiles)
+        for (i = 0; i < (runMode.days_per_season) * slice_size; ++i)
             outvec[i / slice_size] += (farray[i] / slice_size);
     else
-        for (i = 0; i < (runMode.days_in_season) * slice_size; ++i)
+        for (i = 0; i < (runMode.days_per_season) * slice_size; ++i)
             outvec[i / slice_size] += farray[i];
 
     fput_float_array(fp, title, indent_count,
-             (runMode.days_in_season) - start_date,
+             (runMode.days_per_season) - start_date,
              &outvec[start_date]);
 
-    free (outvec);
+    free (outvec);*/
 }
 
 /** Output an array without collapsing.
  * fput_float_array() only strips off trailing zeros.  This routine uses
  * the first starting step (or slice) as the start of the output.  After
- * truncating the array, the range from start date to DAYS_IN_SEASON
+ * truncating the array, the range from start date to days_per_season
  * is output in steps.
  */
 void fput_step_array (QFile *fp, QString title, unsigned char indent_count,
                       int first_day, int steps_per_day, float *farray)
 {
-    int start_step = first_day * steps_per_day;
-    int total_steps = steps_per_day * (runMode.days_in_season);
+/*    int start_step = first_day * steps_per_day;
+    int total_steps = steps_per_day * (runMode.days_per_season);
     int array_steps = total_steps - start_step;
     float *outvec = (float *) calloc (array_steps, sizeof(float));
     int i = 0, j;
@@ -498,7 +498,7 @@ void fput_step_array (QFile *fp, QString title, unsigned char indent_count,
 
     fput_float_array(fp, title, indent_count, array_steps, outvec);
 
-    free (outvec);
+    free (outvec);*/
 }
 
 #define VALUES_PER_LINE	 5      /**< Number of items per line. */
@@ -514,7 +514,7 @@ void fput_float_array(QFile *fp, QString title, unsigned char indent_count,
 
     if (!farray) return;
     /* trim trailing zeros, but always print at least one */
-    while (array_count > 1 && farray[array_count-1] < 0.005)
+/*    while (array_count > 1 && farray[array_count-1] < 0.005)
         --array_count;
     if (array_count == 0 && farray[array_count] == 0.0)
         return;
@@ -542,14 +542,14 @@ void fput_float_array(QFile *fp, QString title, unsigned char indent_count,
 
         output_float_nr (fp, 0, "", farray[loop_count], 2);
 
-        if (++loop_count >= array_count) break;	/* Real exit point */
+        if (++loop_count >= array_count) break;*/	/* Real exit point */
 
-        if (loop_count % VALUES_PER_LINE == 0)
+/*        if (loop_count % VALUES_PER_LINE == 0)
             output_newline (fp);
         else
             output_space (fp);
    }
-    output_newline (fp);
+    output_newline (fp);*/
 }
 
 int cmpRealtime::selectSegment(cmpRiverSegment &segment)
@@ -560,7 +560,7 @@ int cmpRealtime::selectSegment(cmpRiverSegment &segment)
 
 int cmpRealtime::runMonteC (QString filename, int mode)
 {
-    struct monte_carlo_data	monte_data;
+/*    struct monte_carlo_data	monte_data;
     struct altern_data		alternative;
     struct input_file		input_file;
     uint err = 0;
@@ -609,18 +609,18 @@ int cmpRealtime::runMonteC (QString filename, int mode)
         input_file.file_name = fbuf;
     }
 
-    input_file.list		= (char **) 0;
+    input_file.list		= (char **) 0;*/
 
     /* Create the directory to be made. */
-    QDir::current().mkdir (REALTIME_ALTERNATIVE);
+/*    QDir::current().mkdir (REALTIME_ALTERNATIVE);*/
     /* Check to see if directory got made. */
-    alt_dir.setPath (REALTIME_ALTERNATIVE);
+/*    alt_dir.setPath (REALTIME_ALTERNATIVE);
     if (!alt_dir.exists())
     {
         log_msg(L_ERROR, "Can't create realtime alternative directory!\n");
         return -1;
     }
-    return run_monte_carlo(&monte_data);
+    return run_monte_carlo(&monte_data);*/
 }
 
 

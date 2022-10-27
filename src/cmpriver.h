@@ -1,17 +1,24 @@
 #ifndef CMPRIVER_H
 #define CMPRIVER_H
 
+#include "cmpdam.h"
+#include "cmpreach.h"
+#include "cmpheadwater.h"
 #include "cmpriversegment.h"
 
+
 #include <QObject>
+
+class cmpRiverSystem;
 
 class cmpRiver : public QObject
 {
     Q_OBJECT
 public:
-    explicit cmpRiver(QObject *parent = nullptr);
-    cmpRiver (QString name, QObject *parent = nullptr);
+    explicit cmpRiver(cmpRiverSystem *parent);
+    cmpRiver (QString name, cmpRiverSystem *parent = nullptr);
     ~cmpRiver () override;
+    void setup(QString name, cmpRiverSystem *parent);
 
     QString &getName();
     void setName(QString &value);
@@ -33,11 +40,11 @@ public:
     bool output(cmpFile *cfile);
 
 private:
+    cmpRiverSystem *rs;
     QString name;
     float flowMax;
     float flowMin;
     QList<cmpRiverSegment *> segments;
-
 
 };
 

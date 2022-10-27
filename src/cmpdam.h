@@ -18,9 +18,9 @@ public:
     explicit cmpDam(QObject *parent = nullptr);
     cmpDam (QString dname, QString rivName = QString (""), QObject *parent = nullptr);
     cmpDam (const cmpDam &rhs);
-    ~cmpDam ();
+    ~cmpDam () override;
     void clear ();
-    bool parse (cmpFile *infile);
+    bool parse (cmpFile *infile) override;
     bool parseToken (QString token, cmpFile *infile);
 
     void outputDesc (cmpFile *outfile);
@@ -145,14 +145,15 @@ private:
     cmpSpillway *spillway; /**< Spillway pointer holds information about the spillway. */
 
     /* Storage basin info */
-    cmpBasin *basin;       /**< Storage basin pointer. If no basin, this is nullptr. */
+    cmpBasin *basin;       /**< Storage basin pointer. If no basin, this pointer is nullptr. */
 
-    cmpFishway *fishway;   /**< Fishway pointer holds information about the fishway for adult migration only. */
+    cmpFishway *fishway;   /**< Fishway pointer holds information about the fishway for adult migration only.
+                            * If no fishway, this pointer is nullptr.*/
 
     /** Pointer to the dam species information */
     cmpDamSpecies *species;
 
-    /** List of pointers to powerhouses. This may be empty. */
+    /** List of pointers to powerhouses. If there are no powerhouses, this pointer is nullptr. */
     QList<cmpPowerhouse *> powerhouses;
     Location phouseSide;
 
@@ -175,8 +176,8 @@ private:
                            * different kind of bypass system which can
                            * produce latent effects) */
 
-    float lengthBasin;   /**< Stilling basin depth */
-    float specGrav;      /**< Specific grav of roller */
+    float lengthBasin;   /**< Stilling basin length (this is part of the tailrace). */
+    float specGrav;      /**< Specific gravity of roller */
 
     /* Spill */
     QList<float> spill;  /**< Spill fraction given at each
@@ -201,54 +202,54 @@ private:
                            * fish_spill tokens. */
 
     float spillMax;      /**< Maximum unforced spill (kcfs) */
-    Location spillSide;  /**< Left bank or right bank */
+    Location spillSide;  /**< Side of the river of the spillway - Left bank or right bank */
     QString spillSideText;
 
     /* Removable spill weir */
-    cmpRSW *spillWeir;
+    cmpRSW *spillWeir; /** RSW information. If there is no RSW, this is nullptr. */
 
     /* Flow */
 //    float flowMax;       /**< For slider top-end */
-    float flowProjectMin; /**< User data; used by modulators*/
-    float flowRiverMin; /**< Calculated from river desc */
-//    QList<float> flow;/**< Flow in KCFS given at each day [DAYS_IN_SEASON]*/
+    float flowProjectMin; /**< Flow project minimum is user data; used by modulators*/
+    float flowRiverMin; /**< River flow minimum is calculated from river desc */
+//    QList<float> flow;/**< Flow in KCFS given at each day [days_per_season]*/
 
     /* Transport info */
     cmpTransport *transport;/**< Pointer to transport operation information
-                             * started at this dam. (this may be nullptr) */
+                             * started at this dam. If not transport this is nullptr. */
 
     /* nsat stuff */
-//    equation nsat_eqn;    /* Nitrogen supersaturation equation that
-//                           * determines the production of gas during day
-//                           * hours */
-//    equation nsat_night_eqn;/* Nitrogen supersaturation equation during
-//                           * night hours */
-//    equation nsat_backup_eqn;/* Nitrogen supersaturation equation for when
-//                           * the spill fraction drops out of the range
-//                           * in which the day and night equations
-//                           * reasonably model behavior */
-//    float k_entrain;      /* Powerhouse side gas entrainment */
+    cmpEquation *nsatEqn;    /** Nitrogen supersaturation equation that
+                           * determines the production of gas during day
+                           * hours */
+    cmpEquation *nsatNightEqn;/* Nitrogen supersaturation equation during
+                           * night hours */
+    cmpEquation *nsatBackupEqn;/** Nitrogen supersaturation equation for when
+                           * the spill fraction drops out of the range
+                           * in which the day and night equations
+                           * reasonably model behavior */
+    float k_entrain;      /** Powerhouse side gas entrainment */
 
     /* actual depths, calculated from adjacent reaches, with drawdown */
-    QList<float> depthForebayDay;/**< Forebay depth at each day [DAYS_IN_SEASON]*/
-    QList<float> depthTailraceDay;/**< Tailrace depth at each day [DAYS_IN_SEASON]*/
+    QList<float> depthForebayDay;/**< Forebay depth at each day [days_per_season]*/
+    QList<float> depthTailraceDay;/**< Tailrace depth at each day [days_per_season]*/
 
     /* useful params, calculated during each simulation */
-    QList<float> dropRatioDay;/**< Drop ratio. [DAYS_IN_SEASON]*/
-    QList<float> dropRatioDayTR;/**< Drop ratio for the tailrace.[DAYS_IN_SEASON]*/
+    QList<float> dropRatioDay;/**< Drop ratio. [days_per_season]*/
+    QList<float> dropRatioDayTR;/**< Drop ratio for the tailrace.[days_per_season]*/
     QList<float> daylightProportion;/**< Proportion of
                            * the day that is light given at each dam time
                            * slice. [DAM_SLICES_IN_SEASON]*/
 
 public slots:
-    void allocateDays();
-    void calculateFlow ();
+    void allocateDays(int days, int slices);
+    void calculateFlow () override;
     void calculateFlows ();
-    void calculateTemp ();
+    void calculateTemp () override;
     void calculateTemps ();
     void calculateSpill ();
-    void calculateFish();
-    void calculateStats();
+    void calculateFish() override;
+    void calculateStats() override;
 
     void deleteSpill ();
 };

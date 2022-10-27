@@ -1,8 +1,20 @@
 #include "cmpusersettings.h"
 
+#include <QDir>
+#include <QDate>
+
+
 cmpUserSettings::cmpUserSettings()
 {
 
+}
+
+void cmpUserSettings::setOptions()
+{
+    setUserName();
+    setServerName();
+    setDefaultDir();
+    setCurrentDate();
 }
 
 const QString &cmpUserSettings::getUserName() const
@@ -12,7 +24,14 @@ const QString &cmpUserSettings::getUserName() const
 
 void cmpUserSettings::setUserName(const QString &newUserName)
 {
-    userName = newUserName;
+    if (newUserName.isEmpty())
+    {
+        userName = qEnvironmentVariable("user");
+    }
+    else
+    {
+        userName = newUserName;
+    }
 }
 
 const QString &cmpUserSettings::getServerName() const
@@ -22,7 +41,14 @@ const QString &cmpUserSettings::getServerName() const
 
 void cmpUserSettings::setServerName(const QString &newServerName)
 {
-    serverName = newServerName;
+    if (newServerName.isEmpty())
+    {
+        serverName = qEnvironmentVariable("server");
+    }
+    else
+    {
+        serverName = newServerName;
+    }
 }
 
 const QString &cmpUserSettings::getDefaultDir() const
@@ -32,5 +58,29 @@ const QString &cmpUserSettings::getDefaultDir() const
 
 void cmpUserSettings::setDefaultDir(const QString &newDefaultDir)
 {
-    defaultDir = newDefaultDir;
+    if (newDefaultDir.isEmpty())
+    {
+        defaultDir = QDir::currentPath();
+    }
+    else
+    {
+        defaultDir = newDefaultDir;
+    }
+}
+
+const QString &cmpUserSettings::getCurrentDate() const
+{
+    return currDate;
+}
+
+void cmpUserSettings::setCurrentDate(const QString &newCurrDate)
+{
+    if (newCurrDate.isEmpty())
+    {
+        currDate = QDate::currentDate().toString("yyyy-MM-dd");
+    }
+    else
+    {
+        currDate = newCurrDate;
+    }
 }
