@@ -2,24 +2,27 @@
 #define CMPHEADWATER_H
 
 #include "cmpriversegment.h"
+\
+class cmpRiver;
 
 class cmpHeadwater : public cmpRiverSegment
 {
 public:
-    cmpHeadwater (QString hname, QString rivName = QString (""), QObject *parent = nullptr);
+    cmpHeadwater (cmpRiver *parent = nullptr);
+    cmpHeadwater (QString hname, cmpRiver *parent = nullptr);
 
     void reset ();
 
-    bool parse (cmpFile *infile);
+    bool parse (cmpFile *infile) override;
     bool parseToken (QString token, cmpFile *infile);
 
     void allocateDays(int numdays);
-    void calculateFlow ();
+    void calculateFlow () override;
     void fillRegulated ();   /**< fills headwaters that are regulated and labels them as such. */
     void fillUnRegulated (); /**< fills headwaters not filled in previous - fillRegulated must be called first. */
     void calculateFlowInputs ();
     void calculateFlows ();
-    void calculateTemp ();
+    void calculateTemp () override;
     void calculateTempInputs ();
     void calculateTemps ();
 
@@ -30,7 +33,7 @@ protected:
 
     float flowMean;          /**< Mean flow at this headwater */
 
-        QList<float> elevChange; /**< Delta from max */
+    QList<float> elevChange; /**< Delta from max */
 /*    GasDistribution *gas_out; *< Output gas distribution */
 /*    float *initial_gas;       *< Only defined if there is an initial gas
                                * vector which supercedes any in-river gas */

@@ -68,8 +68,8 @@ public:
     void setHiFlowSpecies(cmpSpecies *newHiFlowSpecies);
 
 private:
-    cmpRiverSegment *source; /**< River segment where transport removes fish from. */
-    cmpRiverSegment *target; /**< River segment where transport returns fish to the river. */
+    cmpRiverSegment *source; /**< River segment from where transport removes fish. */
+    cmpRiverSegment *target; /**< River segment to where transport returns fish to the river. */
 
     /* Transport speed */
     float rate;               /**< Rate of transport 100-500 mi per day */

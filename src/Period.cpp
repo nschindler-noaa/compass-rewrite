@@ -10,9 +10,13 @@ Period<T>::Period (const Period<T> &period)
     :start(period.getStart()), stop(period.getStop()), value(period.getValue())
 {}
 
-template <class T>
-Period<T>::~Period()
-{}
+//template <class T>
+//Period<T>::~Period()
+//{
+//    start = 0;
+//    stop = 0;
+//    value = 0;
+//}
 
 template <class T>
 void Period<T>::setStart(int index)

@@ -383,18 +383,20 @@ bool cmpFile::checkEnd (QString type, QString name)
                              .arg (token, name));
                 printMessage (msg);
             }
+            okay = true;
         }
     }
     else if (token.contains(name.split(' ').at(0)))
     {
         QString msg (QString("{end} statement does not include type '%1'").arg (type));
         printMessage (msg);
+        skipLine();
+        okay = true;
     }
     else
     {
         okay = false;
     }
-    skipToEnd();
     return okay;
 }
 

@@ -59,8 +59,62 @@ void cmpReach::clear ()
         velocity[i] = 0.0;
         tempDelta[i] = 0.0;
     }
+    cmpRiverSegment::setup();
 }
 
+bool cmpReach::parseDesc(cmpFile *descfile)
+{
+    bool okay = true, end = false;
+    QString token ("");
+    QString na("");
+
+    while (okay && !end)
+    {
+        token = descfile->popToken ();
+        if (token.compare ("eof", Qt::CaseInsensitive) == 0)
+        {
+            descfile->printEOF("Reach description");
+            okay = false;
+        }
+        else if (token.compare("width", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, widthAve);
+        }
+        else if (token.compare("upper_depth", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, depthUpper);
+        }
+        else if (token.compare("lower_depth", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, depthLower);
+        }
+        else if (token.compare("slope", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, slope);
+        }
+        else if (token.compare("lower_elev", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, elevLower);
+        }
+        else if (token.compare("latlon", Qt::CaseInsensitive) == 0)
+        {
+            cmpRiverPoint *pt = new cmpRiverPoint();
+            okay = descfile->readString(token);
+            pt->parse(token);
+            addCoursePoint(pt);
+        }
+        else if (token.compare("end", Qt::CaseInsensitive) == 0)
+        {
+            descfile->checkEnd("reach", name);
+            end = true;
+        }
+        else
+        {
+            descfile->unknownToken(token, name);
+        }
+    }
+    return okay;
+}
 
 void cmpReach::outputDesc(cmpFile *ofile)
 {
@@ -68,11 +122,11 @@ void cmpReach::outputDesc(cmpFile *ofile)
     {
         ofile->writeString(1, QString("reach"), name);
 
-        ofile->writeString(1, QString("width %1").arg(widthAve));
-        ofile->writeString(1, QString("lower_depth %1").arg(depthLower));
-        ofile->writeString(1, QString("upper_depth %1").arg(depthUpper));
-        ofile->writeString(1, QString("slope %1").arg(slope));
-        ofile->writeString(1, QString("lower_elev %1").arg(elevLower));
+        ofile->writeString(2, QString("width %1").arg(widthAve));
+        ofile->writeString(2, QString("lower_depth %1").arg(depthLower));
+        ofile->writeString(2, QString("upper_depth %1").arg(depthUpper));
+        ofile->writeString(2, QString("slope %1").arg(slope));
+        ofile->writeString(2, QString("lower_elev %1").arg(elevLower));
         for (int i = 0; i < course.count(); i++)
         {
             ofile->writeString(2, course.at(i)->getLatLon());

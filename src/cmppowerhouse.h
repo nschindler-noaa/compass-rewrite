@@ -7,7 +7,7 @@
 
 /** \class cmpPowerhouse
  * \brief A structure to represent a powerhouse associated with a dam.
- *   This includes the number of the powerhouse, its priority (which can be changed),.
+ *   This includes the number of the powerhouse, its priority (which can be changed).
  */
 
 class cmpPowerhouse

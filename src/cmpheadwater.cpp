@@ -1,11 +1,22 @@
 #include "cmpheadwater.h"
+#include "cmpriver.h"
 
-cmpHeadwater::cmpHeadwater (QString hname, QString rivName, QObject *parent) :
-    cmpRiverSegment (rivName, parent)
+cmpHeadwater::cmpHeadwater (cmpRiver *parent) : cmpRiverSegment(parent)
 {
+    if (parent != nullptr)
+        riverName = parent->getName();
+    name = QString();
+    type = cmpRiverSegment::Headwater;
+    reset();
+}
+
+cmpHeadwater::cmpHeadwater (QString hname, cmpRiver *parent) :
+    cmpRiverSegment (parent)
+{
+    if (parent != nullptr)
+        riverName = parent->getName();
     name = QString(hname);
     type = cmpRiverSegment::Headwater;
-
     reset ();
 }
 
@@ -21,8 +32,7 @@ void cmpHeadwater::reset()
     regulated = true;  // default setting
     flowCoefficient = 0.0;
     flowMean = 0.0;
-    for (int i = 0; i < elevChange.count(); i++)
-        elevChange[i] = 0.0;
+    allocateDays(366);
 }
 
 void cmpHeadwater::fillRegulated()

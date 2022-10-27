@@ -107,7 +107,7 @@ bool cmpRiver::parseDesc(cmpFile *descfile)
         token = descfile->popToken ();
         if (token.compare ("EOF") == 0)
         {
-            descfile->printEOF ("river data");
+            descfile->printEOF ("River description");
             okay = false;
         }
         else if (token.compare ("flow_max") == 0)
@@ -180,7 +180,7 @@ bool cmpRiver::parseDesc(cmpFile *descfile)
     {
         QString hname (getName());
         hname.append(" Headwater");
-        cur->setUpperSegment(new cmpHeadwater (hname, getName()));
+        cur->setUpperSegment(new cmpHeadwater (hname, this));
         cur->getUpperSegment()->setLowerSegment(cur);
         rs->segments.append (cur->getUpperSegment());
         rs->headwaters.append(hname);

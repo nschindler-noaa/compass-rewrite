@@ -10,20 +10,24 @@
 #include "cmppowerhouse.h"
 #include "cmpdamspecies.h"
 
+class cmpRiver;
+
 /** \class Dam
  * \brief Dam-specific segment data (i.e. the dam parameters) */
 class cmpDam : public cmpRiverSegment
 {
 public:
-    explicit cmpDam(QObject *parent = nullptr);
-    cmpDam (QString dname, QString rivName = QString (""), QObject *parent = nullptr);
+    explicit cmpDam(cmpRiver *parent = nullptr);
+    cmpDam (QString dname, cmpRiver *parent = nullptr);
     cmpDam (const cmpDam &rhs);
     ~cmpDam () override;
+    void setup ();
     void clear ();
     bool parse (cmpFile *infile) override;
     bool parseToken (QString token, cmpFile *infile);
 
-    void outputDesc (cmpFile *outfile);
+    bool parseDesc (cmpFile *descfile) override;
+    void outputDesc (cmpFile *outfile) override;
 
     cmpSpillway *getSpillway() const;
     void setSpillway(cmpSpillway *value);
@@ -166,10 +170,10 @@ private:
     float elevBase;      /**< Dam floor elevation (ft) */
     float elevForebay;   /**< Forebay elevation (ft) */
     float elevTailrace;  /**< Tailrace elevation (ft) */
+    float elevBypass;    /**< Bypass opening elevation (ft) */
     float fullHead;      /**< Full pool head */
     float depthForebay;  /**< Full pool forebay depth */
     float depthTailrace; /**< Nominal tailrace depth */
-    float heightBypass;  /**< Height of bypass opening */
 
     int collector;        /**< Whether or not this dam is a collector dam.
                            * (i.e. it has PIT tag detectors and a

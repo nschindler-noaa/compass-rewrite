@@ -288,7 +288,7 @@ bool cmpRiverSystem::construct()
                 {
                     QString hname (curRiver);
                     hname.append(" Headwater");
-                    prev->setUpperSegment(new cmpHeadwater (hname, curRiver));
+                    prev->setUpperSegment(new cmpHeadwater (hname, prev->getRiver()));
                     prev->getUpperSegment()->setLowerSegment(prev);
                     segments.insert (i, prev->getUpperSegment());
                     i++;

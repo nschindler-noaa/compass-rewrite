@@ -19,7 +19,7 @@ cmpRiverSegment::cmpRiverSegment (cmpRiver *parent) : QObject(parent)
     setup ();
 }
 
-cmpRiverSegment::cmpRiverSegment (QString reachName, cmpRiver *parent) :
+cmpRiverSegment::cmpRiverSegment (QString segName, cmpRiver *parent) :
     QObject (parent)
 {
     if (parent == nullptr)
@@ -207,7 +207,7 @@ bool cmpRiverSegment::parseDesc(cmpFile *descfile)
         token = descfile->popToken ();
         if (token.compare ("eof", Qt::CaseInsensitive) == 0)
         {
-            descfile->printEOF("Headwater data.");
+            descfile->printEOF("Headwater description");
             okay = false;
         }
         else if (token.compare("flow_max", Qt::CaseInsensitive) == 0)
@@ -275,6 +275,11 @@ cmpRiverPoint * cmpRiverSegment::getNextPointDn ()
     if (currentPointIndex <= 0)
         currentPointIndex = 0;
     return course.at (currentPointIndex);
+}
+
+cmpRiver *cmpRiverSegment::getRiver()
+{
+    return static_cast<cmpRiver *>(parent());
 }
 
 QString cmpRiverSegment::getRiverName() const

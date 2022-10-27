@@ -72,7 +72,7 @@ public:
     void writeString (int indent, QString keyword, QString option1 = QString(), QString option2 = QString ());
     void writeStringNR (int indent, QString keyword, QString option1 = QString ());
     void writeFloatOrNa (float val, Data::Type dtype = Data::Float);
-    void writeFloat (double val, Data::Type dtype);
+    void writeFloat (double val, Data::Type dtype = Data::Float);
     void writeInt (int val);
     void writeFloatArray (int indent, float arry[], int size, Data::OutputConversion ctype,
                           Data::Type dtype, float *defaultval);

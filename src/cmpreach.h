@@ -36,7 +36,7 @@ public:
     struct reach_species *species;
 #endif
 
-    bool parseDesc (cmpFile *descfile);
+    bool parseDesc (cmpFile *descfile) override;
     void outputDesc (cmpFile *outfile) override;
 
     void calculateFlow () override;

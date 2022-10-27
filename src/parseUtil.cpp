@@ -136,7 +136,7 @@ bool parse_river (cmpFile *cfile, cmpRiverSystem *rs, cmpRiver *river)
     {
         QString hname (river->getName());
         hname.append(" Headwater");
-        cur->setUpperSegment(new cmpHeadwater (hname, river->getName()));
+        cur->setUpperSegment(new cmpHeadwater (hname, river));
         cur->getUpperSegment()->setLowerSegment(cur);
         rs->segments.append (cur->getUpperSegment());
         rs->headwaters.append(hname);

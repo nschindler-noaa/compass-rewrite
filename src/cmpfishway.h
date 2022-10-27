@@ -1,6 +1,8 @@
 #ifndef CMPFISHWAY_H
 #define CMPFISHWAY_H
 
+#include "cmpfile.h"
+
 #include <QStringList>
 
 /** \class cmpFishway
@@ -20,6 +22,9 @@ public:
     };
 
     cmpFishway();
+
+    bool parseDesc(cmpFile *descfile);
+    void writeDesc(cmpFile *outfile);
 
     Type getType() const;
     bool setType(QString &value);

@@ -45,6 +45,7 @@ public:
     void appendPoint (cmpRiverPoint *pt);
     QList<cmpRiverPoint *> &getCourse() {return course;}
 
+    cmpRiver *getRiver();
     QString getRiverName() const;
     void setRiverName(QString value);
 

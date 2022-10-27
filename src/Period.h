@@ -19,7 +19,7 @@ class Period
 public:
     Period();
     Period(const Period<T>&period);
-    ~Period();
+//    ~Period();
 
     void setStart (int index);
     int getStart ();
