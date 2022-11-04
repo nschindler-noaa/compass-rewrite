@@ -35,12 +35,12 @@ public:
     void setDataDate(int newDataDate);
 
     /** Set the input pathname to a new value. */
-    static const QString &getInputPathname();
-    static void setInputPathname(const QString &newInputPathname);
+    const QString &getInputPathname();
+    void setInputPathname(const QString &newInputPathname);
 
     /** Set the input datafile name to a new value. */
-    static const QString &getDatafile();
-    static void setDatafile(const QString &newDatafile);
+    const QString &getDatafile();
+    void setDatafile(const QString &newDatafile);
 
     /** Run the realtime mode, either in scenario (RT_SCENARIO) or (old) monte mode (RT_MONTE_C). */
     void run (int mode);
@@ -51,8 +51,8 @@ public:
 protected:
     QString name;                 /**< Name assigned to information */
     int dataDate;                 /**< date of the data */
-    static QString inputPathname; /**<  The input pathname, static local.   */
-    static QString datafile;      /**<  The name of the datafile, static local. */
+    QString inputPathname; /**<  The input pathname   */
+    QString datafile;      /**<  The name of the datafile */
 };
 
 typedef cmpRealtime RtInfo;

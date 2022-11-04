@@ -1,5 +1,5 @@
-#ifndef CMPRUNSETTINGS_H
-#define CMPRUNSETTINGS_H
+#ifndef CMPDATASETTINGS_H
+#define CMPDATASETTINGS_H
 
 #include "cmpequation.h"
 
@@ -16,12 +16,20 @@ enum MortalityClass {
     numMortalityClasses // /**< The number of mortality classes   */
 };
 
-/** \class cmpRunSettings \brief A class that holds various data that are per run.
+enum ReturnHypothesis {
+    SARvsDate,       /**< */
+    S3vsWTT,         /**< This relates S3 (3rd year return rate) to water particle travel time (WTT).*/
+    LatentMort,      /**< Latent mortality. */
+    ConstantD,       /**< */
+    numReturnHypotheses
+};
+
+/** \class cmpDataSettings \brief A class that holds various data that are per run.
  *  These settings are mostly derived from the input data files. */
-class cmpRunSettings
+class cmpDataSettings
 {
 public:
-    cmpRunSettings();
+    cmpDataSettings();
 
     int getNumDaysInSeason() ;
     void setNumDaysInSeason(int newNumDays);
@@ -85,12 +93,12 @@ private:
     int numDaysInRun;        /**< Number of days in the run. This is usually the same as number
                               *  of days in the season, but can be shortened to 153 for speed for JUVENILE migration.*/
     int timeStepsPerDay;     /**< Number of time-steps per day (reaches), must be power of 2 and less or equal to dam-time-slices. */
-    int timeStepsInSeason;   /**< Number of time-steps per season */
+    int timeStepsPerSeason;   /**< Number of time-steps per season */
     int timeStepsPerRun;     /**< Number of time-steps per run */
     int seasonStartStep;     /**< The step of the first day of the season */
     int damSlicesPerDay;     /**< Number of dam time-slices per day, must be power of 2 and greater or equal to time-steps. */
     int damSlicesPerStep;    /**< Number of dam time-slices per step */
-    int damSlicesInSeason;   /**< Number of dam time-slices per season */
+    int damSlicesPerSeason;   /**< Number of dam time-slices per season */
     int damSlicesPerRun;     /**< Number of dam time-slices per run */
     int gasStepsPerDay;      /**< Number of gas steps per day (if different from dam_slices per day) */
     int spillStepsPerDay;    /**< Number of spill steps per day - if used, it is greater than 0 and usually equal to dam_slices_per_day */
@@ -98,6 +106,7 @@ private:
     int dayStart;            /**< Time at which night ends for is_night() default (600 = 6 AM) */
     int nightStart;          /**< Time at which night begins for is_night() default (2000 = 8 PM) */
 
+    bool realTime;           /**< To produce realtime output for more analysis */
     /** Track fish routing through dams - default is true for downstream,
      *  meaningless for upstream */
     bool routeTracking;
@@ -129,32 +138,30 @@ private:
                                *  "significant" - range [0.0-0.4] */ // 0.100000
     QString waterTravelUpperSegment;  /**< Upper seg for computation */ // Little_Goose_Pool
     QString waterTravelLowerSegment;  /**< Lower seg for computation */ // Estuary
-    int waterTravelFirstDay;    /**< First day for computation */ // 1
-    int waterTravelLastDay;     /**< Last day for computation */ // 365
-    int waterTravelTime;        /**< Average water particle travel time */
+    int waterTravelFirstDay;  /**< First day for computation */ // 1
+    int waterTravelLastDay;   /**< Last day for computation */ // 365
+    int waterTravelTime;      /**< Average water particle travel time */
 
-    float min_migration_rate; /**<  Minimum migration rate in mi/day for the entire run */ // 1.000000
-    bool suppress_variation; // On
-    bool pred_vol_interaction; // Off
-    bool age_dependent_fge; // Off
-    bool truncate_travel_vect; // On
-    bool truncate_res_survival; // On
-    bool compute_mu_method;   /**< Whether to compute mu using down stream dam (true) or up stream dam (false). It defaults to false for backward compatibility */
-    int year_traveltime_indicator; // 0
-    int year_traveltime_offset;/**< Whether to use a parameter for eqns 52 and 59 for a tt offset */
-    MortalityClass mortClass; /**< Which mortalities are calculated -
-                               *  only a few combinations are allowed: GasAndPredation, XT, and Custom. */
-    int post_bonneville_hypothesis; /**< Which hypothesis should be used for
-                               * post-Bonneville calculations \ref PostBonHypothesis */
+    float migrationRateMin;   /**< Minimum migration rate in mi/day for the entire run */ // 1.000000
+    bool suppressVariation;   /**< Variation suppression to speed up calcs, default is true */
+    bool predVolInteraction;  /**< Predation and volume interaction, default is false */
+    bool ageDependentFge;     /**< Age dependent Fish Guidance Efficiency, defaul is false */
+    bool truncateTravelVect;  /**< Truncate travel vector to speed up calcs, default is true */
+    bool truncateResSurvival; /**< Truncate reservoir survival to speed up calcs, default is true */
+    bool compute_mu_method;   /**< Whether to compute mu using down stream dam (true) or up stream dam (false).
+                               *   It defaults to false for backward compatibility */
+    int yearTraveltimeIndicator; // 0
+    int yearTraveltimeOffset; /**< Whether to use a parameter for eqns 52 and 59 for a tt offset */
+    MortalityClass mortClass; /**< Which mortalities are calculated - only a few combinations are allowed:
+                               *   GasAndPredation, XT, and Custom. */
+    ReturnHypothesis fishReturnHyp; /**< Which hypothesis should be used for
+                               *   fish return calculations \ref OceanHypothesis */
 
-    bool FlowRouting;
-    bool RealTime;
-
-    bool debug;
-    bool debugInput;
-    bool debugCalib;
+    bool debug;       /**< Flag to turn on debugging messages. */
+    bool debugInput;  /**< Debug data input */
+    bool debugCalib;  /**< Debug calibration calculations (produce csv file) */
 
 };
 
 
-#endif // CMPRUNSETTINGS_H
+#endif // CMPDATASETTINGS_H

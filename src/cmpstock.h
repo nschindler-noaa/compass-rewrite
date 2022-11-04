@@ -2,26 +2,22 @@
 #define CMPSTOCK_H
 
 #include "cmpspecies.h"
-#include "cmpsettings.h"
+#include "cmpcommandsettings.h"
 #include "cmpequation.h"
 #include "cmpmontecarlomulti.h"
+#include "cmpreachclass.h"
 
 #include <QStringList>
 
 /**
- * \class stock
- * The general design is that there are a number of custom stocks,
- * designated in the river description file, the data for which are
- * gathered in the global stock_info struct below.  in addition, each
- * species contains one Stock object, which is "generic" data for that
- * species.
-
- * The key usage is that each release keeps a handle to one Stock
- * object, either one of the custom globals or the generic from the
- * appropriate species for that release.
+ * \class cmpStock
+ * A cmpStock is a cmpSpecies that includes data for a specific stock.
+ * This includes a list of cmpReachClass that indicate behavior of the
+ * stock in groupings of reaches.
  *
- * equation and float arrays are dimensioned by number of
- * \ref reach_classes. */
+ * A release includes a name of its stock.
+ *
+ */
 
 
 class cmpStock : public cmpSpecies
@@ -63,12 +59,6 @@ public:
     cmpEquation *getCustomSurvivalEqn(int rc) const;
     void setCustomSurvivalEqn(int rc, cmpEquation *newCustomSurvivalEqn);
 
-    cmpEquation *getInriverReturnEqn() const;
-    void setInriverReturnEqn(cmpEquation *newInriverReturnEqn);
-
-    cmpEquation *getTransportReturnEqn() const;
-    void setTransportReturnEqn(cmpEquation *newTransportReturnEqn);
-
     float getReachSurvivalCoef(int rc) const;
     void setReachSurvivalCoef(int rc, float newReachSurvivalCoef);
 
@@ -77,35 +67,8 @@ public:
 
 private:
     QString  *name;              /**< Name of the stock */
-    QList<cmpEquation *> migrationEqn; /**< migration equation (number of reach classes) */
-    QList<float>     mvCoef;         /**< migration variance (number of reach classes) */
-    QList<float>     distanceCoeff; /**< "a" in "sqrt( a * x^2 + b * t^2 )" (number of reach classes) */
-    QList<float>     timeCoeff;     /**< "b" in "sqrt( a * x^2 + b * t^2 )" (number of reach classes) */
+    QList<cmpReachClass *> reachClasses; /**< Reach classes for this stock. */
 
-    QList<float>     sigmaD;        /**< reach survival error parameter (number of reach classes) */
-    QList<float>     procStdDev;       /**< reach survival process variation (number of reach classes) */
-
-    QList<QList<float>> migrB1Factor;    /**< migration factor  (steps in season)(number of reach classes) */
-    QList<float>     vvar;           /**< Herterogeneity of species - travel time distribution (number of reach classes) */
-
-    /** This equation is used with the CUSTOM_CLASS mortality class so that
-     * additional X-T-Theta models may be implemented and used easily. */
-    QList<cmpEquation *> customSurvivalEqn;
-
-    /* These equations are used to estimate a return rate for adults based on
-     * arrival timing at the transport destination (i.e. below Bonneville) */
-    cmpEquation  *inriverReturnEqn; /**< return rate for inriver fish */
-    cmpEquation  *transportReturnEqn;/**< return rate for transported fish */
-
-    /* COMPASS reservoir survival model stuff */
-    /** Reach survival coefficient (alpha)  (number of reach classes)*/
-    QList<float>     reachSurvivalCoef;
-
-    /** This is a pointer to a covariant matrix used in Monte Carlo mode to
-     *  create variation in the custom survival equation (number of reach classes). */
-    QList<cmpMonteCarloMulti*>   covmat;
-    QList<cmpEquation *> copySurvivalEqn; /**< A copy of each reach class survival equation
-                                     *  is needed to restore the mean after variation (number of reach classes). */
 };
 
 #endif // CMPSTOCK_H

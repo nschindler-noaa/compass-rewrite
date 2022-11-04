@@ -1,11 +1,22 @@
 #include "cmpheadwater.h"
+#include "cmpriver.h"
 
-cmpHeadwater::cmpHeadwater (QString hname, QString rivName, QObject *parent) :
-    cmpRiverSegment (rivName, parent)
+cmpHeadwater::cmpHeadwater (cmpRiver *parent) : cmpRiverSegment(parent)
 {
-    name = new QString(hname);
+    if (parent != nullptr)
+        riverName = parent->getName();
+    name = QString();
     type = cmpRiverSegment::Headwater;
+    reset();
+}
 
+cmpHeadwater::cmpHeadwater (QString hname, cmpRiver *parent) :
+    cmpRiverSegment (parent)
+{
+    if (parent != nullptr)
+        riverName = parent->getName();
+    name = QString(hname);
+    type = cmpRiverSegment::Headwater;
     reset ();
 }
 
@@ -21,8 +32,7 @@ void cmpHeadwater::reset()
     regulated = true;  // default setting
     flowCoefficient = 0.0;
     flowMean = 0.0;
-    for (int i = 0; i < elevChange.count(); i++)
-        elevChange[i] = 0.0;
+    allocateDays(366);
 }
 
 void cmpHeadwater::fillRegulated()
@@ -43,7 +53,7 @@ void cmpHeadwater::fillRegulated()
     else
     {
         regulated = true;
-        msg = QString (QString ("Filling regulated headwater %1, regulated at %2").arg(*name, *downseg->getName()));
+        msg = QString (QString ("Filling regulated headwater %1, regulated at %2").arg(name, downseg->getName()));
 //        cmpLog::outlog->add(cmpLog::Debug, msg);
 
 
@@ -59,7 +69,7 @@ void cmpHeadwater::fillUnRegulated()
     if (readFlows || regulated)
         return;
 
-    msg = QString (QString ("Filling unregulated headwater %1").arg(*name));
+    msg = QString (QString ("Filling unregulated headwater %1").arg(name));
 //    cmpLog::outlog->add(cmpLog::Debug, msg);
 
 }
@@ -131,7 +141,7 @@ bool cmpHeadwater::parse (cmpFile *cfile)
         }
         else if (token.compare("end", Qt::CaseInsensitive) == 0)
         {
-            okay = cfile->checkEnd("headwater", *name);
+            okay = cfile->checkEnd("headwater", name);
             end = true;
         }
         else

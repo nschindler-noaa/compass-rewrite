@@ -1,23 +1,28 @@
 #include "cmpdam.h"
 
-cmpDam::cmpDam(QObject *parent) : cmpRiverSegment(parent)
-{
+#include "cmpriver.h"
 
+cmpDam::cmpDam(cmpRiver *parent) : cmpRiverSegment(parent)
+{
+    name = QString ();
+    type = cmpRiverSegment::Dam;
+    setup ();
 }
 
-cmpDam::cmpDam(QString dname, QString rivName, QObject *parent) :
-    cmpRiverSegment (rivName, parent)
+cmpDam::cmpDam(QString dname, cmpRiver *parent) :
+    cmpRiverSegment (parent)
 {
-    name = new QString (dname);
+    name = QString (dname);
     type = cmpRiverSegment::Dam;
-    clear ();
+    setup ();
 }
 
 cmpDam::~cmpDam ()
 {
+    setup();
 }
 
-void cmpDam::clear()
+void cmpDam::setup()
 {
     basin = nullptr;
     species = nullptr;
@@ -28,7 +33,7 @@ void cmpDam::clear()
     elevTailrace = 0.0;
     fullHead = 0.0;
     depthForebay = 0.0;
-    heightBypass = 0.0;
+    elevBypass = 0.0;
     collector = 0;
 
     lengthBasin = 0.0;
@@ -46,21 +51,56 @@ void cmpDam::clear()
     flowProjectMin = 0.0;
     flowRiverMin = 0.0;
 
-    allocateDays();
+    allocateDays(366, 2);
 
     transport = nullptr;
+    fishway = nullptr;
 }
 
-void cmpDam::allocateDays()
+void cmpDam::clear()
 {
-    while (depthForebayDay.count() < DAYS_IN_SEASON)
+    if (basin != nullptr)
+        delete basin;
+    basin = nullptr;
+    if (species != nullptr)
+        delete species;
+    species = nullptr;
+
+    delete spillway;
+    spillway = nullptr;
+
+    if (spillPlannedDay != nullptr)
+        delete spillPlannedDay;
+    spillPlannedDay = nullptr;
+    if (spillPlannedNight != nullptr)
+        delete spillPlannedNight;
+    spillPlannedNight = nullptr;
+    if (spillLegacyPlanned != nullptr)
+        delete spillLegacyPlanned;
+    spillLegacyPlanned = nullptr;
+    if (spillLegacyFish != nullptr)
+        delete spillLegacyFish;
+    spillLegacyFish = nullptr;
+
+    if (transport != nullptr)
+        delete transport;
+    transport = nullptr;
+    if (fishway != nullptr)
+        delete fishway;
+    fishway = nullptr;
+}
+
+void cmpDam::allocateDays(int days, int slices)
+{
+    int dayslices = days * slices;
+    while (depthForebayDay.count() < days)
     {
         depthForebayDay.append(0);
         depthTailraceDay.append(0);
         dropRatioDay.append(0);
         dropRatioDayTR.append(0);
     }
-    while (depthForebayDay.count() > DAYS_IN_SEASON)
+    while (depthForebayDay.count() > days)
     {
         depthForebayDay.takeLast();
         depthTailraceDay.takeLast();
@@ -68,27 +108,27 @@ void cmpDam::allocateDays()
         dropRatioDayTR.takeLast();
     }
 
-    while (daylightProportion.count() < DAM_SLICES_IN_SEASON)
+    while (daylightProportion.count() < dayslices)
     {
         spill.append(0);
         spillPlanned.append(0);
         daylightProportion.append(0);
     }
-    while (daylightProportion.count() > DAM_SLICES_IN_SEASON)
+    while (daylightProportion.count() > dayslices)
     {
         spill.takeLast();
         spillPlanned.takeLast();
         daylightProportion.takeLast();
     }
 
-    for (int i = 0; i < DAYS_IN_SEASON; i++)
+    for (int i = 0; i < days; i++)
     {
         depthForebayDay[i] = 0.0;
         depthTailraceDay[i] = 0.0;
         dropRatioDay[i] = 0.0;
         dropRatioDayTR[i] = 0.0;
     }
-    for (int i = 0; i < DAM_SLICES_IN_SEASON; i++)
+    for (int i = 0; i < dayslices; i++)
     {
         spill[i] = 0.0;
         spillPlanned[i] = 0.0;
@@ -156,7 +196,7 @@ bool cmpDam::parse (cmpFile *cfile)
         }
         else if (token.compare("end", Qt::CaseInsensitive) == 0)
         {
-            okay = cfile->checkEnd("dam", *name);
+            okay = cfile->checkEnd("dam", name);
             end = true;
         }
         else
@@ -197,6 +237,131 @@ bool cmpDam::parseToken (QString token, cmpFile *cfile)
     return okay;
 }
 
+bool cmpDam::parseDesc (cmpFile *descfile)
+{
+    bool okay = true, end = false;
+    int tempInt = 0;
+    float tempFloat = 0.0;
+    QString token;
+    QString na;
+
+    while (okay && !end)
+    {
+        token = descfile->popToken ();
+        if (token.compare ("eof", Qt::CaseInsensitive) == 0)
+        {
+            descfile->printEOF("Dam description");
+            okay = false;
+        }
+        else if (token.compare("flow_max", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, flowMax);
+        }
+        else if (token.compare("flow_min", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, flowMin);
+        }
+        else if (token.compare("abbrev", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readString(abbrev);
+        }
+        else if (token.compare("floor_elevation", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, elevBase);
+        }
+        else if (token.compare("forebay_elevation", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, elevForebay);
+        }
+        else if (token.compare("tailrace_elevation", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, elevTailrace);
+        }
+        else if (token.compare("bypass_elevation", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, elevBypass);
+        }
+        else if (token.compare("spill_side", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readString(token);
+            setSpillSideText(token);
+        }
+        else if (token.compare("spillway_width", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, tempFloat);
+            spillway->setWidth(tempFloat);
+        }
+        else if (token.compare("ngates", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readInt(tempInt);
+            spillway->setNumGates(tempInt);
+        }
+                else if (token.compare("gate_width", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, tempFloat);
+            spillway->setGateWidth(tempFloat);
+        }
+        else if (token.compare("pergate", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, tempFloat);
+            spillway->setPerGate(tempFloat);
+        }
+        else if (token.compare("basin_length", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, lengthBasin);
+        }
+        else if (token.compare("sgr", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, specGrav);
+        }
+        else if (token.compare("powerhouse_capacity", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, tempFloat);
+            if (powerhouses.isEmpty())
+                powerhouses.append(new cmpPowerhouse());
+            powerhouses.at(0)->setCapacity(tempFloat);
+        }
+        else if (token.compare("powerhouse_2_capacity", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, tempFloat);
+            if (powerhouses.count() < 2)
+                powerhouses.append(new cmpPowerhouse());
+            powerhouses.at(1)->setCapacity(tempFloat);
+        }
+        else if (token.compare("storage_basin", Qt::CaseInsensitive) == 0)
+        {
+            basin = new cmpBasin();
+            okay = descfile->readFloatOrNa(na, tempFloat);
+            basin->setVolumeMin(tempFloat);
+            okay = descfile->readFloatOrNa(na, tempFloat);
+            basin->setVolumeMax(tempFloat);
+        }
+        else if (token.compare("fishway", Qt::CaseInsensitive) == 0)
+        {
+            fishway = new cmpFishway();
+            fishway->parseDesc(descfile);
+        }
+
+        else if (token.compare("latlon", Qt::CaseInsensitive) == 0)
+        {
+            cmpRiverPoint *pt = new cmpRiverPoint();
+            okay = descfile->readString(token);
+            pt->parse(token);
+            addCoursePoint(pt);
+        }
+        else if (token.compare("end", Qt::CaseInsensitive) == 0)
+        {
+            descfile->checkEnd(QString(), name);
+            end = true;
+        }
+        else
+        {
+            descfile->unknownToken(token, name);
+        }
+    }
+    return okay;
+}
+
 void cmpDam::outputDesc(cmpFile *outfile)
 {
     if (!outfile->isOpen())
@@ -205,8 +370,8 @@ void cmpDam::outputDesc(cmpFile *outfile)
     if (outfile->isOpen())
     {
         int num = getNumPowerhouses();
-        outfile->writeString(0, "dam", *name);
-        outfile->writeString(1, "abbrev", *getAbbrev());
+        outfile->writeString(0, "dam", name);
+        outfile->writeString(1, "abbrev", getAbbrev());
         for (int i = 0; i < num; i++)
         {
             if (i == 0)
@@ -254,7 +419,7 @@ void cmpDam::outputDesc(cmpFile *outfile)
         }
         outfile->writeString(1, "latlon", getCourse().at(0)->getLatLon());
 
-        outfile->writeString(0, "end", QString("(%1)").arg(*name));
+        outfile->writeString(0, "end", QString("(%1)").arg(name));
     }
 }
 
@@ -417,12 +582,12 @@ void cmpDam::setDepthTailrace(float value)
 
 float cmpDam::getHeightBypass() const
 {
-    return heightBypass;
+    return elevBypass;
 }
 
 void cmpDam::setHeightBypass(float value)
 {
-    heightBypass = value;
+    elevBypass = value;
 }
 
 int cmpDam::getCollector() const

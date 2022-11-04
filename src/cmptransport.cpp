@@ -1,9 +1,10 @@
 #include "cmptransport.h"
 
 cmpTransport::cmpTransport()
-{
+{}
 
-}
+cmpTransport::~cmpTransport()
+{}
 
 cmpRiverSegment *cmpTransport::getSource() const
 {

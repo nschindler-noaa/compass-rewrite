@@ -15,26 +15,12 @@ cmpRiverSystem::cmpRiverSystem(QString riverFile, QObject *parent) :
     cmpFile cf(riverFile);
     setup();
 //    cmpRiverSystem = this;
-    parse (&cf);
+    parseDesc (&cf);
 }
+
 
 void cmpRiverSystem::setup ()
 {
-    rivers = new QList<cmpRiver *>();
-    segments = new QList <cmpRiverSegment *>();
-    species = new QList <cmpSpecies *>();
-    stocks = new QList <cmpStock *>();
-    transports = new QList <cmpTransport *>();
-//    releases = new QList <cmpRelease *>();
-//    releaseSites = new QList <cmpReleaseSite *>();
-
-    speciesNames = new QStringList();
-    stockNames = new QStringList();
-    powerhouses = new QStringList();
-    dams = new QStringList();
-    reaches = new QStringList();
-    headwaters = new QStringList();
-    basins = new QStringList();
 }
 
 cmpRiverSystem::~cmpRiverSystem ()
@@ -45,40 +31,64 @@ cmpRiverSystem::~cmpRiverSystem ()
 void cmpRiverSystem::deleteAll()
 {
 //    int i;
-    while (rivers->count())
-        delete rivers->takeLast();
-    delete rivers;
+    while (rivers.count())
+        delete rivers.takeLast();
 
-    while (species->count())
-        delete species->takeLast();
-    delete species;
+    while (species.count())
+        delete species.takeLast();
 
-    while (stocks->count())
-        delete stocks->takeLast();
-    delete stocks;
+    while (stocks.count())
+        delete stocks.takeLast();
 //    while (releases->count())
 //        delete releases->takeLast();
-//    delete releases;
-//    while (releaseSites->count())
-//        delete (releaseSites->takeLast());
-//    delete releaseSites;
 
-    delete speciesNames;
-    delete stockNames;
-    delete powerhouses;
-    delete dams;
-    delete reaches;
-    delete headwaters;
-    delete basins;
-
+    while (releaseSites.count())
+        delete (releaseSites.takeLast());
 }
 
 bool cmpRiverSystem::parseDesc(cmpFile *descfile)
 {
-    bool okay = true;
-    if (descfile->isReadable())
-        parse (descfile);
+    bool okay = true, end = false;
+    QString token (""), val ("");
+    QString name;
+    cmpReleaseSite *newrelsite = nullptr;
+    cmpRiver *river = nullptr;
 
+    while (okay && !end)
+    {
+        token = descfile->popToken ();
+        if (token.compare ("EOF") == 0)
+        {
+            descfile->printMessage("Found EOF in Compass file.");
+            end = true;
+        }
+        else if (token.compare ("species") == 0)
+        {
+            okay = descfile->readString(name);
+            speciesNames.append(name);
+        }
+        else if (token.compare ("stock") == 0)
+        {
+            okay = descfile->readString(name);
+            stockNames.append(name);
+        }
+        else if (token.compare ("release_site") == 0)
+        {
+            okay = descfile->readString(name);
+            newrelsite = new cmpReleaseSite(name);
+            newrelsite->parseDesc(descfile);
+            releaseSites.append(newrelsite);
+        }
+        else if (token.compare ("river") == 0)
+        {
+            river = new cmpRiver(this);
+            okay = descfile->readString(name);
+            river->setName(name);
+            okay = river->parseDesc(descfile);
+
+            rivers.append(river);
+        }
+    }
     return okay;
 }
 
@@ -86,9 +96,8 @@ bool cmpRiverSystem::parse(cmpFile *rfile)
 {
     bool okay = true, end = false;
     QString token (""), val ("");
-
-//    cmpRiver *river = new cmpRiver (rivname);
-//    compassInfo->rivers.append (river);
+    QString name;
+    cmpRiver *river = nullptr;
 
     while (okay && !end)
     {
@@ -98,10 +107,31 @@ bool cmpRiverSystem::parse(cmpFile *rfile)
             rfile->printMessage("Found EOF in Compass file.");
             end = true;
         }
-        else if (token.compare ("flow_max") == 0)
+        else if (token.compare ("species") == 0)
+        {
+            okay = rfile->readString(name);
+            speciesNames.append(name);
+        }
+        else if (token.compare ("stock") == 0)
+        {
+            okay = rfile->readString(name);
+            stockNames.append(name);
+        }
+        else if (token.compare ("release_site") == 0)
+        {
+            okay = rfile->readString(name);
+            cmpReleaseSite *newrelsite = new cmpReleaseSite(name);
+            newrelsite->parseDesc(rfile);
+            releaseSites.append(newrelsite);
+        }
+        else if (token.compare ("river") == 0)
         {
             token = rfile->popToken ();
-//            okay = read_float (token, &river->flowMax, "Flow max");
+            okay = rfile->readString(name);
+            river = new cmpRiver(name);
+            okay = river->parseDesc(rfile);
+
+            rivers.append(river);
         }
         else if (token.compare ("reach") == 0)
         {
@@ -109,7 +139,7 @@ bool cmpRiverSystem::parse(cmpFile *rfile)
             okay = rfile->readString (reachName);
             if (okay)
             {
-                if (reaches->contains(reachName))
+                if (reaches.contains(reachName))
                 {
 //                    cmpReach *reach = static_cast<cmpReach *>(findSegment(reachName));
 //                    okay = reach->parse (rfile);
@@ -127,7 +157,7 @@ bool cmpRiverSystem::parse(cmpFile *rfile)
             okay = rfile->readString (damName);
             if (okay)
             {
-                if (dams->contains(damName))
+                if (dams.contains(damName))
                 {
 //                    cmpDam *dam = static_cast<cmpDam *>(findSegment(damName));
 //                    okay = dam->parse (rfile);
@@ -145,7 +175,7 @@ bool cmpRiverSystem::parse(cmpFile *rfile)
             okay = rfile->readString (hwName);
             if (okay)
             {
-                if (headwaters->contains(hwName))
+                if (headwaters.contains(hwName))
                 {
                     cmpHeadwater *hwtr = static_cast<cmpHeadwater *>(findSegment(hwName));
                     okay = hwtr->parse (rfile);
@@ -172,6 +202,20 @@ bool cmpRiverSystem::parse(cmpFile *rfile)
     return okay;
 }
 
+bool cmpRiverSystem::parseReleaseSite(cmpFile *cfile, cmpReleaseSite *relsite)
+{
+    bool okay = true;
+    QString line;
+    cmpRiverPoint *rivpt = new cmpRiverPoint();
+    okay = cfile->readString(line);
+    rivpt->parse(line);
+    relsite->setLatlon(rivpt);
+    releaseSites.append(relsite);
+    okay = cfile->checkEnd ("release_site", relsite->getName());
+    rivpt = nullptr;
+    return true;
+}
+
 bool cmpRiverSystem::outputDesc(cmpFile *descfile)
 {
     bool okay = true, end = false;
@@ -180,33 +224,27 @@ bool cmpRiverSystem::outputDesc(cmpFile *descfile)
     if (descfile->open(QIODevice::WriteOnly))
     {
         // output river system values
-        for (int i = 0; i < speciesNames->count(); i++)
-            descfile->writeString(0, "species", speciesNames->at(i));
+        for (int i = 0; i < speciesNames.count(); i++)
+            descfile->writeString(0, "species", speciesNames.at(i));
         descfile->writeNewline();
-        for (int i = 0; i < stockNames->count(); i++)
-            descfile->writeString(0, "stock", stockNames->at(i));
+        for (int i = 0; i < stockNames.count(); i++)
+            descfile->writeString(0, "stock", stockNames.at(i));
         descfile->writeNewline();
-//        for (int i = 0; i < releaseSites->count(); i++)
-//        {
-//            descfile->writeString(0, "release_site", *releaseSites->at(i)->getName());
-//            descfile->writeString(1, "latlon", releaseSites->at(i)->getLatlon()->getLatLon());
-//            outputEnd(descfile, 0, "release_site");
-//            descfile->writeNewline();
-//        }
+        for (int i = 0; i < releaseSites.count(); i++)
+            releaseSites.at(i)->outputDesc(descfile);
+
         // output rivers
-        for (int i = 0; i < rivers->count(); i++)
+        for (int i = 0; i < rivers.count(); i++)
         {
-            rivers->at(i)->outputDesc(descfile);
+            rivers.at(i)->outputDesc(descfile);
 //            outputRiver(rivers->at(i), descfile);
+            descfile->writeNewline();
         }
     }
     else
     {
-
         okay = false;
     }
-
-
     return okay;
 }
 
@@ -215,9 +253,9 @@ bool cmpRiverSystem::output(cmpFile *cfile)
     bool okay = true;
     if (cfile->open(QIODevice::WriteOnly))
     {
-        for (int i = 0; i < rivers->count(); i++)
+        for (int i = 0; i < rivers.count(); i++)
         {
-            rivers->at(i)->output(cfile);
+            rivers.at(i)->output(cfile);
         }
     }
     else {
@@ -234,32 +272,32 @@ bool cmpRiverSystem::construct()
     cmpRiverSegment *prev = nullptr;
     QString curRiver ("");
 
-    if (segments->count() < 2)
+    if (segments.count() < 2)
         okay = false;
 
     if (okay) {
-        prev = static_cast<cmpRiverSegment *> (segments->at (0));
-        curRiver = QString (*prev->getRiverName());
-        for (int i = 1; okay && i < segments->count(); i++)
+        prev = static_cast<cmpRiverSegment *> (segments.at (0));
+        curRiver = QString (prev->getRiverName());
+        for (int i = 1; okay && i < segments.count(); i++)
         {
-            cur = static_cast<cmpRiverSegment *> (segments->at(i));
-            if (curRiver.compare(*cur->getRiverName()) != 0)
+            cur = static_cast<cmpRiverSegment *> (segments.at(i));
+            if (curRiver.compare(cur->getRiverName()) != 0)
             {
                 // create headwater of previous river, if it doesn't exist
                 if (prev->getType() != cmpRiverSegment::Headwater)
                 {
                     QString hname (curRiver);
                     hname.append(" Headwater");
-                    prev->setUpperSegment(new cmpHeadwater (hname, curRiver));
+                    prev->setUpperSegment(new cmpHeadwater (hname, prev->getRiver()));
                     prev->getUpperSegment()->setLowerSegment(prev);
-                    segments->insert (i, prev->getUpperSegment());
+                    segments.insert (i, prev->getUpperSegment());
                     i++;
                     headwaters->append(hname);
 //                    cmpLog::outlog->add(cmpLog::Debug, QString (
 //                              QString("adding headwater %1").arg(hname)));
                 }
                 // change rivers, if exist
-                curRiver = QString (*cur->getRiverName());
+                curRiver = QString (cur->getRiverName());
                 riv = findRiver(curRiver);
                 if (riv == nullptr)
                 {
@@ -305,9 +343,9 @@ bool cmpRiverSystem::initialize()
 cmpRiver * cmpRiverSystem::findRiver(QString name)
 {
     cmpRiver *riv = nullptr;
-    for (int i = 0; i < rivers->count(); i++)
+    for (int i = 0; i < rivers.count(); i++)
     {
-        riv = rivers->at (i);
+        riv = rivers.at (i);
         if (riv->getName().compare(name) == 0)
             break;
     }
@@ -317,10 +355,10 @@ cmpRiver * cmpRiverSystem::findRiver(QString name)
 cmpRiverSegment * cmpRiverSystem::findSegment(QString name)
 {
     cmpRiverSegment *seg = nullptr;
-    for (int i = 0; i < segments->count(); i++)
+    for (int i = 0; i < segments.count(); i++)
     {
-        seg = segments->at (i);
-        if (seg->getName()->compare(name) == 0)
+        seg = segments.at (i);
+        if (seg->getName().compare(name) == 0)
             break;
     }
     return seg;
@@ -330,9 +368,9 @@ cmpRiverSegment * cmpRiverSystem::findSegment(cmpRiverPoint *pt)
 {
     cmpRiverSegment *seg = nullptr;
     bool found = false;
-    for (int i = 0; !found && i < segments->count(); i++)
+    for (int i = 0; !found && i < segments.count(); i++)
     {
-        seg = segments->at (i);
+        seg = segments.at (i);
         for (int j = 0; !found && j < seg->getCourse().count(); j++)
             if (seg->getCourse().at (j)->equals(*pt))
                 found = true;
@@ -343,9 +381,9 @@ cmpRiverSegment * cmpRiverSystem::findSegment(cmpRiverPoint *pt)
 cmpSpecies * cmpRiverSystem::findSpecies(QString name)
 {
     cmpSpecies *spec = nullptr;
-    for (int i = 0; i < species->count(); i++)
+    for (int i = 0; i < species.count(); i++)
     {
-        spec = species->at (i);
+        spec = species.at (i);
         if (spec->getName().compare(name) == 0)
             break;
     }
@@ -355,9 +393,9 @@ cmpSpecies * cmpRiverSystem::findSpecies(QString name)
 cmpStock * cmpRiverSystem::findStock(QString name)
 {
     cmpStock *st = nullptr;
-    for (int i = 0; i < stocks->count(); i++)
+    for (int i = 0; i < stocks.count(); i++)
     {
-        st = stocks->at (i);
+        st = stocks.at (i);
         if (st->getName()->compare(name) == 0)
             break;
     }
@@ -374,9 +412,9 @@ cmpTransport * cmpRiverSystem::findTransport(QString name)
 cmpRelease * cmpRiverSystem::findRelease(QString name)
 {
     cmpRelease *rel = nullptr;
-    for (int i = 0; i < releases->count(); i++)
+    for (int i = 0; i < releases.count(); i++)
     {
-        rel = releases->at (i);
+        rel = releases.at (i);
         if (rel->getName().compare(name) == 0)
             break;
     }
@@ -386,9 +424,9 @@ cmpRelease * cmpRiverSystem::findRelease(QString name)
 cmpReleaseSite * cmpRiverSystem::findReleaseSite(QString name)
 {
     cmpReleaseSite *site = nullptr;
-    for (int i = 0; i < releaseSites->count(); i++)
+    for (int i = 0, total = releaseSites.count(); i < total; ++i)
     {
-        site = releaseSites->at (i);
+        site = releaseSites.at (i);
         if (site->getName().compare(name) == 0)
             break;
     }
@@ -403,9 +441,9 @@ void cmpRiverSystem::computeFlows ()
 }
 void cmpRiverSystem::markRegulationPts()
 {
-    for (int i = 0; i < dams->count(); i++)\
+    for (int i = 0, total = dams.count(); i < total; ++i)
     {
-        QString damname = dams->at (i);
+        QString damname = dams.at (i);
         cmpDam *dam = static_cast <cmpDam *> (findSegment(damname));
         dam->setIsRegPoint(true);
     }
@@ -418,15 +456,15 @@ void cmpRiverSystem::fillHeadwaters ()
     QString hwtrname ("");
     cmpHeadwater *hwtr;
 
-    for (int i = 0; i < headwaters->count(); i++)
+    for (int i = 0, total = headwaters.count(); i < total; ++i)
     {
-        hwtrname = headwaters->at (i);
+        hwtrname = headwaters.at (i);
         hwtr = static_cast <cmpHeadwater *> (findSegment (hwtrname));
         hwtr->fillRegulated();
     }
-    for (int i = 0; i < headwaters->count(); i++)
+    for (int i = 0, total = headwaters.count(); i < total; ++i)
     {
-        hwtrname = headwaters->at (i);
+        hwtrname = headwaters.at (i);
         hwtr = static_cast <cmpHeadwater *> (findSegment (hwtrname));
         hwtr->fillUnRegulated();
     }
@@ -497,10 +535,10 @@ void cmpRiverSystem::computeSegTemp (cmpRiverSegment *seg)
 void cmpRiverSystem::computeSpill ()
 {
 //    computeSegSpill (getMouth());
-    for (int i = 0; i < segments->count(); i++)
-    if (segments->at (i)->getType() == cmpRiverSegment::Dam)
+    for (int i = 0, total = segments.count(); i < total; ++i)
+    if (segments.at (i)->getType() == cmpRiverSegment::Dam)
     {
-        static_cast <cmpDam *> (segments->at (i))->calculateSpill ();
+        static_cast <cmpDam *> (segments.at (i))->calculateSpill ();
     }
 }
 
@@ -519,10 +557,10 @@ void cmpRiverSystem::deleteReleases ()
 
 void cmpRiverSystem::deleteSpill ()
 {
-    for (int i = 0; i < segments->count(); i++)
-    if (segments->at (i)->getType() == cmpRiverSegment::Dam)
+    for (int i = 0, total = segments.count(); i < total; ++i)
+    if (segments.at (i)->getType() == cmpRiverSegment::Dam)
     {
-        static_cast <cmpDam *> (segments->at (i))->deleteSpill ();
+        static_cast <cmpDam *> (segments.at (i))->deleteSpill ();
     }
  }
 

@@ -7,33 +7,35 @@
 #include "Log.h"
 #include "CompassFile.h"
 #include "dataConversion.h"
-#include "RiverPoint.h"
-#include "RiverSystem.h"
-#include "Dam.h"
-#include "Reach.h"
-#include "Headwater.h"
-#include "Species.h"
-#include "Stock.h"
-#include "Release.h"
+#include "cmpRiverPoint.h"
+#include "cmpRiverSystem.h"
+#include "cmpDam.h"
+#include "cmpReach.h"
+#include "cmpHeadwater.h"
+#include "cmpSpecies.h"
+#include "cmpStock.h"
+#include "cmpRelease.h"
+#include "cmpfile.h"
+
 
 bool parseCompassFile (QString filename);
-bool parseCompassData (CompassFile *cfile);
+bool parseCompassData (cmpFile *cfile);
 
-bool parseRiverDesc (CompassFile *cfile, RiverSystem *rs);
+bool parseRiverDesc (cmpFile *cfile, cmpRiverSystem *rs);
 
 
-bool parse_data (CompassFile *infile);
-bool parse_river (CompassFile *infile, RiverSystem *rs, River *river);//QString riv);
-bool parse_dam (CompassFile *infile, Dam *dam);//QString dam);
-bool parse_fishway (CompassFile *infile, Dam *dam);
-bool parse_reach (CompassFile *infile, Reach *rch);//QString rch);
-bool parse_headwater (CompassFile *infile, Headwater *hdw);//QString hdw);
+bool parse_data (cmpFile *infile);
+bool parse_river (cmpFile *infile, cmpRiverSystem *rs, cmpRiver *river);//QString riv);
+bool parse_dam (cmpFile *infile, cmpDam *dam);//QString dam);
+bool parse_fishway (cmpFile *infile, cmpDam *dam);
+bool parse_reach (cmpFile *infile, cmpReach *rch);//QString rch);
+bool parse_headwater (cmpFile *infile, cmpHeadwater *hdw);//QString hdw);
 //bool parse_powerhouse (QFile *infile);
-bool parse_species (CompassFile *infile, Species *spc);//QString spc);
-bool parse_stock (CompassFile *infile, Stock *stk);//QString stk);
-bool parse_release (CompassFile *infile, Release *rel);//QString rel);
-bool parse_release_site (CompassFile *infile, ReleaseSite *rst);
-bool parse_latlon (CompassFile *cfile, RiverPoint *pt);
+bool parse_species (cmpFile *infile, cmpSpecies *spc);//QString spc);
+bool parse_stock (cmpFile *infile, cmpStock *stk);//QString stk);
+bool parse_release (cmpFile *infile, cmpRelease *rel);//QString rel);
+bool parse_release_site (cmpFile *infile, cmpReleaseSite *rst);
+bool parse_latlon (cmpFile *cfile, cmpRiverPoint *pt);
 
 bool find_file (QString filename, QString &path);
 
@@ -77,7 +79,7 @@ void p_error (QFile *file, QString message);
 void p_warning (QFile *file, char *format, ...);
 void p_warning (QFile *file, QString message);
 
-bool check_course (RiverSegment *seg);
+bool check_course (cmpRiverSegment *seg);
 bool check_end (QString type, QString name = QString (""));
 bool check_end (CompassFile *file, QString type, QString name = "");
 bool check_end (QStringList &tokens, QString type, QString name);

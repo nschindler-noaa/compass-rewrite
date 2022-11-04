@@ -1,32 +1,34 @@
 #include "parseUtil.h"
-#include "information.h"
+#include "cmpfile.h"
+//#include "information.h"
 #include "cmpbasin.h"
+#include "cmppowerhouse.h"
 
 
 /** The main entry point for reading any file. This will call the
  *  appropriate parsing functions. */
 
-Information * compassInfo = newInfo ();
+//Information * compassInfo = newInfo ();
 
 bool parseCompassFile (QString filename)
 {
     bool okay = true;
 
-    CompassFile *infile = new CompassFile (filename);
+    cmpFile *infile = new cmpFile (filename);
     infile->open(QIODevice::ReadOnly);
 
     okay = infile->readHeader ();
     okay = infile->readInfo ();
     okay = parseCompassData (infile);
     if (!okay)
-        Log::outlog->add(Log::Error, QString ("Error in reading file %1").arg (filename));
+//        cmpLog::outlog->add(cmpLog::Error, QString ("Error in reading file %1").arg (filename));
 
 //    delete infile;
 
     return okay;
 }
 
-bool parseCompassData (CompassFile *cfile)
+bool parseCompassData (cmpFile *cfile)
 {
     bool okay = true, end = false;
     QString token (""), val ("");
@@ -44,7 +46,7 @@ bool parseCompassData (CompassFile *cfile)
     return okay;
 }
 
-bool parse_river (CompassFile *cfile, RiverSystem *rs, River *river)
+bool parse_river (cmpFile *cfile, cmpRiverSystem *rs, cmpRiver *river)
 {
     bool okay = true, end = false;
     QString token (""), val ("");
@@ -79,10 +81,10 @@ bool parse_river (CompassFile *cfile, RiverSystem *rs, River *river)
             okay = cfile->readString (reachName);
             if (okay)
             {
-                Reach *reach = new Reach (reachName);
-                rs->reaches->append (reachName);
-                rs->segments->append ((RiverSegment *) reach);
-                reach->setRiverName(&river->getName());
+                cmpReach *reach = new cmpReach (reachName);
+                rs->reaches.append (reachName);
+                rs->segments.append ((cmpRiverSegment *) reach);
+                reach->setRiverName(river->getName());
                 okay = parse_reach (cfile, reach);
                 river->addSegment(reach);
             }
@@ -93,10 +95,10 @@ bool parse_river (CompassFile *cfile, RiverSystem *rs, River *river)
             okay = cfile->readString (damName);
             if (okay)
             {
-                Dam *dam = new Dam (damName);
-                rs->dams->append (damName);
-                rs->segments->append ((RiverSegment *) dam);
-                dam->setRiverName(&river->getName());
+                cmpDam *dam = new cmpDam (damName);
+                rs->dams.append (damName);
+                rs->segments.append ((cmpRiverSegment *) dam);
+                dam->setRiverName(river->getName());
                 okay = parse_dam (cfile, dam);
                 river->addSegment(dam);
             }
@@ -107,10 +109,10 @@ bool parse_river (CompassFile *cfile, RiverSystem *rs, River *river)
             okay = cfile->readString (hwName);
             if (okay)
             {
-                Headwater *head = new Headwater (hwName);
-                rs->headwaters->append (hwName);
-                rs->segments->append ((RiverSegment *) head);
-                head->setRiverName(&river->getName());
+                cmpHeadwater *head = new cmpHeadwater (hwName);
+                rs->headwaters.append (hwName);
+                rs->segments.append ((cmpRiverSegment *) head);
+                head->setRiverName(river->getName());
                 okay = parse_headwater (cfile, head);
                 river->addSegment(head);
             }
@@ -129,22 +131,22 @@ bool parse_river (CompassFile *cfile, RiverSystem *rs, River *river)
     }
     // we have ended, but is it at a headwater?
     // create headwater of this river, if it doesn't exist
-    RiverSegment *cur = rs->segments->last();
-    if (okay && cur->getType() != RiverSegment::Headwater)
+    cmpRiverSegment *cur = rs->segments.last();
+    if (okay && cur->getType() != cmpRiverSegment::Headwater)
     {
         QString hname (river->getName());
         hname.append(" Headwater");
-        cur->setUpperSegment(new Headwater (hname, river->getName()));
+        cur->setUpperSegment(new cmpHeadwater (hname, river));
         cur->getUpperSegment()->setLowerSegment(cur);
-        rs->segments->append (cur->getUpperSegment());
-        rs->headwaters->append(hname);
-        Log::outlog->add(Log::Debug, QString (
-                  QString("adding headwater %1").arg(hname)));
+        rs->segments.append (cur->getUpperSegment());
+        rs->headwaters.append(hname);
+//        cmpLog::outlog->add(cmpLog::Debug, QString (
+//                  QString("adding headwater %1").arg(hname)));
     }
     return okay;
 }
 
-bool parse_dam (CompassFile *cfile, Dam *dam)
+bool parse_dam (cmpFile *cfile, cmpDam *dam)
 {
     bool okay = true, end = false;
     bool tempBool = false;
@@ -155,7 +157,7 @@ bool parse_dam (CompassFile *cfile, Dam *dam)
     float temp = 0.0;
     int index = 0;
 
-    Log::outlog->add (Log::Debug, QString("parsing ......... %1").arg (*dam->getName()));
+//    cmpLog::outlog->add (cmpLog::Debug, QString("parsing ......... %1").arg (*dam->getName()));
 
     while (okay && !end)
     {
@@ -166,7 +168,7 @@ bool parse_dam (CompassFile *cfile, Dam *dam)
         }
         else if (token.compare ("latlon", Qt::CaseInsensitive) == 0)
         {
-            RiverPoint *pt = new RiverPoint ();
+            cmpRiverPoint *pt = new cmpRiverPoint ();
             okay = parse_latlon (cfile, pt);
             if (okay)
                 dam->addCoursePoint(pt);
@@ -174,7 +176,7 @@ bool parse_dam (CompassFile *cfile, Dam *dam)
         else if (token.compare ("abbrev", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken();
-            dam->setAbbrev(new QString (val));
+            dam->setAbbrev(val);
             cfile->skipLine ();
         }
         else if (token.compare ("width", Qt::CaseInsensitive) == 0)
@@ -254,8 +256,8 @@ bool parse_dam (CompassFile *cfile, Dam *dam)
             cmpPowerhouse *phouse = new cmpPowerhouse(tempInt);
 
             index = dam->setPowerhouse(phouse, tempInt);
-            Log::outlog->add(Log::Debug,QString ("powerhouse index %1").arg(
-                                     QString::number(tempInt)));
+//            cmpLog::outlog->add(cmpLog::Debug,QString ("powerhouse index %1").arg(
+//                                     QString::number(tempInt)));
 
             phouse->setCapacity(tempFloat);
 /*            if (token.contains ("capacity"), Qt::CaseInsensitive)
@@ -264,7 +266,7 @@ bool parse_dam (CompassFile *cfile, Dam *dam)
                 okay = read_float (val, &temp, QString("powerhouse capacity"));
                 if (okay)
                 {
-                    Log::outlog->add(Log::Debug, QString(QString ("Powerhouse capacity %1").arg(
+                    cmpLog::outlog->add(cmpLog::Debug, QString(QString ("Powerhouse capacity %1").arg(
                                 QString::number(phouse->capacity))));
                 }
             }*/
@@ -303,7 +305,7 @@ bool parse_dam (CompassFile *cfile, Dam *dam)
         }
         else if (token.contains ("end"))
         {
-            if (cfile->checkEnd ("dam", *dam->getName())) {
+            if (cfile->checkEnd ("dam", dam->getName())) {
                 cfile->skipLine ();
                 end = true;
             }
@@ -323,7 +325,7 @@ bool parse_dam (CompassFile *cfile, Dam *dam)
     return okay;
 }
 
-bool parse_fishway (CompassFile *cfile, Dam *dam)
+bool parse_fishway (cmpFile *cfile, cmpDam *dam)
 {
     bool okay = true, end = false;
     QString token(""), val("");
@@ -377,7 +379,7 @@ bool parse_fishway (CompassFile *cfile, Dam *dam)
     return okay;
 }
 
-bool parse_reach (CompassFile *cfile, Reach *rch)
+bool parse_reach (cmpFile *cfile, cmpReach *rch)
 {
     bool okay = true, end = false;
     bool tempBool = false;
@@ -385,7 +387,7 @@ bool parse_reach (CompassFile *cfile, Reach *rch)
     int tempInt = 0;
     QString token (""), val ("");
 
-    Log::outlog->add (Log::Debug, QString("parsing ......... %1").arg (*rch->getName()));
+//    cmpLog::outlog->add (cmpLog::Debug, QString("parsing ......... %1").arg (*rch->getName()));
 
     while (okay && !end)
     {
@@ -396,7 +398,7 @@ bool parse_reach (CompassFile *cfile, Reach *rch)
         }
         else if (token.compare ("latlon", Qt::CaseInsensitive) == 0)
         {
-            RiverPoint *pt = new RiverPoint ();
+            cmpRiverPoint *pt = new cmpRiverPoint ();
             okay = parse_latlon (cfile, pt);
             if (okay)
                 okay = rch->addCoursePoint(pt);
@@ -404,7 +406,7 @@ bool parse_reach (CompassFile *cfile, Reach *rch)
         else if (token.compare ("abbrev", Qt::CaseInsensitive) == 0)
         {
             val = cfile->popToken();
-            rch->setAbbrev(new QString (val));
+            rch->setAbbrev(val);
             cfile->skipLine ();
         }
         else if (token.compare ("width", Qt::CaseInsensitive) == 0)
@@ -464,7 +466,7 @@ bool parse_reach (CompassFile *cfile, Reach *rch)
     return okay;
 }
 
-bool parse_headwater (CompassFile *cfile, Headwater *hdw)
+bool parse_headwater (cmpFile *cfile, cmpHeadwater *hdw)
 {
     bool okay = true, end = false;
     bool tempBool = false;
@@ -472,7 +474,7 @@ bool parse_headwater (CompassFile *cfile, Headwater *hdw)
     int tempInt = 0;
     QString token (""), val ("");
 
-    Log::outlog->add (Log::Debug, QString("parsing ......... %1").arg (*hdw->getName()));
+//    cmpLog::outlog->add (cmpLog::Debug, QString("parsing ......... %1").arg (*hdw->getName()));
 
     while (okay && !end)
     {
@@ -483,7 +485,7 @@ bool parse_headwater (CompassFile *cfile, Headwater *hdw)
         }
         else if (token.compare ("latlon", Qt::CaseInsensitive) == 0)
         {
-            RiverPoint *pt = new RiverPoint ();
+            cmpRiverPoint *pt = new cmpRiverPoint ();
             okay = parse_latlon (cfile, pt);
             if (okay) hdw->getCourse().append (pt);
         }
@@ -511,28 +513,28 @@ bool parse_headwater (CompassFile *cfile, Headwater *hdw)
     return okay;
 }
 
-bool parse_powerhouse (CompassFile *infile, PowerHouse *ph)
+bool parse_powerhouse (cmpFile *infile, cmpPowerhouse *ph)
 {
     bool ret = true;
 
     return ret;
 }
 
-bool parse_species (CompassFile *infile, Species *spc)
+bool parse_species (cmpFile *infile, cmpSpecies *spc)
 {
     bool ret = true;
 
     return ret;
 }
 
-bool parse_stock (CompassFile *infile, Stock *stk)
+bool parse_stock (cmpFile *infile, cmpStock *stk)
 {
     bool ret = true;
 
     return ret;
 }
 
-bool parse_release (CompassFile *infile, Release *rel)
+bool parse_release (cmpFile *infile, cmpRelease *rel)
 {
     bool ret = true;
 
@@ -550,7 +552,7 @@ bool find_file (QString filename, QString &path)
 
 
 
-QString read_string (CompassFile *infile, bool ignore_spaces)
+QString read_string (cmpFile *infile, bool ignore_spaces)
 {
     QString tok ("");
     if (ignore_spaces)
@@ -561,7 +563,7 @@ QString read_string (CompassFile *infile, bool ignore_spaces)
     return tok;
 }
 
-float read_float (CompassFile *infile)
+float read_float (cmpFile *infile)
 {
     QString na ("");
     float fval;
@@ -577,14 +579,14 @@ bool read_float_or_na (QString token, float *number, QString name, bool *was_na)
 
 }
 
-bool read_float_or_na (CompassFile *infile, float *number, QString name, bool *was_na)
+bool read_float_or_na (cmpFile *infile, float *number, QString name, bool *was_na)
 {
     QString na ("");
     bool okay = infile->readFloatOrNa (na, *number);
     if (!okay)
     {
-        Log::outlog->add (Log::Error, QString("Reading float or na for %1.")
-                               .arg (name));
+//        cmpLog::outlog->add (cmpLog::Error, QString("Reading float or na for %1.")
+//                               .arg (name));
     }
 
     if (na.compare ("na", Qt::CaseInsensitive) == 0)
@@ -600,8 +602,8 @@ bool read_double (QString token, double *val, QString prompt)
     bool okay;
     *val = token.toDouble (&okay);
     if (!okay)
-        Log::outlog->add (Log::Error, QString ("Looking for double value for %1, found %2.")
-                               .arg (prompt, token));
+//        cmpLog::outlog->add (cmpLog::Error, QString ("Looking for double value for %1, found %2.")
+//                               .arg (prompt, token));
     return okay;
 }
 
@@ -610,8 +612,8 @@ bool read_float (QString token, float *val, QString prompt)
     bool okay;
     *val = token.toFloat (&okay);
     if (!okay)
-        Log::outlog->add (Log::Error, QString ("Looking for float value for %1, found %2.")
-                               .arg (prompt, token));
+//        cmpLog::outlog->add (cmpLog::Error, QString ("Looking for float value for %1, found %2.")
+//                               .arg (prompt, token));
     return okay;
 }
 
@@ -620,8 +622,8 @@ bool read_int (QString token, int *val, QString prompt)
     bool okay;
     *val = token.toInt (&okay);
     if (!okay)
-        Log::outlog->add (Log::Error, QString ("Looking for float value for %1, found %2.")
-                               .arg (prompt, token));
+//        cmpLog::outlog->add (cmpLog::Error, QString ("Looking for float value for %1, found %2.")
+//                               .arg (prompt, token));
     return okay;
 }
 
@@ -647,12 +649,12 @@ void handle_unknown_token (QString token)
     if (isFloat)
     {
         QString msg (QString (NUMERIC_TOKEN).arg (token));
-        Log::outlog->add (Log::Error, msg);
+//        cmpLog::outlog->add (cmpLog::Error, msg);
     }
     else
     {
         QString msg (QString (UNKNOWN_TOKEN).arg (token));
-        Log::outlog->add (Log::Error, msg);
+//        cmpLog::outlog->add (cmpLog::Error, msg);
     }
 }
 void handle_obsolete_token (QString obs_token, QString new_token)
@@ -672,7 +674,7 @@ void handle_obsolete_token (QString obs_token, QString new_token)
                 message.append ("}.\n");
         }
 
-        Log::outlog->add (Log::Error, message);
+//        cmpLog::outlog->add (cmpLog::Error, message);
 }
 bool is_float (QString token)
 {
@@ -688,7 +690,7 @@ bool is_int (QString token)
         return okay;
 }
 
-bool parseRiverDesc (CompassFile *cfile, RiverSystem *rs)
+bool parseRiverDesc (cmpFile *cfile, cmpRiverSystem *rs)
 {
     bool okay = true, end = false;
     QString token (""), val ("");
@@ -710,21 +712,21 @@ bool parseRiverDesc (CompassFile *cfile, RiverSystem *rs)
         {
             okay = cfile->readString (val);
             if (okay)
-                rs->speciesNames->append (val);//compassInfo->species.append (val);
+                rs->speciesNames.append (val);//compassInfo->species.append (val);
         }
         else if (token.contains ("stock", Qt::CaseInsensitive))
         {
             okay = cfile->readString (val);
             if (okay)
-                rs->stockNames->append (val);//compassInfo->stocks.append (val);
+                rs->stockNames.append (val);//compassInfo->stocks.append (val);
         }
         else if (token.contains ("release_site"))
         {
             okay = cfile->readString (val);
             if (okay)
             {
-                ReleaseSite *relsite = new ReleaseSite (val);
-                rs->releaseSites->append (relsite);
+                cmpReleaseSite *relsite = new cmpReleaseSite (val);
+                rs->releaseSites.append (relsite);
                 okay = parse_release_site (cfile, relsite);
             }
         }
@@ -734,8 +736,8 @@ bool parseRiverDesc (CompassFile *cfile, RiverSystem *rs)
             okay = cfile->readString (riverName);
             if (okay)
             {
-                River *riv = new River (riverName);
-                rs->rivers->append (riv);
+                cmpRiver *riv = new cmpRiver (riverName);
+                rs->rivers.append (riv);
                 okay = parse_river (cfile, rs, riv);
             }
         }
@@ -747,7 +749,7 @@ bool parseRiverDesc (CompassFile *cfile, RiverSystem *rs)
     return okay;
 }
 
-bool parse_release_site (CompassFile *cfile, ReleaseSite *relsite)
+bool parse_release_site (cmpFile *cfile, cmpReleaseSite *relsite)
 {
     bool okay = true, end = false;
     QString token ("");
@@ -780,7 +782,7 @@ bool parse_release_site (CompassFile *cfile, ReleaseSite *relsite)
         else
         {
             handle_unknown_token (token);
-            cfile->printFileLine ();
+//            cfile->printFileLine ();
         }
     }
 //    if (okay && end)
@@ -789,7 +791,7 @@ bool parse_release_site (CompassFile *cfile, ReleaseSite *relsite)
     return okay;
 }
 
-bool parse_latlon (CompassFile *cfile, RiverPoint *pt)
+bool parse_latlon (cmpFile *cfile, cmpRiverPoint *pt)
 {
     bool okay = true, end = false;
     QString ltln;
@@ -843,14 +845,14 @@ bool parse_latlon (CompassFile *cfile, RiverPoint *pt)
     */
 }
 
-bool check_course (RiverSegment *seg)
+bool check_course (cmpRiverSegment *seg)
 {
     bool okay = true;
     if (seg->getCourse().isEmpty())
     {
         okay = false;
-        Log::outlog->add(Log::Error, QString(QString("Segment %1 has no latlon points.").arg(
-                                                     *seg->getName())));
+//        cmpLog::outlog->add(cmpLog::Error, QString(QString("Segment %1 has no latlon points.").arg(
+//                                                     *seg->getName())));
     }
     return okay;
 }

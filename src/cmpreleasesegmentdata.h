@@ -141,7 +141,6 @@ private:
         inriverStats,         /**< In-river only stats */
         transportStats;       /**< Transport stats */
 
-#ifdef ROUTE_TRACKING
     /* these vars track passage routes at dams only.  they represent
      * post-mortality passage through the various dam routes.
      */
@@ -163,7 +162,8 @@ private:
 
     float spillEfficiency;    /**< Spill efficiency ((proportion of fish spilled)
                                 * / (proportion of water spilled)) */
-#endif
+
+    // fish return data
     struct delayed_mortality_table *d; /**< Table for calculating delayed mortality
                                 * ("D"). This is used at the default_transport_target
                                 * segment */
@@ -177,6 +177,7 @@ private:
     float postBonnevilleTotal;/**< Fish estimated to survive (out of those
                                 * that arrive at this segment, i.e. project_in_total) */
 
+    // day/night passage
     float nightPassage;       /**< The proportion of fish that pass at night */
     float flowAverage;        /**< avg flow at indicator over run */
 };
@@ -298,7 +299,7 @@ private:
     QList<float> toTransport;       /**< Number transported out (dam only)*/
     QList<float> fromTransport;     /**< Number transported in (reach only)*/
     QList<float> projectIn;        /**< After forebay pred; used for FPE */
-#ifdef ROUTE_TRACKING
+
     /* these vars track passage routes at dams only.  they represent
      * post-mortality passage through the various dam routes.
      */
@@ -317,7 +318,8 @@ private:
                                 * of start of transport from collector dam */
     QList<float> transportArrived; /**< Number surviving transport indexed by date
                                 * of arrival at the destination */
-#endif
+
+    // fish return data
     struct delayed_mortality_table *d;/**< This gets copied into stats.d when
                                 * computing statistics but should be freed only
                                 * from here (the pointer in stats gets NULLed

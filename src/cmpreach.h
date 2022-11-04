@@ -3,6 +3,8 @@
 
 #include "cmpriversegment.h"
 
+class cmpRiver;
+
 #define DEPTH_PADDING   0.95
 
 #ifdef PRED_CALC
@@ -20,8 +22,8 @@ class cmpReach : public cmpRiverSegment
     Q_OBJECT
 
 public:
-    explicit cmpReach (QObject *parent = nullptr);
-    cmpReach (QString rname, QString rivName = QString (""), QObject *parent = nullptr);
+    explicit cmpReach (cmpRiver *parent = nullptr);
+    cmpReach (QString rname, cmpRiver *parent = nullptr);
     cmpReach (cmpReach &rhs);
     ~cmpReach () override;
 
@@ -34,7 +36,8 @@ public:
     struct reach_species *species;
 #endif
 
-    void outputDesc (cmpFile *outfile);
+    bool parseDesc (cmpFile *descfile) override;
+    void outputDesc (cmpFile *outfile) override;
 
     void calculateFlow () override;
     void calculateFlows ();
@@ -95,13 +98,15 @@ private:
 
     float lossMax;          /**< Maximum loss at this reach */
     float lossMin;          /**< Minimum loss at this reach */
-    QList<float> loss;      /**< Loss given at each day [DAYS_IN_SEASON]*/
+    QList<float> loss;      /**< Loss given at each day [days_per_season]*/
 
     QList<float> tempDelta; /**< Modifies water_temp, if needed [STEPS_IN_SEASON]*/
 
     float waterParticleTT;  /**< particle travel time; computed */
 
-
+    int stepsPerDay;
+    int daysPerSeason;
+    int steps_per_season;
 
 };
 

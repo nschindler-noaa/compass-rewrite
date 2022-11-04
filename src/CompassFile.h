@@ -4,8 +4,6 @@
 #include <QFile>
 #include <QStringList>
 
-#define CURRENT_DATA_VERSION    12
-
 #define MAX_LINE_LENGTH    1024
 
 #define COMMENT_SEPARATOR "#============================================================================#"

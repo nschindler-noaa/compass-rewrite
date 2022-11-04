@@ -3,13 +3,48 @@
 cmpReleaseSite::cmpReleaseSite(QString rsname)
 {
     name = rsname;
-    latlon = new cmpRiverPoint ();
+    latlon = nullptr;
     seg = nullptr;
 }
 
 cmpReleaseSite::~cmpReleaseSite ()
 {
     delete latlon;
+}
+
+bool cmpReleaseSite::parseDesc(cmpFile *cfile)
+{
+    bool okay = true;
+    QString line;
+    line = cfile->getToken();
+    if (line.compare("latlon") == 0)
+    {
+        okay = cfile->readString(line);
+        cmpRiverPoint *rivpt = new cmpRiverPoint(line);
+        setLatlon(rivpt);
+        line = cfile->getToken();
+        if (line.compare("end") != 0)
+            okay = false;
+    //    flag = cfile->checkEnd ("release_site", getName());
+    }
+    else
+    {
+        okay = false;
+    }
+    return okay;
+}
+
+bool cmpReleaseSite::outputDesc(cmpFile *cfile)
+{
+    bool okay = (latlon != nullptr);
+    if (okay)
+    {
+        cfile->writeString(0, QString("release_site"), name);
+        cfile->writeString(1, latlon->getLatLon());
+        cfile->writeEnd (0, QString("release_site"), name);
+        cfile->writeNewline();
+    }
+    return okay;
 }
 
 const QString &cmpReleaseSite::getName() const
@@ -29,6 +64,8 @@ cmpRiverPoint *cmpReleaseSite::getLatlon() const
 
 void cmpReleaseSite::setLatlon(cmpRiverPoint *value)
 {
+    if (latlon != nullptr)
+        delete latlon;
     latlon = value;
 }
 

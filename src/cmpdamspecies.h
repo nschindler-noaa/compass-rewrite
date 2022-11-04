@@ -6,7 +6,7 @@
 #include <QStringList>
 
 /** \class cmpDamSpecies
- * \brief Species-specific information at a dam */
+ * \brief Species information at a specific dam */
 class cmpDamSpecies
 {
 public:

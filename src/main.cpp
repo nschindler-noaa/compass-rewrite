@@ -1,8 +1,7 @@
 
-#include "CompassConsole.h"
-#include "CompassGui.h"
-#include "settings.h"
-#include "mainwindow.h"
+#include "cmpconsole.h"
+#include "cmpmainwindow.h"
+#include "cmpcommandsettings.h"
 
 #include <QObject>
 #include <QCoreApplication>
@@ -19,20 +18,23 @@ int main(int argc, char *argv[])
     // if there is a "-b" in arguments, start console mode
     if (consoleMode(argc, argv))
     {
-        qInstallMessageHandler(consoleOutput);
+#ifdef QT_DEBUG
+//        qInstallMessageHandler(consoleOutput);
+#endif
         QCoreApplication a (argc, argv);
-        CompassConsole c;
-        QObject::connect(&c, SIGNAL(done(bool)),
-                         &a, SLOT(quit()), Qt::QueuedConnection);
-        c.run();
-
-        retval = a.exec ();
+        cmpConsole c;
+        QObject::connect(&c, SIGNAL(done(int)),
+                         &a, SLOT(QCoreApplication::exit(int)), Qt::QueuedConnection);
+        retval = c.run(qApp->arguments());
     }
-    else  // start gui mode
+    // else, start gui mode
+    else
     {
-        qInstallMessageHandler(guiOutput);
+#ifdef QT_DEBUG
+//        qInstallMessageHandler(windowOutput);
+#endif
         QApplication a (argc, argv);
-        CompassGui w;
+        cmpMainWindow w;
         w.show();
 
         retval = a.exec();

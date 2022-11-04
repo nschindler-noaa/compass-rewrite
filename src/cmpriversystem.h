@@ -20,26 +20,26 @@ class cmpRiverSystem : public QObject
 public:
     explicit cmpRiverSystem(QObject *parent = nullptr);
     cmpRiverSystem (QString filename, QObject *parent = nullptr);
-    ~cmpRiverSystem ();
+    ~cmpRiverSystem () override;
     void setup ();
     void reset ();
     void deleteAll ();
 
-    QList <cmpRiver *> *rivers;
-    QList <cmpRiverSegment *> *segments;
-    QList <cmpSpecies *> *species;
-    QList <cmpStock *> *stocks;
-    QList <cmpTransport *> *transports;
-    QList <cmpRelease *> *releases;
-    QList <cmpReleaseSite *> *releaseSites;
+    QList <cmpSpecies *> species;
+    QList <cmpStock *> stocks;
+    QList <cmpRiver *> rivers;
+    QList <cmpRiverSegment *> segments;
+    QList <cmpTransport *> transports;
+    QList <cmpRelease *> releases;
+    QList <cmpReleaseSite *> releaseSites;
 
-    QStringList *speciesNames;
-    QStringList *stockNames;
-    QStringList *powerhouses;
-    QStringList *dams;
-    QStringList *reaches;
-    QStringList *headwaters;
-    QStringList *basins;
+    QStringList speciesNames;
+    QStringList stockNames;
+    QStringList powerhouses;
+    QStringList dams;
+    QStringList reaches;
+    QStringList headwaters;
+    QStringList basins;
 
     cmpRiver *findRiver (QString name);
     cmpRiverSegment *findSegment (QString name);
@@ -59,6 +59,7 @@ signals:
 public slots:
     bool parseDesc (cmpFile *descfile);
     bool parse (cmpFile *cfile);
+    bool parseReleaseSite(cmpFile *cfile, cmpReleaseSite *relsite);
     bool outputDesc (cmpFile *descfile);
     bool output (cmpFile *cfile);
     bool initialize ();
@@ -71,7 +72,7 @@ public slots:
     void computeSegTemp (cmpRiverSegment *seg);
     void computeSpill ();
     void computeSegSpill (cmpRiverSegment *seg);
-    cmpRiverSegment *getMouth() {return segments->at(0);}
+    cmpRiverSegment *getMouth() {return segments.at(0);}
     void deleteReleases ();
     void deleteSpill ();
 };

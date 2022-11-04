@@ -4,25 +4,24 @@
 
 float Ufree = 0.045;		/* kfs x10-1*/
 
-cmpReach::cmpReach(QObject *parent) : cmpRiverSegment(parent)
+cmpReach::cmpReach(cmpRiver *parent) : cmpRiverSegment(parent)
 {
     type = cmpRiverSegment::Reach;
-
+    clear();
 }
 
-cmpReach::cmpReach (QString rname, QString rivName, QObject *parent) :
-    cmpRiverSegment (rivName, parent)
+cmpReach::cmpReach (QString rname, cmpRiver *parent) :
+    cmpRiverSegment (parent)
 {
-    name = new QString (rname);
+    name = QString (rname);
     type = cmpRiverSegment::Reach;
-
     clear ();
 }
 
 cmpReach::cmpReach (cmpReach &rhs) :
     cmpRiverSegment(rhs)
 {
-    name = new QString (*rhs.getName());
+    name = QString (rhs.getName());
     type = cmpRiverSegment::Reach;
     copy (rhs);
 }
@@ -60,6 +59,81 @@ void cmpReach::clear ()
         velocity[i] = 0.0;
         tempDelta[i] = 0.0;
     }
+    cmpRiverSegment::setup();
+}
+
+bool cmpReach::parseDesc(cmpFile *descfile)
+{
+    bool okay = true, end = false;
+    QString token ("");
+    QString na("");
+
+    while (okay && !end)
+    {
+        token = descfile->popToken ();
+        if (token.compare ("eof", Qt::CaseInsensitive) == 0)
+        {
+            descfile->printEOF("Reach description");
+            okay = false;
+        }
+        else if (token.compare("width", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, widthAve);
+        }
+        else if (token.compare("upper_depth", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, depthUpper);
+        }
+        else if (token.compare("lower_depth", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, depthLower);
+        }
+        else if (token.compare("slope", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, slope);
+        }
+        else if (token.compare("lower_elev", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, elevLower);
+        }
+        else if (token.compare("latlon", Qt::CaseInsensitive) == 0)
+        {
+            cmpRiverPoint *pt = new cmpRiverPoint();
+            okay = descfile->readString(token);
+            pt->parse(token);
+            addCoursePoint(pt);
+        }
+        else if (token.compare("end", Qt::CaseInsensitive) == 0)
+        {
+            descfile->checkEnd("reach", name);
+            end = true;
+        }
+        else
+        {
+            descfile->unknownToken(token, name);
+        }
+    }
+    return okay;
+}
+
+void cmpReach::outputDesc(cmpFile *ofile)
+{
+    if (ofile->isOpen())
+    {
+        ofile->writeString(1, QString("reach"), name);
+
+        ofile->writeString(2, QString("width %1").arg(widthAve));
+        ofile->writeString(2, QString("lower_depth %1").arg(depthLower));
+        ofile->writeString(2, QString("upper_depth %1").arg(depthUpper));
+        ofile->writeString(2, QString("slope %1").arg(slope));
+        ofile->writeString(2, QString("lower_elev %1").arg(elevLower));
+        for (int i = 0; i < course.count(); i++)
+        {
+            ofile->writeString(2, course.at(i)->getLatLon());
+        }
+
+        ofile->writeEnd(1, QString("reach"), name);
+    }
 }
 
 void cmpReach::calculateFlow()
@@ -78,14 +152,14 @@ void cmpReach::calculateFlows()
     double slopetan = tan (slope);
     float lwr_depth_max = depthLower * .95; // 5% less than bottom
     float avg_flow = 0.0;
-    static float secs_per_step = 3600.0 * 24.0/STEPS_PER_DAY;
+    static float secs_per_step = 3600.0 * 24.0/stepsPerDay;
 
     QString msg("");
 
     /* Adjust flow by loss in this segment -
      * if less than flow_min, change the loss value and notify user.
      * If flow greater than flow_max, set flow_max to actual flow. */
-    for (int i = 0; i < DAYS_IN_SEASON; i++)
+    for (int i = 0; i < daysPerSeason; i++)
     {
         newflow = flow[i] - loss[i];
         if (newflow < flowMin - .0001)
@@ -121,7 +195,7 @@ void cmpReach::calculateFlows()
         return;
     }
 
-    for (int i = 0; i < DAYS_IN_SEASON; i++)
+    for (int i = 0; i < daysPerSeason; i++)
     {
         float tempVol = 0.0;
         float tempVel = 0.0;
@@ -132,7 +206,7 @@ void cmpReach::calculateFlows()
         {
             elevChange[i] = -(lwr_depth_max);
             msg = QString (QString("elevation drop below depth in reach %1\n    adjusting ...\n")
-                           .arg(*name));
+                           .arg(name));
         }
         avg_flow = flow[i] + (loss[i] / 2);
         if (avg_flow < 0.0)
@@ -141,9 +215,9 @@ void cmpReach::calculateFlows()
         tempVol = computeVolume (elevChange[i], depthUpper, depthLower, widthAve, slopetan);
         tempVel = computeVelocity (elevChange[i], depthUpper, depthLower, avg_flow);
 
-        for (int j = 0; j < STEPS_PER_DAY; j++)
+        for (int j = 0; j < stepsPerDay; j++)
         {
-            int index = i * STEPS_PER_DAY + j;
+            int index = i * stepsPerDay + j;
             volumeCurr [index] = tempVol;
             velocity [index] = tempVel * 0.19 * secs_per_step;
         }
@@ -154,7 +228,7 @@ void cmpReach::calculateFlows()
 
     /* Print stats for day 1 */
     msg = QString (QString("reach %1 length (mi) %2, \n\tday 1: vel(mi/hr) %3, vel_conv(mi/day) %4, \n\tvol(acre-ft) %5, temp %6\n"))
-          .arg(*name, QString::number(length, 'g', 2),
+          .arg(name, QString::number(length, 'g', 2),
                QString::number(velocity[1], 'g', 2), QString::number(velocity[1]*24.0, 'g', 2),
                QString::number(volumeCurr[1], 'g', 2), QString::number(temp[1], 'g', 2));
     cmpLog::outlog->add(cmpLog::Debug, msg);
@@ -216,15 +290,15 @@ float cmpReach::computeWTT(int firstDay, int lastDay)
     int i = 0;
 
     /* convert to time steps */
-    int firstStep = firstDay * STEPS_PER_DAY;
-    int lastStep = lastDay * STEPS_PER_DAY;
+    int firstStep = firstDay * stepsPerDay;
+    int lastStep = lastDay * steps_per_season;
 
-    for (i = firstStep; i <= lastStep && i < STEPS_IN_SEASON; ++i)
+    for (i = firstStep; i <= lastStep && i < steps_per_season; ++i)
         avg_vel += velocity[i];
     avg_vel /= (i-firstStep + 1);
 
     /* return average water particle travel time through this seg in days */
-    wtt = (length / avg_vel) / STEPS_PER_DAY;
+    wtt = (length / avg_vel) / stepsPerDay;
 
     return wtt;
 }
@@ -368,7 +442,7 @@ bool cmpReach::parse (cmpFile *cfile)
         }
         else if (token.compare("end", Qt::CaseInsensitive) == 0)
         {
-            okay = cfile->checkEnd("reach", *name);
+            okay = cfile->checkEnd("reach", name);
             end = true;
         }
         else

@@ -8,6 +8,61 @@ cmpFishway::cmpFishway()
     velocity = 0.0;
 }
 
+bool cmpFishway::parseDesc(cmpFile *descfile)
+{
+    bool okay = true, end = false;
+    QString token;
+    QString na;
+
+    while (okay && !end)
+    {
+        token = descfile->popToken ();
+        if (token.compare ("eof", Qt::CaseInsensitive) == 0)
+        {
+            descfile->printEOF("Dam fishway description");
+            okay = false;
+        }
+        else if (token.compare("type", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readString(token);
+            setType(token);
+        }
+        else if (token.compare("length", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, length);
+        }
+        else if (token.compare("capacity", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, capacity);
+        }
+        else if (token.compare("velocity", Qt::CaseInsensitive) == 0)
+        {
+            okay = descfile->readFloatOrNa(na, velocity);
+        }
+
+        else if (token.compare("end", Qt::CaseInsensitive) == 0)
+        {
+            descfile->checkEnd("fishway");
+            end = true;
+        }
+        else
+        {
+            descfile->unknownToken(token, "fishway");
+        }
+    }
+    return okay;
+}
+
+void cmpFishway::writeDesc(cmpFile *outfile)
+{
+    outfile->writeString(1, "fishway");
+    outfile->writeString(2, "type", getTypeString());
+    outfile->writeValue(2, "length", length);
+    outfile->writeValue(2, "capacity", capacity);
+    outfile->writeValue(2, "velocity", velocity);
+    outfile->writeEnd(1, "fishway");
+}
+
 cmpFishway::Type cmpFishway::getType() const
 {
     return type;
