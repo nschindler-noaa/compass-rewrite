@@ -164,8 +164,8 @@ bool cmpFile::readInfo ()
             end = true;
         }
     }
-    if (data_version < 13)
-        Log::outlog->add (Log::Debug, QString ("Old data version %1").arg(data_version));
+    if (dataVersion < 13)
+        cmpLog::outlog->add (cmpLog::Debug, QString ("Old data version %1").arg(dataVersion));
     return okay;
 }
 
@@ -896,12 +896,12 @@ void cmpFile::unknownToken(QString token, QString segment)
 
 void cmpFile::printMessage (QString msg)
 {
-    QMessageLogContext mlc(fileName().toStdString().data(), line, nullptr, nullptr);
+    QMessageLogContext mlc(fileName().toStdString().data(), lineNum, nullptr, nullptr);
     qInfo(msg.toStdString().data());
     cmpLog::outlog->add (cmpLog::Message, msg);
-    getFileLine ();
+    cmpLog::outlog->add (cmpLog::Message, getFileLine());
 
-    cout << msg.toStdString() << endl;
+    cout << "Info  :" << msg.toStdString() << endl;
     cout << getFileLine().toStdString() << endl;
 }
 
@@ -909,16 +909,16 @@ void cmpFile::printError (QString errmsg)
 {
     qWarning(errmsg.toStdString().data());
     cmpLog::outlog->add (cmpLog::Error, errmsg);
-    getFileLine ();
+    cmpLog::outlog->add (cmpLog::Error, getFileLine());
 
-    cout << errmsg.toStdString() << endl;
+    cout << "Error :" << errmsg.toStdString() << endl;
     cout << getFileLine().toStdString() << endl;
 }
 
 QString cmpFile::getFileLine ()
 {
    return QString((QString("File: %1, Line: %2").arg
-                      (fileName(), QString::number(line))));
+                      (fileName(), QString::number(lineNum))));
 }
 
 void cmpFile::handle_obsolete_token (QString obs_token, QString new_token)
