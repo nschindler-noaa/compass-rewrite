@@ -116,8 +116,8 @@ bool cmpRiverSystem::parse(cmpFile *rfile)
                 }
                 else
                 {
-//                    Log::outlog->add(Log::Error, "No reach by this name");
-//                    Log::outlog->add(Log::Error, reachName);
+//                    cmpLog::outlog->add(cmpLog::Error, "No reach by this name");
+//                    cmpLog::outlog->add(cmpLog::Error, reachName);
                 }
             }
         }
@@ -134,8 +134,8 @@ bool cmpRiverSystem::parse(cmpFile *rfile)
                 }
                 else
                 {
-//                    Log::outlog->add(Log::Error, "No dam by this name");
-//                    Log::outlog->add(Log::Error, damName);
+//                    cmpLog::outlog->add(cmpLog::Error, "No dam by this name");
+//                    cmpLog::outlog->add(cmpLog::Error, damName);
                 }
             }
         }
@@ -152,8 +152,8 @@ bool cmpRiverSystem::parse(cmpFile *rfile)
                 }
                 else
                 {
- //                   Log::outlog->add(Log::Error, "No headwater by this name");
- //                   Log::outlog->add(Log::Error, hwName);
+ //                   cmpLog::outlog->add(cmpLog::Error, "No headwater by this name");
+ //                   cmpLog::outlog->add(cmpLog::Error, hwName);
                 }
             }
         }
@@ -255,7 +255,7 @@ bool cmpRiverSystem::construct()
                     segments->insert (i, prev->getUpperSegment());
                     i++;
                     headwaters->append(hname);
-//                    Log::outlog->add(Log::Debug, QString (
+//                    cmpLog::outlog->add(cmpLog::Debug, QString (
 //                              QString("adding headwater %1").arg(hname)));
                 }
                 // change rivers, if exist
@@ -263,7 +263,7 @@ bool cmpRiverSystem::construct()
                 riv = findRiver(curRiver);
                 if (riv == nullptr)
                 {
-//                    Log::outlog->add (Log::Error, QString (
+//                    cmpLog::outlog->add (cmpLog::Error, QString (
 //                               QString("cmpRiver name %1 not found when constructing system").arg (
 //                                   curRiver)));
                     okay = false;
@@ -275,7 +275,7 @@ bool cmpRiverSystem::construct()
                     if (prev == nullptr)
                     {
                         okay = false;
-//                        Log::outlog->add(Log::Error, QString ("faulty cmpRiver construction."));
+//                        cmpLog::outlog->add(cmpLog::Error, QString ("faulty cmpRiver construction."));
                     }
                     else
                     {
@@ -453,7 +453,7 @@ void cmpRiverSystem::computeSegFlow (cmpRiverSegment *seg)
     else
     {
         QString msg (QString ("Segment %1 is not headwater and has no upstream segment.").arg (*seg->getName()));
-        Log::outlog->add(Log::Error, msg);
+        cmpLog::outlog->add(cmpLog::Error, msg);
         return;
     }*/
 }
@@ -490,7 +490,7 @@ void cmpRiverSystem::computeSegTemp (cmpRiverSegment *seg)
     else
     {
         QString msg (QString ("Segment %1 is not headwater and has no upstream segment.").arg (*seg->name));
-        Log::outlog->add(Log::Error, msg);
+        cmpLog::outlog->add(cmpLog::Error, msg);
     }*/
 }
 

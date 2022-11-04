@@ -4,7 +4,7 @@
 
 #include "FileManager.h"
 #include "parseUtil.h"
-#include "Log.h"
+#include "cmplog.h"
 #include "settings.h"
 #include "writeUtil.h"
 
@@ -42,7 +42,7 @@ bool FileManager::readRiverDescFile (Scenario *scn, Settings *set)//QString file
     else
     {
         QString msg (QString ("River description file {%1} not found.").arg (filename));
-//        Log::outlog->add (Log::Error, msg);
+        cmpLog::outlog->add (cmpLog::Error, msg);
         okay = false;
     }
     return okay;
@@ -91,7 +91,7 @@ bool FileManager::readFile (RiverSystem *rs, QString filename)
         break;
 
     case NONE:
-        Log::outlog->add(Log::Error, QString("Could not determine type of file to read: %1").arg(filename));
+        cmpLog::outlog->add(cmpLog::Error, QString("Could not determine type of file to read: %1").arg(filename));
         break;
 
     default:
@@ -108,7 +108,7 @@ bool FileManager::readFile (RiverSystem *rs, QString filename)
         }
         else
         {
-            Log::outlog->add(Log::Error, QString("Could not open file to read: %1").arg(filename));
+            cmpLog::outlog->add(cmpLog::Error, QString("Could not open file to read: %1").arg(filename));
             cfile->printError ("could not open file ...");
             okay = false;
         }
@@ -134,8 +134,8 @@ bool FileManager::readFile (QString filename)
     }
     else
     {
-        Log::outlog->add(Log::Error, "could not determine type of file to read.");
-        Log::outlog->add(Log::Error, filename);
+        cmpLog::outlog->add(cmpLog::Error, "could not determine type of file to read.");
+        cmpLog::outlog->add(cmpLog::Error, filename);
     }
 
     return okay;
@@ -368,7 +368,7 @@ bool FileManager::writeFileHeader (QFile *outfile, Settings *settings)
     TYPE type = getType(outfile->fileName());
     if (type == NONE)
     {
-        Log::outlog->add(Log::Error, QString("Incorrect file extension: %1").arg(outfile->fileName()));
+        cmpLog::outlog->add(cmpLog::Error, QString("Incorrect file extension: %1").arg(outfile->fileName()));
         okay = false;
     }
     if (outfile->isOpen() || outfile->open (QIODevice::WriteOnly))
@@ -438,7 +438,7 @@ bool FileManager::writeFileHeader (QFile *outfile, Settings *settings)
     else {
         okay = false;
         qInfo("%s", QString("Could not open file to read: %1").arg(outfile->fileName()).toUtf8().data());
-//        Log::outlog->add(Log::Error, QString("Could not open file to read: %1").arg(outfile->fileName()));
+//        cmpLog::outlog->add(cmpLog::Error, QString("Could not open file to read: %1").arg(outfile->fileName()));
     }
 
     return okay;
@@ -530,7 +530,7 @@ bool FileManager::findFile (QString filename, QString path, Settings *&set)
     {
         QString msg (QString ("File {%1} not found.").arg (filename));
         qWarning("%s", msg.toUtf8().data());
-//        Log::outlog->add (Log::Error, msg);
+//        cmpLog::outlog->add (cmpLog::Error, msg);
     }
 
     return exist;

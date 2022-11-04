@@ -96,7 +96,7 @@ CompassGui::~CompassGui()
 
 void CompassGui::addLogWindow (QWidget *container)
 {
-//    Log * outlog = LogWindow::instance (container);
+//    cmpLog * outlog = LogWindow::instance (container);
 //    logw = static_cast <LogWindow *> (outlog);
 
 //    container->layout ()->addWidget (logw);

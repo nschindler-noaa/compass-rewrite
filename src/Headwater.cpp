@@ -38,7 +38,7 @@ void Headwater::fillRegulated()
     {
         regulated = true;
         msg = QString (QString ("Filling regulated headwater %1, regulated at %2").arg(*name, *downseg->getName()));
-        Log::outlog->add(Log::Debug, msg);
+        cmpLog::outlog->add(cmpLog::Debug, msg);
 
 
     }
@@ -54,7 +54,7 @@ void Headwater::fillUnRegulated()
         return;
 
     msg = QString (QString ("Filling unregulated headwater %1").arg(*name));
-    Log::outlog->add(Log::Debug, msg);
+    cmpLog::outlog->add(cmpLog::Debug, msg);
 
 }
 

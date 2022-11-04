@@ -1,5 +1,5 @@
 #include "cmpreach.h"
-#include "log.h"
+#include "cmplog.h"
 #include "cmath"
 
 float Ufree = 0.045;		/* kfs x10-1*/
@@ -95,7 +95,7 @@ void cmpReach::calculateFlows()
             msg = QString (QString("insufficient flow, %1, on day %2 at %3;\n adjusting old loss: %4, new loss: %5\n")
                            .arg(QString::number(flow[i], 'g', 2), QString::number(i),
                                 QString::number(loss[i], 'g' ,2), QString::number(newloss, 'g', 2)));
-            Log::outlog->add(Log::Warning, msg);
+            cmpLog::outlog->add(cmpLog::Warning, msg);
             loss[i] = newloss;
         }
         flow[i] = newflow;
@@ -116,7 +116,7 @@ void cmpReach::calculateFlows()
     }
     if (volume < 0)
     {
-        Log::outlog->add(Log::Error, QString(
+        cmpLog::outlog->add(cmpLog::Error, QString(
                      QString("check river description file, segment %1\n").arg (*name)));
         return;
     }
@@ -157,7 +157,7 @@ void cmpReach::calculateFlows()
           .arg(*name, QString::number(length, 'g', 2),
                QString::number(velocity[1], 'g', 2), QString::number(velocity[1]*24.0, 'g', 2),
                QString::number(volumeCurr[1], 'g', 2), QString::number(temp[1], 'g', 2));
-    Log::outlog->add(Log::Debug, msg);
+    cmpLog::outlog->add(cmpLog::Debug, msg);
 }
 
 float cmpReach::computeVolume (float elev_chng, float upper_d, float lower_d, float wd, float slp_tan)

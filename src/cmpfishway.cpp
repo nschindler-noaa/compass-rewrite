@@ -25,7 +25,7 @@ bool cmpFishway::setType(QString &value)
     else if (value.contains("Lift", Qt::CaseInsensitive))
         setType(Lift);
 
-    else if (value.contains("Trans", Qt::CaseInsensitive))
+    else if (value.contains("Transport", Qt::CaseInsensitive))
         setType(Trans);
 
     else
@@ -45,21 +45,22 @@ QString &cmpFishway::getTypeString()
     switch (type)
     {
     case Ladder:
-        fwType->append("Ladder");
+        fwType->append("ladder");
         break;
     case Bypass:
-        fwType->append("Bypass");
+        fwType->append("bypass");
         break;
     case Lift:
-        fwType->append("Lift");
+        fwType->append("lift");
         break;
     case Trans:
-        fwType->append("Trans");
+        fwType->append("transport");
         break;
     default:
         fwType->append("None");
 
     }
+    return *fwType;
 }
 
 float cmpFishway::getLength() const

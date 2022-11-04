@@ -16,6 +16,8 @@ HEADERS += \
     cmpfile.h \
     cmpfishway.h \
     cmpheadwater.h \
+    cmplog.h \
+    cmpmath.h \
     cmpmontecarlomulti.h \
     cmppowerhouse.h \
     cmpreach.h \
@@ -86,6 +88,8 @@ SOURCES += \
     cmpfile.cpp \
     cmpfishway.cpp \
     cmpheadwater.cpp \
+    cmplog.cpp \
+    cmpmath.cpp \
     cmpmontecarlomulti.cpp \
     cmppowerhouse.cpp \
     cmpreach.cpp \

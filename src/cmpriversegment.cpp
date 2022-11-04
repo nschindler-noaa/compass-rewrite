@@ -1,10 +1,11 @@
 #include "cmpriversegment.h"
 #include "cmpspecies.h"
 #include "cmpstock.h"
+#include "cmplog.h"
 //#include "cmpDam.h"
 //#include "cmpreach.h"
 //#include "cmpheadwater.h"
-#include "parseUtil.h"
+//#include "parseUtil.h"
 
 cmpRiverSegment::cmpRiverSegment (QObject *parent) : QObject(parent)
 {
@@ -119,7 +120,7 @@ bool cmpRiverSegment::parseToken(QString token, cmpFile *cfile)
     }
     else if (token.compare ("output_gas", Qt::CaseInsensitive) == 0)
     {
-        handle_obsolete_token(token);
+        cfile->handle_obsolete_token(token);
     }
     else if (token.compare("latlon", Qt::CaseInsensitive) == 0)
     {
@@ -130,7 +131,7 @@ bool cmpRiverSegment::parseToken(QString token, cmpFile *cfile)
 
     else
     {
-        handle_unknown_token(token);
+        cfile->handle_unknown_token(token);
     }
 
     return okay;
@@ -204,7 +205,7 @@ const QList<cmpTributary *> &cmpRiverSegment::getTributaries() const
     return tributaries;
 }
 
-QList<RiverPoint *> RiverSegment::getCourse() const
+QList<cmpRiverPoint *> cmpRiverSegment::getCourse() const
 {
     return course;
 }
@@ -404,7 +405,7 @@ void cmpRiverSegment::calculateFlowInputs()
         {
             QString msg (QString ("Segment %1 is not a headwater and has no upstream segment.")
                          .arg (*(name)));
-            Log::outlog->add(Log::Fatal, msg);
+            cmpLog::outlog->add(cmpLog::Fatal, msg);
         }
     }
 }
@@ -470,7 +471,7 @@ void cmpRiverSegment::calculateTempInputs(int steps, int daysteps)
         {
             QString msg (QString ("Segment %1 is not a headwater and has no upstream segment.")
                          .arg (*(name)));
-            Log::outlog->add(Log::Fatal, msg);
+            cmpLog::outlog->add(cmpLog::Fatal, msg);
         }
     }
 }

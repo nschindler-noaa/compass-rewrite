@@ -8,6 +8,7 @@
 #include <QCoreApplication>
 #include <QApplication>
 #include <QMessageBox>
+#include <QtMessageHandler>
 
 #include <stdio.h>
 #include <stdlib.h>
