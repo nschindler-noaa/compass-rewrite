@@ -4,7 +4,7 @@
 /** \file realtime.h
  * \brief Realtime mode functions. */
 
-#include "definitions.h"
+//#include "definitions.h"
 #include "cmpriversegment.h"
 
 #include <QString>

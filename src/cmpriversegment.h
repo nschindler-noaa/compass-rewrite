@@ -1,7 +1,7 @@
 #ifndef CMPRIVERSEGMENT_H
 #define CMPRIVERSEGMENT_H
 
-#include "definitions.h"
+//#include "definitions.h"
 #include "cmpfile.h"
 #include "cmptributary.h"
 

@@ -1,7 +1,7 @@
 #include "cmpfile.h"
 #include "cmplog.h"
-
-#include "definitions.h"
+#include "cmpmath.h"
+//#include "definitions.h"
 
 #include <cstdio>
 #include <iostream>

@@ -292,7 +292,7 @@ bool cmpRiverSystem::construct()
                     prev->getUpperSegment()->setLowerSegment(prev);
                     segments.insert (i, prev->getUpperSegment());
                     i++;
-                    headwaters->append(hname);
+                    headwaters.append(hname);
 //                    cmpLog::outlog->add(cmpLog::Debug, QString (
 //                              QString("adding headwater %1").arg(hname)));
                 }

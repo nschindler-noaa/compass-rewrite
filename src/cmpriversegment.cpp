@@ -517,7 +517,7 @@ void cmpRiverSegment::calculateFlowInputs()
         if (type != cmpRiverSegment::Headwater)
         {
             QString msg (QString ("Segment %1 is not a headwater and has no upstream segment.")
-                         .arg (*(name)));
+                         .arg (name));
             cmpLog::outlog->add(cmpLog::Fatal, msg);
         }
     }
@@ -597,7 +597,7 @@ void cmpRiverSegment::calculateTempInputs()
         if (type != cmpRiverSegment::Headwater)
         {
             QString msg (QString ("Segment %1 is not a headwater and has no upstream segment.")
-                         .arg (*(name)));
+                         .arg (name));
             cmpLog::outlog->add(cmpLog::Fatal, msg);
         }
     }

@@ -1,7 +1,7 @@
 #ifndef CMPBASIN_H
 #define CMPBASIN_H
 
-#include "definitions.h"
+//#include "definitions.h"
 
 #include <QStringList>
 

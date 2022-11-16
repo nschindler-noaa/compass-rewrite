@@ -1,7 +1,6 @@
 
 #include "cmpconsole.h"
 #include "cmpmainwindow.h"
-#include "cmpcommandsettings.h"
 
 #include <QObject>
 #include <QCoreApplication>

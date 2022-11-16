@@ -20,7 +20,7 @@ bool parseCompassFile (QString filename)
     okay = infile->readHeader ();
     okay = infile->readInfo ();
     okay = parseCompassData (infile);
-    if (!okay)
+//    if (!okay)
 //        cmpLog::outlog->add(cmpLog::Error, QString ("Error in reading file %1").arg (filename));
 
 //    delete infile;
@@ -601,7 +601,7 @@ bool read_double (QString token, double *val, QString prompt)
 {
     bool okay;
     *val = token.toDouble (&okay);
-    if (!okay)
+//    if (!okay)
 //        cmpLog::outlog->add (cmpLog::Error, QString ("Looking for double value for %1, found %2.")
 //                               .arg (prompt, token));
     return okay;
@@ -611,7 +611,7 @@ bool read_float (QString token, float *val, QString prompt)
 {
     bool okay;
     *val = token.toFloat (&okay);
-    if (!okay)
+//    if (!okay)
 //        cmpLog::outlog->add (cmpLog::Error, QString ("Looking for float value for %1, found %2.")
 //                               .arg (prompt, token));
     return okay;
@@ -621,7 +621,7 @@ bool read_int (QString token, int *val, QString prompt)
 {
     bool okay;
     *val = token.toInt (&okay);
-    if (!okay)
+//    if (!okay)
 //        cmpLog::outlog->add (cmpLog::Error, QString ("Looking for float value for %1, found %2.")
 //                               .arg (prompt, token));
     return okay;

@@ -4,18 +4,16 @@
 #include <QString>
 #include <QFile>
 
-#include "Log.h"
-#include "CompassFile.h"
-#include "dataConversion.h"
-#include "cmpRiverPoint.h"
-#include "cmpRiverSystem.h"
-#include "cmpDam.h"
-#include "cmpReach.h"
-#include "cmpHeadwater.h"
-#include "cmpSpecies.h"
-#include "cmpStock.h"
-#include "cmpRelease.h"
 #include "cmpfile.h"
+//#include "dataConversion.h"
+#include "cmpriverpoint.h"
+#include "cmpriversystem.h"
+#include "cmpdam.h"
+#include "cmpreach.h"
+#include "cmpheadwater.h"
+#include "cmpspecies.h"
+#include "cmpstock.h"
+#include "cmprelease.h"
 
 
 bool parseCompassFile (QString filename);
@@ -81,11 +79,11 @@ void p_warning (QFile *file, QString message);
 
 bool check_course (cmpRiverSegment *seg);
 bool check_end (QString type, QString name = QString (""));
-bool check_end (CompassFile *file, QString type, QString name = "");
+bool check_end (cmpFile *file, QString type, QString name = "");
 bool check_end (QStringList &tokens, QString type, QString name);
 
 bool read_float_or_na(QString token, float *number, QString name, bool *was_na);
-bool read_float_or_na(CompassFile *infile, float *number, QString name, bool *was_na);
+bool read_float_or_na(cmpFile *infile, float *number, QString name, bool *was_na);
 
 bool read_string (QString input, QString *output, QString name);
 
@@ -103,11 +101,11 @@ bool read_ulong (QString token, unsigned long *val, QString prompt);
 //bool read_ulonglong (QString token, unsigned long long *val, QString prompt);
 bool read_ushort (QString token, unsigned short *val, QString prompt);
 
-bool read_int_array (CompassFile *buffer, int iarray[],
+bool read_int_array (cmpFile *buffer, int iarray[],
                                           int max_elem, DataConversion conversion,
                                           unsigned mult, char *prompt);
 
-bool read_float_array (CompassFile *buffer, float array[],
+bool read_float_array (cmpFile *buffer, float array[],
                                           int max_elem, DataConversion conversion,
                                           unsigned mult, QString prompt);
 
@@ -116,7 +114,7 @@ bool read_float_array (CompassFile *buffer, float array[],
 //int write_separator (QFile *file);//int write_separator(FILE *outfile);
 
 void skip_to_end (QFile *infile, QString type, QString name = "");
-void skip_to_end (CompassFile *pfile, QString type, QString name = "");
+void skip_to_end (cmpFile *pfile, QString type, QString name = "");
 
 //bool check_end (QString line, QString type);
 bool check_end (QStringList &tokens, QString type, QString name = "");
@@ -127,7 +125,7 @@ void handle_unknown_token (QString token);
 
 void free_archive_headers (struct archive_header **archive_data, int nheaders);
 void read_flow_and_spill_from_archive (int game, int year, struct archive_header *archive_data,
-        struct archive_spill **game_spills, CompassFile *fp, long **tells, int archive_elevation_flag);
+        struct archive_spill **game_spills, cmpFile *fp, long **tells, int archive_elevation_flag);
 void free_archive_header(struct archive_header *header);
 
 bool open_and_parse_alternative (QString filename, struct altern_data *alternative);

@@ -3,15 +3,6 @@
 
 #include <QMainWindow>
 
-//#include "cmplogwidget.h"
-#include "cmpfile.h"
-//#include "cmpscenario.h"
-#include "cmpcommandsettings.h"
-//#include "cmpreleasedialog.h"
-//#include "cmptransporttool.h"
-//#include "cmphelpdialog.h"
-#include "cmpequationdialog.h"
-
 namespace Ui {
 class cmpMainWindow;
 }

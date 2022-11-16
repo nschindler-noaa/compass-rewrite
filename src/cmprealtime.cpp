@@ -112,7 +112,8 @@ void cmpRealtime::run (int mode)
 {
     if (datafile.isEmpty())
         datafile = QString(REALTIME_DATAFILE);
-    if (!file_status (datafile))
+    bool okay = QFile::exists(datafile);
+    if (!okay)
     {
         cmpLog::outlog->add(cmpLog::Fatal, QString("Can't access data file \"%1\" for realtime run!\n").arg(
             datafile));

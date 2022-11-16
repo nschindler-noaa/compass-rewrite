@@ -1,7 +1,7 @@
 #ifndef CMPCOMMANDSETTINGS_H
 #define CMPCOMMANDSETTINGS_H
 
-#include <QSettings>
+//#include <QSettings>
 #include <QStringList>
 
 
