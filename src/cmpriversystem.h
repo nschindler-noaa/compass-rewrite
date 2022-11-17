@@ -58,10 +58,10 @@ signals:
 
 public slots:
     bool parseDesc (cmpFile *descfile);
-    bool parse (cmpFile *cfile);
+    bool parseData (cmpFile *cfile);
     bool parseReleaseSite(cmpFile *cfile, cmpReleaseSite *relsite);
     bool outputDesc (cmpFile *descfile);
-    bool output (cmpFile *cfile);
+    bool outputData (cmpFile *cfile);
     bool initialize ();
     bool construct ();
     void computeFlows ();

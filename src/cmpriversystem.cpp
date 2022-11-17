@@ -92,7 +92,7 @@ bool cmpRiverSystem::parseDesc(cmpFile *descfile)
     return okay;
 }
 
-bool cmpRiverSystem::parse(cmpFile *rfile)
+bool cmpRiverSystem::parseData(cmpFile *rfile)
 {
     bool okay = true, end = false;
     QString token (""), val ("");
@@ -248,7 +248,7 @@ bool cmpRiverSystem::outputDesc(cmpFile *descfile)
     return okay;
 }
 
-bool cmpRiverSystem::output(cmpFile *cfile)
+bool cmpRiverSystem::outputData(cmpFile *cfile)
 {
     bool okay = true;
     if (cfile->open(QIODevice::WriteOnly))

@@ -33,6 +33,7 @@ HEADERS += \
     cmpriversegment.h \
     cmpriversystem.h \
     cmprsw.h \
+    cmpscenario.h \
     cmpsettings.h \
     cmpspecies.h \
     cmpspillway.h \
@@ -70,6 +71,7 @@ SOURCES += \
     cmpriversegment.cpp \
     cmpriversystem.cpp \
     cmprsw.cpp \
+    cmpscenario.cpp \
     cmpsettings.cpp \
     cmpspecies.cpp \
     cmpspillway.cpp \

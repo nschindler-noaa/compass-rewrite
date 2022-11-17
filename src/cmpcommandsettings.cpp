@@ -75,13 +75,15 @@ void cmpCommandSettings::parseArguments(QStringList &argList)
             else if (arg.contains ("-h") || arg.contains ("-?")) // Help?
             {
                 helpFlag = true;
+                if (arg.contains("v"))
+                    verboseFlag = true; // if combined with help flag
             }
             // verbose help
             else if (arg.contains ("-v")) // Verbose output on/off
             {
                 verboseFlag = true;
             }
-            else if (arg.contains ("-o")) // Output file name
+            else if (arg.contains ("-o")) // Output data file name
             {
                 outputFile = argList.at (++i);
                 if (arg.contains ('a'))

@@ -1,6 +1,7 @@
 #ifndef CMPCONSOLE_H
 #define CMPCONSOLE_H
 
+#include "cmpscenario.h"
 #include "cmpsettings.h"
 #include "cmpfile.h"
 #include "cmpriversystem.h"
@@ -21,6 +22,7 @@ signals:
     void done(int retval= 0);
 
 private:
+    cmpScenario *scenario;
     cmpSettings settings;
     cmpRiverSystem system;
     QList<cmpFile *> files;

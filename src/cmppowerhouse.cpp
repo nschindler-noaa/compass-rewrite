@@ -30,7 +30,7 @@ void cmpPowerhouse::allocate(int days, int slicesPerDay)
     {
         schedule.append(BoolList());
         for (int j = 0; j < damSlicesDay; j++)
-            schedule[i][j] = false;
+            schedule[i].append(false);
     }
     for (int i = 0; i < damSlicesSeason; i++)
         flowFraction.append(0.0);

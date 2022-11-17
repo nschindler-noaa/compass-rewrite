@@ -6,6 +6,10 @@
 cmpConsole::cmpConsole(QObject *parent) : QObject(parent)
 {
     outfile = nullptr;
+    scenario = new cmpScenario(this);
+
+    connect (scenario, SIGNAL(done()), SIGNAL(done(0)));
+    connect (scenario, SIGNAL(canceled()), SIGNAL(done(1)));
 }
 
 cmpConsole::~cmpConsole()
@@ -27,22 +31,19 @@ int cmpConsole::run(QStringList args)
     settings.parseCommandArguments(args);
 
     // create list of input files
+    scenario->setSettings(settings);
 
     // read in river description file
-    cmpFile *rDesc = new cmpFile(settings.getCommandSettings()->getRivDesc());
-    if (rDesc->open(QIODevice::ReadOnly))
-    {
-        rDesc->readHeader();
-        system.parseDesc(rDesc);
-    }
-    else
-        emit done(1);
+    scenario->readDescriptionFile();
 
     // read in data files
+    scenario->readDataFiles();
 
     // run the scenario
+    scenario->run();
 
     // write any output files
+    scenario->outputData();
 
     emit done(0);
     return 0;
