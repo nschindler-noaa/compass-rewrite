@@ -5,8 +5,8 @@
 //#include "compass.h"
 //#include "monte.h"
 //#include "run_mode.h"
-//#include "log.h"
-//
+#include "cmplog.h"
+
 //#include "batch.h"
 //#include "compass_tokens.h"
 //#include "fpe.h"
@@ -112,13 +112,14 @@ void cmpRealtime::run (int mode)
 {
     if (datafile.isEmpty())
         datafile = QString(REALTIME_DATAFILE);
-//    if (!file_status (datafile))
+    bool okay = QFile::exists(datafile);
+    if (!okay)
     {
-//        log_msg(L_ERROR, QString("Can't access data file \"%1\" for realtime run!\n").arg(
-//            datafile));
-//        return;
+        cmpLog::outlog->add(cmpLog::Fatal, QString("Can't access data file \"%1\" for realtime run!\n").arg(
+            datafile));
+        return;
     }
-//    else
+    else
     {
         runMonteC (datafile, mode);
     }
@@ -617,7 +618,7 @@ int cmpRealtime::runMonteC (QString filename, int mode)
 /*    alt_dir.setPath (REALTIME_ALTERNATIVE);
     if (!alt_dir.exists())
     {
-        log_msg(L_ERROR, "Can't create realtime alternative directory!\n");
+        cmpLog::outlog->add(cmpLog::Error, "Can't create realtime alternative directory!\n");
         return -1;
     }
     return run_monte_carlo(&monte_data);*/

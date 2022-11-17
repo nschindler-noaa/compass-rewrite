@@ -2,7 +2,7 @@
 #define C_COMPASSCONSOLE_H
 
 #include <QObject>
-#include "Log.h"
+#include "cmplog.h"
 #include "FileManager.h"
 #include "ScenarioManager.h"
 #include "settings.h"
@@ -21,7 +21,7 @@ public slots:
     void run();
 
 private:
-    Log *out;
+    cmpLog *out;
     FileManager *fManager;
     ScenarioManager *sManager;
     Settings *compassSettings;

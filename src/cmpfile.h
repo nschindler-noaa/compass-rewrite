@@ -100,6 +100,8 @@ public slots:
     void printError (QString errmsg);
     void printMessage (QString msg);
     QString getFileLine ();
+    void handle_obsolete_token (QString obs_token, QString new_token = QString());
+    void handle_unknown_token (QString obs_token);
 
 protected:
     // File information

@@ -3,6 +3,7 @@ using namespace std;
 
 #include <QCoreApplication>
 #include <QStringList>
+#include <QTextStream>
 
 #include "CompassConsole.h"
 #include "Log.h"
@@ -19,7 +20,7 @@ CompassConsole::CompassConsole(QObject *parent) :
     compassSettings->getCurrentUserData();
 
 
-    out = Log::instance();
+    out = cmpLog::instance();
     fManager = new FileManager (this);
 //    sManager = new ScenarioManager (this);
 
@@ -121,20 +122,22 @@ void  consoleOutput(QtMsgType type, const QMessageLogContext &context, const QSt
     const char *function = context.function ? context.function : "";
     switch (type) {
     case QtDebugMsg:
-        fprintf(stdout, "Debug:    %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        fprintf(stdout, "Debug:  %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
         break;
     case QtInfoMsg:
-        fprintf(stdout, "Info:     %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        fprintf(stdout, "Info:   %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
         break;
     case QtWarningMsg:
-        fprintf(stdout, "Warning:  %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        fprintf(stdout, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
         break;
     case QtCriticalMsg:
         fprintf(stderr, "Critical! %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
         break;
     case QtFatalMsg:
-        fprintf(stderr, "Fatal!    %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
+        fprintf(stderr, "Fatal!  %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
         break;
+//    case QtSystemMsg:
+//        fprintf(stdout, "System: %s ", localMsg.constData());
     }
 }
 

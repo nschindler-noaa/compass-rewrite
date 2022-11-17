@@ -1,4 +1,4 @@
-QT       += widgets gui core charts
+QT       += widgets gui core #charts
 
 TARGET = compass
 CONFIG   += console staticlib create_prl link_prl
@@ -15,11 +15,12 @@ HEADERS += \
     cmpdamspecies.h \
     cmpdatasettings.h \
     cmpequation.h \
-    cmpequationdialog.h \
     cmpfile.h \
     cmpfishway.h \
     cmpheadwater.h \
+    cmplog.h \
     cmpmainwindow.h \
+    cmpmath.h \
     cmpmontecarlomulti.h \
     cmppowerhouse.h \
     cmpreach.h \
@@ -41,7 +42,6 @@ HEADERS += \
     cmptransport.h \
     cmptributary.h \
     cmpusersettings.h \
-    definitions.h \
     parseUtil.h \
     version.h
 
@@ -53,11 +53,12 @@ SOURCES += \
     cmpdamspecies.cpp \
     cmpdatasettings.cpp \
     cmpequation.cpp \
-    cmpequationdialog.cpp \
     cmpfile.cpp \
     cmpfishway.cpp \
     cmpheadwater.cpp \
+    cmplog.cpp \
     cmpmainwindow.cpp \
+    cmpmath.cpp \
     cmpmontecarlomulti.cpp \
     cmppowerhouse.cpp \
     cmpreach.cpp \
@@ -79,12 +80,10 @@ SOURCES += \
     cmptransport.cpp \
     cmptributary.cpp \
     cmpusersettings.cpp \
-    definitions.cpp \
     main.cpp \
     parseUtil.cpp
 
 FORMS += \
-    cmpequationdialog.ui \
     cmpmainwindow.ui
 
 OTHER_FILES += \

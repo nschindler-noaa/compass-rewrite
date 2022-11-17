@@ -1,5 +1,5 @@
 #include "cmpreach.h"
-#include "log.h"
+#include "cmplog.h"
 #include "cmath"
 
 float Ufree = 0.045;		/* kfs x10-1*/
@@ -169,7 +169,7 @@ void cmpReach::calculateFlows()
             msg = QString (QString("insufficient flow, %1, on day %2 at %3;\n adjusting old loss: %4, new loss: %5\n")
                            .arg(QString::number(flow[i], 'g', 2), QString::number(i),
                                 QString::number(loss[i], 'g' ,2), QString::number(newloss, 'g', 2)));
-//            cmpLog::outlog->add(Log::Warning, msg);
+            cmpLog::outlog->add(cmpLog::Warning, msg);
             loss[i] = newloss;
         }
         flow[i] = newflow;
@@ -181,17 +181,17 @@ void cmpReach::calculateFlows()
 
     /* Calculate velocity in miles per time step, averaged over input
        and output flows. Velocity is based on upper and lower depths
-       and slope tangent. Volume is computed first and kept.
+       and slope tangent. Volume is computed first and kept.*/
 
-    /* calculate volume of the full reach */
+    // calculate volume of the full reach
     if (volume <= 0)
     {
         volume = computeVolume (0.0, depthUpper, depthLower, widthAve, slopetan);
     }
     if (volume < 0)
     {
-//        cmpLog::outlog->add(Log::Error, QString(
-//                     QString("check river description file, segment %1\n").arg (*name)));
+        cmpLog::outlog->add(cmpLog::Error, QString(
+                     QString("check river description file, segment %1\n").arg (name)));
         return;
     }
 
@@ -200,8 +200,8 @@ void cmpReach::calculateFlows()
         float tempVol = 0.0;
         float tempVel = 0.0;
 
-        /* Adjust elevation if out of range; use a minimum depth of 5%
-           in forebay, as represeneted by lower depth. */
+        // Adjust elevation if out of range; use a minimum depth of 5%
+        // in forebay, as represeneted by lower depth.
         if (elevChange[i] > -(lwr_depth_max))
         {
             elevChange[i] = -(lwr_depth_max);
@@ -223,15 +223,15 @@ void cmpReach::calculateFlows()
         }
     }
 
-    /* Average water particle travel time */
+    // Average water particle travel time
     waterParticleTT = computeWTT (1, 365);//water_travel.first_day, water_travel.last_day);
 
-    /* Print stats for day 1 */
+    // Print stats for day 1
     msg = QString (QString("reach %1 length (mi) %2, \n\tday 1: vel(mi/hr) %3, vel_conv(mi/day) %4, \n\tvol(acre-ft) %5, temp %6\n"))
           .arg(name, QString::number(length, 'g', 2),
                QString::number(velocity[1], 'g', 2), QString::number(velocity[1]*24.0, 'g', 2),
                QString::number(volumeCurr[1], 'g', 2), QString::number(temp[1], 'g', 2));
-//    cmpLog::outlog->add(Log::Debug, msg);
+    cmpLog::outlog->add(cmpLog::Debug, msg);
 }
 
 float cmpReach::computeVolume (float elev_chng, float upper_d, float lower_d, float wd, float slp_tan)

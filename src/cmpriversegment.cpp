@@ -1,10 +1,11 @@
 #include "cmpriversegment.h"
 #include "cmpspecies.h"
 #include "cmpstock.h"
-//#include "cmpdam.h"
+#include "cmplog.h"
+//#include "cmpDam.h"
 //#include "cmpreach.h"
 //#include "cmpheadwater.h"
-#include "parseUtil.h"
+//#include "parseUtil.h"
 
 #include "cmpriver.h"
 
@@ -186,11 +187,11 @@ bool cmpRiverSegment::parseToken(QString token, cmpFile *cfile)
     }
     else if (token.compare ("output_gas", Qt::CaseInsensitive) == 0)
     {
-        cfile->obsoleteToken(token, name);
+        cfile->handle_obsolete_token(token);
     }
     else
     {
-        cfile->unknownToken(token, name);
+        cfile->handle_unknown_token(token);
     }
 
     return okay;
@@ -517,7 +518,7 @@ void cmpRiverSegment::calculateFlowInputs()
         {
             QString msg (QString ("Segment %1 is not a headwater and has no upstream segment.")
                          .arg (name));
-//            cmpLog::outlog->add(Log::Fatal, msg);
+            cmpLog::outlog->add(cmpLog::Fatal, msg);
         }
     }
 }
@@ -597,7 +598,7 @@ void cmpRiverSegment::calculateTempInputs()
         {
             QString msg (QString ("Segment %1 is not a headwater and has no upstream segment.")
                          .arg (name));
-//            cmpLog::outlog->add(Log::Fatal, msg);
+            cmpLog::outlog->add(cmpLog::Fatal, msg);
         }
     }
 }

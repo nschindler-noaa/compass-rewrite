@@ -1,6 +1,7 @@
 #include "cmpfile.h"
-
-#include "definitions.h"
+#include "cmplog.h"
+#include "cmpmath.h"
+//#include "definitions.h"
 
 #include <cstdio>
 #include <iostream>
@@ -163,8 +164,8 @@ bool cmpFile::readInfo ()
             end = true;
         }
     }
-//    if (data_version < 13)
-//        Log::outlog->add (Log::Debug, QString ("Old data version %1").arg(QString::number(data_version)));
+    if (dataVersion < 13)
+        cmpLog::outlog->add (cmpLog::Debug, QString ("Old data version %1").arg(dataVersion));
     return okay;
 }
 
@@ -188,7 +189,7 @@ bool cmpFile::readInfo ()
 //    }
 //    else
 //    {
-//        Log::outlog->add (Log::Error, QString("Could not write to file: %1!")
+//        cmpLog::outlog->add (cmpLog::Error, QString("Could not write to file: %1!")
 //                               .arg (fileName ()));
 //    }
 //}
@@ -236,7 +237,7 @@ bool cmpFile::readString (QString &string)
         {
             token = QString(tokens->takeFirst());
 
-            if (token.count() > 0)
+            if (token.length() > 0)
             {
                 string.append (' ');
                 string.append (token);
@@ -253,7 +254,7 @@ bool cmpFile::readString (QString &string)
 QStringList *cmpFile::splitString(QString &string)
 {
     QString newstring(string.replace('\t',' '));
-    QStringList *tokens =new QStringList (newstring.split(' ', QString::SkipEmptyParts));
+    QStringList *tokens =new QStringList (newstring.split(' ', Qt::SkipEmptyParts));
     return tokens;
 }
 
@@ -278,10 +279,10 @@ QString cmpFile::getToken ()
             lineNum++;
         }
         delete tokens;
-        tokens = splitString(rline); //new QStringList (rline.split ('\t', QString::SkipEmptyParts));
+        tokens = splitString(rline); //new QStringList (rline.split ('\t', Qt::SkipEmptyParts));
 //        readString (rline);
 //        delete tokens;
-//        tokens = new QStringList (rline.split(' ', QString::SkipEmptyParts));
+//        tokens = new QStringList (rline.split(' ', Qt::SkipEmptyParts));
     }
 
     return tokens->takeFirst ();
@@ -311,7 +312,7 @@ QString cmpFile::popToken ()
             token = getToken ();
     }*/
 #ifdef DEBUG_INPUT
-    qDebug("size of token %s is %u", token.toUtf8().data(), token.size());
+    qDebug("size of token %s is %u", token.toUtf8().data(), static_cast<unsigned>(token.length()));
 #endif
     return token;
 }
@@ -507,13 +508,13 @@ bool cmpFile::readIntArray(QList<int> iarray)
     return okay;
 }
 
-bool cmpFile::readIntList(QList<float> &ilist, int outSize, Data::DataConversion convert, unsigned mult, QString prompt)
+bool cmpFile::readIntList(QList<float> &intlist, int outSize, Data::DataConversion convert, unsigned mult, QString prompt)
 {
     bool okay = true;
 //    QString NA("");
     int value = 0;
 
-    for (int i = 0; i < ilist.count(); i++)
+    for (int i = 0, total = intlist.count(); i < total; i++)
     {
         if (!okay)
         {
@@ -521,18 +522,17 @@ bool cmpFile::readIntList(QList<float> &ilist, int outSize, Data::DataConversion
             break;
         }
         okay = readInt(value);
-        ilist[i] = value;
+        intlist[i] = value;
     }
     return okay;
 }
 
-bool cmpFile::readFloatList(QList<float> &flist, int inSize, Data::DataConversion convert, unsigned mult, QString prompt)
+bool cmpFile::readFloatList(QList<float> &fltlist, int inSize, Data::DataConversion convert, unsigned mult, QString prompt)
 {
     bool okay = true;
     QString NA ("");
-    int outSize = flist.count();
 
-    for (int i = 0; i < flist.count(); i++)
+    for (int i = 0, total = fltlist.count(); i < total; i++)
     {
         if (!okay)
         {
@@ -540,7 +540,7 @@ bool cmpFile::readFloatList(QList<float> &flist, int inSize, Data::DataConversio
             break;
         }
         NA.clear();
-        okay = readFloatOrNa(NA, flist[i]);
+        okay = readFloatOrNa(NA, fltlist[i]);
     }
 
     return okay;
@@ -679,6 +679,7 @@ int cmpFile::convertInt(int val, Data::OutputConversion ctype)
 
     switch (ctype)
     {
+    default:
     case Data::None:
         retval = val;
         break;
@@ -795,7 +796,7 @@ void cmpFile::writeFloatArray (int indent, float arry[], int size, Data::OutputC
     else
     {
         qWarning("Integer array is nullptr.");
-//        Log::outlog->add(Log::Error, QString("Integer array is nullptr."));
+//        cmpLog::outlog->add(cmpLog::Error, QString("Integer array is nullptr."));
         writeFloat (0.0, dtype);
     }
 }
@@ -864,7 +865,7 @@ void cmpFile::writeIntArray (int indent, int arry[], int size, Data::OutputConve
     else
     {
         qWarning("Float array is nullptr.");
-//        Log::outlog->add(Log::Error, QString("Float array is nullptr."));
+        cmpLog::outlog->add(cmpLog::Error, QString("Float array is nullptr."));
         writeInt (0);
     }
 }
@@ -895,17 +896,22 @@ void cmpFile::unknownToken(QString token, QString segment)
 
 void cmpFile::printMessage (QString msg)
 {
-//    qWarning(msg);
-//    Log::outlog->add (Log::Message, msg);
-    cout << msg.toStdString() << endl;
+    QMessageLogContext mlc(fileName().toStdString().data(), lineNum, nullptr, nullptr);
+    qInfo(msg.toStdString().data());
+    cmpLog::outlog->add (cmpLog::Message, msg);
+    cmpLog::outlog->add (cmpLog::Message, getFileLine());
+
+    cout << "Info  :" << msg.toStdString() << endl;
     cout << getFileLine().toStdString() << endl;
 }
 
 void cmpFile::printError (QString errmsg)
 {
-//    qWarning(msg);
-//    Log::outlog->add (Log::Error, errmsg);
-    cout << errmsg.toStdString() << endl;
+    qWarning(errmsg.toStdString().data());
+    cmpLog::outlog->add (cmpLog::Error, errmsg);
+    cmpLog::outlog->add (cmpLog::Error, getFileLine());
+
+    cout << "Error :" << errmsg.toStdString() << endl;
     cout << getFileLine().toStdString() << endl;
 }
 
@@ -913,6 +919,44 @@ QString cmpFile::getFileLine ()
 {
    return QString((QString("File: %1, Line: %2").arg
                       (fileName(), QString::number(lineNum))));
-//    qDebug(fileline);
-//    Log::outlog->add (Log::Force, fileline);
+}
+
+void cmpFile::handle_obsolete_token (QString obs_token, QString new_token)
+{
+        QString message ("obsolete token {");
+        message.append (obs_token);
+        message.append ("}. ");
+
+        if (new_token.isEmpty())
+        {
+                message.append ("Data discarded.\n");
+        }
+        else
+        {
+                message.append ("Replaced with {");
+                message.append (new_token);
+                message.append ("}.\n");
+        }
+
+        cmpLog::outlog->add (cmpLog::Error, message);
+}
+
+void cmpFile::handle_unknown_token (QString token)
+{
+    bool isFloat;
+    token.toFloat (&isFloat);
+
+    if (isFloat)
+    {
+        QString msg (QString ("unknown or unexpected number {%1}.\n").arg (token));
+        msg.append ("\tSkipping all numbers until a non-numeric token is reached.\n");
+        cmpLog::outlog->add (cmpLog::Error, msg);
+        skipAllNumbers();
+    }
+    else
+    {
+        QString msg (QString ("unknown or unexpected command {%1}. Discarding line.\n").arg (token));
+        cmpLog::outlog->add (cmpLog::Error, msg);
+        skipLine();
+    }
 }

@@ -1,12 +1,12 @@
 
 #include "cmpconsole.h"
 #include "cmpmainwindow.h"
-#include "cmpcommandsettings.h"
 
 #include <QObject>
 #include <QCoreApplication>
 #include <QApplication>
 #include <QMessageBox>
+#include <QtMessageHandler>
 
 #include <stdio.h>
 #include <stdlib.h>
