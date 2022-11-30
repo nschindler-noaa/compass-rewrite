@@ -187,11 +187,11 @@ bool cmpRiverSegment::parseToken(QString token, cmpFile *cfile)
     }
     else if (token.compare ("output_gas", Qt::CaseInsensitive) == 0)
     {
-        cfile->handle_obsolete_token(token);
+        cfile->obsoleteToken(token);
     }
     else
     {
-        cfile->handle_unknown_token(token);
+        cfile->unknownToken(token, name);
     }
 
     return okay;

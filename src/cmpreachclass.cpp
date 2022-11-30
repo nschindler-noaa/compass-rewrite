@@ -26,6 +26,10 @@ void cmpReachClass::deleteEqns()
         delete copySurvivalEqn;
     if (covmat != nullptr)
         delete covmat;
+    migrationEqn = nullptr;
+    customSurvivalEqn = nullptr;
+    copySurvivalEqn = nullptr;
+    covmat = nullptr;
 }
 
 void cmpReachClass::setDefaults()

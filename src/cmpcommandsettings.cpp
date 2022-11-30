@@ -246,6 +246,7 @@ void cmpCommandSettings::parseArguments(QStringList &argList)
             if ((batch && realtime) && !covar)
             {
                 qWarning("Using BASE.DAT for initial data file.\n");
+                initialData = QString("base.dat");
             }
         }
     }
@@ -379,6 +380,11 @@ const QString &cmpCommandSettings::getRivDesc() const
 void cmpCommandSettings::setRivDesc(const QString &newRivDesc)
 {
     rivDesc = newRivDesc;
+}
+
+const QString &cmpCommandSettings::getInitialData() const
+{
+    return initialData;
 }
 
 const QString &cmpCommandSettings::getCalibFile() const

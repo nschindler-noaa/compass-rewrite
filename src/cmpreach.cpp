@@ -110,7 +110,7 @@ bool cmpReach::parseDesc(cmpFile *descfile)
         }
         else
         {
-            descfile->unknownToken(token, name);
+            cmpRiverSegment::parseDesc(descfile);
         }
     }
     return okay;

@@ -254,7 +254,7 @@ bool cmpFile::readString (QString &string)
 QStringList *cmpFile::splitString(QString &string)
 {
     QString newstring(string.replace('\t',' '));
-    QStringList *tokens =new QStringList (newstring.split(' ', Qt::SkipEmptyParts));
+    QStringList *tokens =new QStringList (newstring.split(' ', QString::SkipEmptyParts));
     return tokens;
 }
 
@@ -279,10 +279,10 @@ QString cmpFile::getToken ()
             lineNum++;
         }
         delete tokens;
-        tokens = splitString(rline); //new QStringList (rline.split ('\t', Qt::SkipEmptyParts));
+        tokens = splitString(rline); //new QStringList (rline.split ('\t', QString::SkipEmptyParts));
 //        readString (rline);
 //        delete tokens;
-//        tokens = new QStringList (rline.split(' ', Qt::SkipEmptyParts));
+//        tokens = new QStringList (rline.split(' ', QString::SkipEmptyParts));
     }
 
     return tokens->takeFirst ();
@@ -882,34 +882,23 @@ void cmpFile::printEOF (QString data)
     }
 }
 
-void cmpFile::obsoleteToken(QString token, QString segment)
-{
-    QString msg(QString("Token %1 is no longer used for %2, obsolete.").arg(token, segment));
-    printMessage(msg);
-}
-
-void cmpFile::unknownToken(QString token, QString segment)
-{
-    QString msg(QString("Token %1 is not found for %2.").arg(token, segment));
-    printMessage(msg);
-}
 
 void cmpFile::printMessage (QString msg)
 {
     QMessageLogContext mlc(fileName().toStdString().data(), lineNum, nullptr, nullptr);
     qInfo(msg.toStdString().data());
-    cmpLog::outlog->add (cmpLog::Message, msg);
-    cmpLog::outlog->add (cmpLog::Message, getFileLine());
+    cmpLog::instance()->add (cmpLog::Message, msg);
+    cmpLog::instance()->add (cmpLog::Message, getFileLine());
 
-    cout << "Info  :" << msg.toStdString() << endl;
-    cout << getFileLine().toStdString() << endl;
+    cout << "Info  :" << msg.toStdString();
+    cout << ": " << getFileLine().toStdString() << endl;
 }
 
 void cmpFile::printError (QString errmsg)
 {
     qWarning(errmsg.toStdString().data());
-    cmpLog::outlog->add (cmpLog::Error, errmsg);
-    cmpLog::outlog->add (cmpLog::Error, getFileLine());
+    cmpLog::instance()->add (cmpLog::Error, errmsg);
+    cmpLog::instance()->add (cmpLog::Error, getFileLine());
 
     cout << "Error :" << errmsg.toStdString() << endl;
     cout << getFileLine().toStdString() << endl;
@@ -921,42 +910,41 @@ QString cmpFile::getFileLine ()
                       (fileName(), QString::number(lineNum))));
 }
 
-void cmpFile::handle_obsolete_token (QString obs_token, QString new_token)
+void cmpFile::obsoleteToken (QString obsToken, QString newToken)
 {
-        QString message ("obsolete token {");
-        message.append (obs_token);
-        message.append ("}. ");
+        QString message (QString("obsolete token {%1}. ").arg(obsToken));
 
-        if (new_token.isEmpty())
+        if (newToken.isEmpty())
         {
                 message.append ("Data discarded.\n");
         }
         else
         {
-                message.append ("Replaced with {");
-                message.append (new_token);
-                message.append ("}.\n");
+                message.append (QString("Replaced with {%1}.\n").arg(newToken));
         }
-
-        cmpLog::outlog->add (cmpLog::Error, message);
+        printError(message);
 }
 
-void cmpFile::handle_unknown_token (QString token)
+void cmpFile::unknownToken (QString token, QString segment)
 {
     bool isFloat;
+    QString message;
     token.toFloat (&isFloat);
-
+    if (!segment.isEmpty())
+        message = QString(" for segment %1.\n").arg(segment);
+    else
+        message = QString(".\n");
     if (isFloat)
     {
-        QString msg (QString ("unknown or unexpected number {%1}.\n").arg (token));
-        msg.append ("\tSkipping all numbers until a non-numeric token is reached.\n");
-        cmpLog::outlog->add (cmpLog::Error, msg);
+        message.prepend (QString ("unknown or unexpected number {%1}").arg (token));
+        message.append ("\tSkipping all numbers until a non-numeric token is reached.\n");
         skipAllNumbers();
     }
     else
     {
-        QString msg (QString ("unknown or unexpected command {%1}. Discarding line.\n").arg (token));
-        cmpLog::outlog->add (cmpLog::Error, msg);
+        message.prepend (QString ("unknown or unexpected command {%1}").arg (token));
+        message.append ("\tDiscarding line.\n");
         skipLine();
     }
+    printError(message);
 }

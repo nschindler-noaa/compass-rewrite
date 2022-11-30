@@ -3,9 +3,82 @@
 
 cmpDataSettings::cmpDataSettings()
 {
+    migration = true;
+    interrupt = false;
+
+    compute_flow_break = false;
+    summary = false;
+//    monte_data = nullptr;
+    iterations = 2;
+    tt_calib = false;
+    surv_calib = false;
+    consolidate_on_stock = false;
+
     numDaysInSeason = 366;
-    damSlicesPerDay = 2;
+    numDaysInRun = 366;
     timeStepsPerDay = 2;
+    timeStepsPerSeason = 732;
+    timeStepsPerRun = 732;
+    seasonStartStep = 1;
+    damSlicesPerDay = 2;
+    damSlicesPerStep = 1;
+    damSlicesPerSeason = 732;
+    damSlicesPerRun = 732;
+    gasStepsPerDay = 2;
+    spillStepsPerDay = 2;
+
+    dayStart = 600;
+    nightStart = 2000;
+
+    realTime = false;
+    routeTracking = true;
+
+    calcGas = true;
+    calcTurbidity = false;
+    calcPred = false;
+    calcGrowth = false;
+
+
+    gas_dissp_exp = 0.20;
+    hw_flow_prop = 1.00;
+
+    freeFlowMax = 8.000000;
+    preyEnergyDensity = 5400.000000;
+    lengthWeightB0 = -11.580000;
+    lengthWeightB1 = 3.033000;
+    fork_threshold = 0.100000;
+    waterTravelUpperSegment = QString("Little_Goose_Pool");
+    waterTravelLowerSegment = QString("Estuary");
+    waterTravelFirstDay = 1;
+    waterTravelLastDay = 365;
+    waterTravelTime = 1.000;
+    migrationRateMin = 1.000;
+    suppressVariation = true;
+    predVolInteraction = false;
+    ageDependentFge = false;
+    truncateTravelVect = true;
+    truncateResSurvival = true;
+    compute_mu_method = false;
+    yearTraveltimeIndicator = 0;
+    yearTraveltimeOffset = 1;
+    mortClass = XT;
+    fishReturnHyp = SARvsDate;
+
+    debug = false;
+    debugInput = false;
+    debugCalib = false;
+
+    freeFlow = new cmpEquation(9);
+    freeFlow->setParameter(0, 0.0);
+    freeFlow->setParameter(1, 4.5);
+    freeFlow->setParameter(2, 0.0);
+}
+
+cmpDataSettings::~cmpDataSettings()
+{
+//    if (monte_data != nullptr)
+//        delete monte_data;
+    delete freeFlow;
 }
 
 

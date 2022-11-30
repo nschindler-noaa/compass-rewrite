@@ -29,7 +29,7 @@ void cmpRiverPoint::reset ()
 
 void cmpRiverPoint::parse(QString line)
 {
-    QStringList tokens = line.split(' ', Qt::SkipEmptyParts);
+    QStringList tokens = line.split(' ', QString::SkipEmptyParts);
     parse(tokens);
 }
 
@@ -144,7 +144,7 @@ QString &cmpRiverPoint::getLatLon ()
 void cmpRiverPoint::setLatLon(const QString txt)
 {
     QStringList items;
-    items = txt.split(' ', Qt::SkipEmptyParts);
+    items = txt.split(' ', QString::SkipEmptyParts);
     if (items.at(0).compare("latlon", Qt::CaseInsensitive) == 0)
         items.takeFirst();
     setLatLon(items);

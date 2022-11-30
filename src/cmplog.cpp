@@ -36,6 +36,13 @@ void cmpLog::setup ()
 
     logFileName = logFile->fileName ();
     logFile->open ();
+
+    saved   = false;
+
+    message = false;
+    warning = false;
+    rawdump = false;
+    debug   = false;
 }
 
 void cmpLog::setLogFile (QString filename)

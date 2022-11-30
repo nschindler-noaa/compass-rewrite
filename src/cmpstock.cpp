@@ -4,10 +4,12 @@
 
 cmpStock::cmpStock()
 {
+    name = new QString ("generic");
     inriverReturnEqn = new cmpEquation();
     transportReturnEqn = new cmpEquation();
-    allocate(732, 2);
-    setDefaults();
+    reachClasses.append(new cmpReachClass("0"));
+    allocate(732, 1);
+
 }
 
 cmpStock::~cmpStock()

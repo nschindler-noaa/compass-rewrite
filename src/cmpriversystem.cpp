@@ -21,6 +21,18 @@ cmpRiverSystem::cmpRiverSystem(QString riverFile, QObject *parent) :
 
 void cmpRiverSystem::setup ()
 {
+    species.append(new cmpSpecies());
+    stocks.append(new cmpStock());
+    rivers.append(new cmpRiver(this));
+    releaseSites.append(new cmpReleaseSite());
+    speciesNames.append(QString());
+    stockNames.append(QString());
+    powerhouses.append(QString());
+    dams.append(QString());
+    reaches.append(QString());
+    headwaters.append(QString());
+    basins.append(QString());
+    deleteAll();
 }
 
 cmpRiverSystem::~cmpRiverSystem ()
@@ -30,20 +42,26 @@ cmpRiverSystem::~cmpRiverSystem ()
 
 void cmpRiverSystem::deleteAll()
 {
-//    int i;
+    while (species.count())
+        delete species.takeLast();
+    while (stocks.count())
+        delete stocks.takeLast();
+
     while (rivers.count())
         delete rivers.takeLast();
 
-    while (species.count())
-        delete species.takeLast();
-
-    while (stocks.count())
-        delete stocks.takeLast();
-//    while (releases->count())
-//        delete releases->takeLast();
-
     while (releaseSites.count())
         delete (releaseSites.takeLast());
+
+//    releases;
+
+    speciesNames.clear();
+    stockNames.clear();
+    powerhouses.clear();
+    dams.clear();
+    reaches.clear();
+    headwaters.clear();
+    basins.clear();
 }
 
 bool cmpRiverSystem::parseDesc(cmpFile *descfile)
@@ -65,7 +83,7 @@ bool cmpRiverSystem::parseDesc(cmpFile *descfile)
         else if (token.compare ("species") == 0)
         {
             okay = descfile->readString(name);
-            speciesNames.append(name);
+            speciesNames.append(name.simplified());
         }
         else if (token.compare ("stock") == 0)
         {
@@ -95,7 +113,7 @@ bool cmpRiverSystem::parseDesc(cmpFile *descfile)
 bool cmpRiverSystem::parseData(cmpFile *rfile)
 {
     bool okay = true, end = false;
-    QString token (""), val ("");
+    QString token, val;
     QString name;
     cmpRiver *river = nullptr;
 

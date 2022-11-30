@@ -53,6 +53,8 @@ public:
     const QString &getRivDesc() const;
     void setRivDesc(const QString &newRivDesc);
 
+    const QString &getInitialData() const;
+
     const QString &getCalibFile() const;
     void setCalibFile(const QString &newCalibFile);
 

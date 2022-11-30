@@ -6,7 +6,9 @@
 cmpConsole::cmpConsole(QObject *parent) : QObject(parent)
 {
     outfile = nullptr;
+    settings = new cmpSettings();
     scenario = new cmpScenario(this);
+    system = new cmpRiverSystem(this);
 
     connect (scenario, SIGNAL(done()), SIGNAL(done(0)));
     connect (scenario, SIGNAL(canceled()), SIGNAL(done(1)));
@@ -28,10 +30,11 @@ cmpConsole::~cmpConsole()
 int cmpConsole::run(QStringList args)
 {
     // get command line arguments
-    settings.parseCommandArguments(args);
+    settings->parseCommandArguments(args);
 
     // create list of input files
     scenario->setSettings(settings);
+    scenario->setSystem(system);
 
     // read in river description file
     scenario->readDescriptionFile();

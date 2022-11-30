@@ -8,7 +8,11 @@ class cmpEqnParameter
 {
 public:
     cmpEqnParameter();
+    cmpEqnParameter(const cmpEqnParameter &rhs);
+    cmpEqnParameter(int id, double value, QString name = QString());
     cmpEqnParameter(int id, double value, double min, double max, QString name = QString());
+    ~cmpEqnParameter();
+    void clear();
 
     bool isEqual(const cmpEqnParameter &rhs);
 
@@ -60,6 +64,8 @@ public:
     /** Add a parameter with optional minimum and maximum values */
     void addParameter (int num, double val, double mn = 0, double mx = 100, QString nm = QString());
 
+    /** Copy an existing parameter */
+    void setParameter (int num, cmpEqnParameter *param);
     /** Set a parameter value by name with optional minimum and maximum values */
     void setParameter (QString name, double val, double mn = -1, double mx = -1);
     /** Set a parameter value by id with optional minimum and maximum values */

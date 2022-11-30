@@ -93,15 +93,15 @@ public slots:
     QString getToken ();  /**< next space delimited string from file */
     QString popToken ();  /**< check token for data and return it */
     void pushToken (QString token); /**< puts token back (to reprocesses) */
-    void obsoleteToken (QString token, QString name); /**< token no longer used, message printed */
-    void unknownToken (QString token, QString name); /**< token not recognized, message printed */
+//    void obsoleteToken (QString token, QString name); /**< token no longer used, message printed */
+//    void unknownToken (QString token, QString name); /**< token not recognized, message printed */
+    void obsoleteToken (QString obsToken, QString newToken = QString());
+    void unknownToken (QString obsToken, QString segment = QString());
 
     void printEOF (QString data = QString (""));
     void printError (QString errmsg);
     void printMessage (QString msg);
     QString getFileLine ();
-    void handle_obsolete_token (QString obs_token, QString new_token = QString());
-    void handle_unknown_token (QString obs_token);
 
 protected:
     // File information

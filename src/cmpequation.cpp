@@ -2,12 +2,7 @@
 
 cmpEquation::cmpEquation()
 {
-    id = 0;
-    name = QString();
-    description = QString();
-    formula = QString();
-    numEqnParams = 0;
-    numValParams = 0;
+    setId(0);
 }
 
 cmpEquation::cmpEquation(int eqid)
@@ -45,8 +40,9 @@ cmpEquation *cmpEquation::copy(const cmpEquation &rhs)
     numEqnParams = rhs.getNumEqnParams();
     numValParams = rhs.getNumValParams();
     int totalParams = numEqnParams + numValParams;
+    setNumParameters(totalParams);
     for (int i = 0; i < totalParams; i++)
-        addParameter(rhs.getParameter(i));
+        setParameter(i, rhs.getParameter(i));
     return this;
 }
 
@@ -157,6 +153,13 @@ void cmpEquation::addParameter (int num, double val, double mn, double mx, QStri
     addParameter(param);
 }
 
+void cmpEquation::setParameter(int num, cmpEqnParameter *param)
+{
+    if (num > parameters.count())
+        setNumParameters(num);
+    setParameter(num, param->getValue(), param->getMin(), param->getMax(), param->getName());
+}
+
 void cmpEquation::setParameter (QString name, double val, double mn, double mx)
 {
     int num = 0;
@@ -224,9 +227,23 @@ void cmpEquation::setNumValParams(int newNumValParams)
 
 cmpEqnParameter::cmpEqnParameter()
 {
-    name = QString();
-    id = 0;
-    value = 0;
+    clear();
+}
+
+cmpEqnParameter::cmpEqnParameter(const cmpEqnParameter &rhs)
+{
+    name = rhs.getName();
+    id = rhs.getId();
+    value = rhs.getValue();
+    min = rhs.getMin();
+    max = rhs.getMax();
+}
+
+cmpEqnParameter::cmpEqnParameter(int id_, double value_, QString name_)
+{
+    name = name_;
+    id = id_;
+    value = value_;
     min = 0;
     max = 100;
 }
@@ -238,6 +255,20 @@ cmpEqnParameter::cmpEqnParameter(int id_, double value_, double min_, double max
     value = value_;
     min = min_;
     max = max_;
+}
+
+cmpEqnParameter::~cmpEqnParameter()
+{
+    clear();
+}
+
+void cmpEqnParameter::clear()
+{
+    name = QString();
+    id = 0;
+    value = 0;
+    min = 0;
+    max = 100;
 }
 
 bool cmpEqnParameter::isEqual(const cmpEqnParameter &rhs)

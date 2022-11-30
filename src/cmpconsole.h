@@ -23,10 +23,10 @@ signals:
 
 private:
     cmpScenario *scenario;
-    cmpSettings settings;
-    cmpRiverSystem system;
+    cmpSettings *settings;
+    cmpRiverSystem *system;
     QList<cmpFile *> files;
-    cmpFile * outfile;
+    cmpFile *outfile;
 };
 
 bool consoleMode(int argc, char *argv[]);

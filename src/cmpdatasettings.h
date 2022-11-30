@@ -30,6 +30,7 @@ class cmpDataSettings
 {
 public:
     cmpDataSettings();
+    ~cmpDataSettings();
 
     int getNumDaysInSeason() ;
     void setNumDaysInSeason(int newNumDays);
@@ -83,7 +84,7 @@ private:
 
     bool compute_flow_break; /**< Cancel compute_all_flow? (bool), default false or go ahead and compute */
     bool summary;            /**< In batch monte mode, should we write summary.altn? (bool)*/
-    struct monte_carlo_data *monte_data; /**< A pointer used in monte carlo mode */
+//    struct monte_carlo_data *monte_data; /**< A pointer used in monte carlo mode */
     int  iterations;         /**< The number of times to run the monte carlo simulation */
     bool tt_calib;           /**< Calculate the travel table each time? (bool) */
     bool surv_calib;         /**< Calculate and store survival probs for each step at each reach? (bool) */
