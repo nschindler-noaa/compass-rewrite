@@ -11,6 +11,7 @@
 #include "cmpheadwater.h"
 #include "cmpreleasesite.h"
 #include "cmprelease.h"
+#include "cmpsettings.h"
 
 #include <QObject>
 
@@ -22,8 +23,10 @@ public:
     cmpRiverSystem (QString filename, QObject *parent = nullptr);
     ~cmpRiverSystem () override;
     void setup ();
-    void reset ();
+    void resetData ();
     void deleteAll ();
+
+    cmpSettings *cSettings; // not created here, just a reference
 
     QList <cmpSpecies *> species;
     QList <cmpStock *> stocks;
@@ -49,6 +52,9 @@ public:
     cmpTransport *findTransport (QString name);
     cmpRelease *findRelease (QString name);
     cmpReleaseSite *findReleaseSite (QString name);
+
+    cmpSettings *getSettings() const;
+    void setSettings(cmpSettings *newCSettings);
 
 signals:
     void constructed (bool okay);

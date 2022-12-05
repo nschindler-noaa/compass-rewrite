@@ -19,7 +19,7 @@ cmpDam::cmpDam(QString dname, cmpRiver *parent) :
 
 cmpDam::~cmpDam ()
 {
-    setup();
+    clear();
 }
 
 void cmpDam::setup()
@@ -55,6 +55,11 @@ void cmpDam::setup()
 
     transport = nullptr;
     fishway = nullptr;
+}
+
+void cmpDam::resetData()
+{
+    allocateDays(366, 2);
 }
 
 void cmpDam::clear()
@@ -93,46 +98,33 @@ void cmpDam::clear()
 void cmpDam::allocateDays(int days, int slices)
 {
     int dayslices = days * slices;
-    while (depthForebayDay.count() < days)
+    if (!depthForebayDay.isEmpty())
+        depthForebayDay.clear();
+    if (!depthTailraceDay.isEmpty())
+        depthTailraceDay.clear();
+    if (!dropRatioDay.isEmpty())
+        dropRatioDay.clear();
+    if (!dropRatioDayTR.isEmpty())
+        dropRatioDayTR.clear();
+    for (int i = 0; i < days; i++)
     {
         depthForebayDay.append(0);
         depthTailraceDay.append(0);
         dropRatioDay.append(0);
         dropRatioDayTR.append(0);
     }
-    while (depthForebayDay.count() > days)
-    {
-        depthForebayDay.takeLast();
-        depthTailraceDay.takeLast();
-        dropRatioDay.takeLast();
-        dropRatioDayTR.takeLast();
-    }
 
-    while (daylightProportion.count() < dayslices)
+    if (!spill.isEmpty())
+        spill.clear();
+    if (!spillPlanned.isEmpty())
+        spill.clear();
+    if (!daylightProportion.isEmpty())
+        daylightProportion.clear();
+    for (int i = 0; i < dayslices; i++)
     {
         spill.append(0);
         spillPlanned.append(0);
         daylightProportion.append(0);
-    }
-    while (daylightProportion.count() > dayslices)
-    {
-        spill.takeLast();
-        spillPlanned.takeLast();
-        daylightProportion.takeLast();
-    }
-
-    for (int i = 0; i < days; i++)
-    {
-        depthForebayDay[i] = 0.0;
-        depthTailraceDay[i] = 0.0;
-        dropRatioDay[i] = 0.0;
-        dropRatioDayTR[i] = 0.0;
-    }
-    for (int i = 0; i < dayslices; i++)
-    {
-        spill[i] = 0.0;
-        spillPlanned[i] = 0.0;
-        daylightProportion[i] = 0;
     }
 }
 
@@ -181,7 +173,7 @@ void cmpDam::deleteSpill()
 
 }
 
-bool cmpDam::parse (cmpFile *cfile)
+bool cmpDam::parseData (cmpFile *cfile)
 {
     bool okay = true, end = false;
     QString token ("");
@@ -252,18 +244,6 @@ bool cmpDam::parseDesc (cmpFile *descfile)
         {
             descfile->printEOF("Dam description");
             okay = false;
-        }
-        else if (token.compare("flow_max", Qt::CaseInsensitive) == 0)
-        {
-            okay = descfile->readFloatOrNa(na, flowMax);
-        }
-        else if (token.compare("flow_min", Qt::CaseInsensitive) == 0)
-        {
-            okay = descfile->readFloatOrNa(na, flowMin);
-        }
-        else if (token.compare("abbrev", Qt::CaseInsensitive) == 0)
-        {
-            okay = descfile->readString(abbrev);
         }
         else if (token.compare("floor_elevation", Qt::CaseInsensitive) == 0)
         {
@@ -342,21 +322,14 @@ bool cmpDam::parseDesc (cmpFile *descfile)
             fishway->parseDesc(descfile);
         }
 
-        else if (token.compare("latlon", Qt::CaseInsensitive) == 0)
-        {
-            cmpRiverPoint *pt = new cmpRiverPoint();
-            okay = descfile->readString(token);
-            pt->parse(token);
-            addCoursePoint(pt);
-        }
         else if (token.compare("end", Qt::CaseInsensitive) == 0)
         {
-            descfile->checkEnd(QString(), name);
+            descfile->checkEnd("dam", name);
             end = true;
         }
         else
         {
-            descfile->unknownToken(token, name);
+            cmpRiverSegment::parseDescToken(token, descfile);
         }
     }
     return okay;

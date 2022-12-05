@@ -28,7 +28,10 @@ public:
     ~cmpReach () override;
 
     void clear ();
-    bool parse (cmpFile *infile) override;
+    void resetData ();
+    void allocateDays(int days, int steps);
+
+    bool parseData (cmpFile *infile);
     bool parseToken (QString token, cmpFile *infile);
 
 #ifdef PRED_CALC

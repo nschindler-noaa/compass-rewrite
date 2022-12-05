@@ -236,6 +236,7 @@ void cmpCommandSettings::parseArguments(QStringList &argList)
             }
         }
 
+
 //TODO: not sure if following code is needed
         if (scenarioFile.isEmpty() &&
                 (rivYearFile.isEmpty() &&
@@ -249,6 +250,27 @@ void cmpCommandSettings::parseArguments(QStringList &argList)
                 initialData = QString("base.dat");
             }
         }
+
+        // create list of files
+
+        if (!scenarioFile.isEmpty())
+            fileNames.append(scenarioFile);
+        if (!rivYearFile.isEmpty())
+            fileNames.append(rivYearFile);
+        if (!damOpsFile.isEmpty())
+            fileNames.append(damOpsFile);
+        if (!postRivFile.isEmpty())
+            fileNames.append(postRivFile);
+        if (fileNames.isEmpty() && !initialData.isEmpty())
+            fileNames.append(initialData);
+        if (!calibFile.isEmpty())
+            fileNames.append(calibFile);
+        if (!configFile.isEmpty())
+            fileNames.append(configFile);
+        if (!outControlFile.isEmpty())
+            fileNames.append(outControlFile);
+        if (!relFile.isEmpty())
+            fileNames.append(relFile);
     }
 }
 
@@ -380,6 +402,11 @@ const QString &cmpCommandSettings::getRivDesc() const
 void cmpCommandSettings::setRivDesc(const QString &newRivDesc)
 {
     rivDesc = newRivDesc;
+}
+
+const QStringList &cmpCommandSettings::getFileNameList() const
+{
+    return fileNames;
 }
 
 const QString &cmpCommandSettings::getInitialData() const

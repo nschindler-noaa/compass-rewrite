@@ -128,7 +128,16 @@ cmpRiverSegment::~cmpRiverSegment ()
     setup ();
 }
 
-bool cmpRiverSegment::parse (cmpFile *cfile)
+void cmpRiverSegment::resetData()
+{
+    output_flags = 0;
+    output_settings = 0;
+    setDaysPerSeason(366);
+    readTemps = false;
+    temp_1 = -1;
+}
+
+bool cmpRiverSegment::parseData (cmpFile *cfile)
 {
     bool okay = true, end = false;
     QString token ("");
@@ -189,6 +198,10 @@ bool cmpRiverSegment::parseToken(QString token, cmpFile *cfile)
     {
         cfile->obsoleteToken(token);
     }
+    else if (token.startsWith("#"))
+    {
+        cfile->skipLine();
+    }
     else
     {
         cfile->unknownToken(token, name);
@@ -211,21 +224,6 @@ bool cmpRiverSegment::parseDesc(cmpFile *descfile)
             descfile->printEOF("Headwater description");
             okay = false;
         }
-        else if (token.compare("flow_max", Qt::CaseInsensitive) == 0)
-        {
-            okay = descfile->readFloatOrNa(na, flowMax);
-        }
-        else if (token.compare("flow_min", Qt::CaseInsensitive) == 0)
-        {
-            okay = descfile->readFloatOrNa(na, flowMin);
-        }
-        else if (token.compare("latlon", Qt::CaseInsensitive) == 0)
-        {
-            cmpRiverPoint *pt = new cmpRiverPoint();
-            okay = descfile->readString(token);
-            pt->parse(token);
-            addCoursePoint(pt);
-        }
         else if (token.compare("end", Qt::CaseInsensitive) == 0)
         {
             descfile->checkEnd(QString(), name);
@@ -233,9 +231,44 @@ bool cmpRiverSegment::parseDesc(cmpFile *descfile)
         }
         else
         {
-            descfile->unknownToken(token, name);
+            okay = parseDescToken(token, descfile);
         }
     }
+}
+
+bool cmpRiverSegment::parseDescToken(QString token, cmpFile *descfile)
+{
+    bool okay = true;
+    QString na("");
+
+    if (token.compare("abbrev", Qt::CaseInsensitive) == 0)
+    {
+        okay = descfile->readString(abbrev);
+    }
+    else if (token.compare("flow_max", Qt::CaseInsensitive) == 0)
+    {
+        okay = descfile->readFloatOrNa(na, flowMax);
+    }
+    else if (token.compare("flow_min", Qt::CaseInsensitive) == 0)
+    {
+        okay = descfile->readFloatOrNa(na, flowMin);
+    }
+    else if (token.compare("latlon", Qt::CaseInsensitive) == 0)
+    {
+        cmpRiverPoint *pt = new cmpRiverPoint();
+        okay = descfile->readString(token);
+        pt->parse(token);
+        addCoursePoint(pt);
+    }
+    else if (token.startsWith("#"))
+    {
+        descfile->skipLine();
+    }
+    else
+    {
+        descfile->unknownToken(token, name);
+    }
+
     return okay;
 }
 
@@ -525,18 +558,15 @@ void cmpRiverSegment::calculateFlowInputs()
 
 void cmpRiverSegment::allocateDays(int days)
 {
-    while (flow.count() < days)
-        flow.append(0);
-    while (flow.count() > days)
-        flow.takeLast();
-    while (temp.count() < days)
-        temp.append(0);
-    while (temp.count() > days)
-        temp.takeLast();
+    if (!flow.isEmpty())
+        flow.clear();
+    if (!temp.isEmpty())
+        temp.clear();
+
     for (int i = 0; i < days; i++)
     {
-        flow[i] = 0;
-        temp[i] = 0;
+        flow.append(0.0);
+        temp.append(0.0);
     }
 }
 

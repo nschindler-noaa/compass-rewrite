@@ -10,7 +10,7 @@ cmpConsole::cmpConsole(QObject *parent) : QObject(parent)
     scenario = new cmpScenario(this);
     system = new cmpRiverSystem(this);
 
-    connect (scenario, SIGNAL(done()), SIGNAL(done(0)));
+    connect (scenario, SIGNAL(done()), SIGNAL(done()));
     connect (scenario, SIGNAL(canceled()), SIGNAL(done(1)));
 }
 
@@ -32,12 +32,21 @@ int cmpConsole::run(QStringList args)
     // get command line arguments
     settings->parseCommandArguments(args);
 
-    // create list of input files
+    // share settings
     scenario->setSettings(settings);
+    system->setSettings(settings);
     scenario->setSystem(system);
 
     // read in river description file
     scenario->readDescriptionFile();
+
+    // propagate input dam data into the headwaters
+    // this flow init must occur before the dam inits
+    system->markRegulationPts();
+    system->fillHeadwaters();
+    system->initialize();
+
+    scenario->setPostRivMethods();
 
     // read in data files
     scenario->readDataFiles();

@@ -11,9 +11,9 @@ public:
     cmpHeadwater (cmpRiver *parent = nullptr);
     cmpHeadwater (QString hname, cmpRiver *parent = nullptr);
 
-    void reset ();
+    void resetData ();
 
-    bool parse (cmpFile *infile) override;
+    bool parseData (cmpFile *infile) override;
     bool parseToken (QString token, cmpFile *infile);
 
     void allocateDays(int numdays);
@@ -40,8 +40,7 @@ protected:
 
 /*    float turbidity[STEPS_IN_SEASON]; *< Turbidity at each model
                                                             *time step */
-/*    bool turbidity_flag;       *< 1 if input_turb = "0N" (reading turbidity),
-                                                            * 0 if "Off" (propogate from above)*/
+/*    bool turbidityRead;       *< true if values are read from a data file */
 
 };
 

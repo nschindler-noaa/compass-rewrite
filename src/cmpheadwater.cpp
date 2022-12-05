@@ -7,7 +7,7 @@ cmpHeadwater::cmpHeadwater (cmpRiver *parent) : cmpRiverSegment(parent)
         riverName = parent->getName();
     name = QString();
     type = cmpRiverSegment::Headwater;
-    reset();
+    resetData();
 }
 
 cmpHeadwater::cmpHeadwater (QString hname, cmpRiver *parent) :
@@ -17,7 +17,7 @@ cmpHeadwater::cmpHeadwater (QString hname, cmpRiver *parent) :
         riverName = parent->getName();
     name = QString(hname);
     type = cmpRiverSegment::Headwater;
-    reset ();
+    resetData ();
 }
 
 void cmpHeadwater::allocateDays(int numdays)
@@ -27,7 +27,7 @@ void cmpHeadwater::allocateDays(int numdays)
         elevChange.append(0.0);
 }
 
-void cmpHeadwater::reset()
+void cmpHeadwater::resetData()
 {
     regulated = true;  // default setting
     flowCoefficient = 0.0;
@@ -126,7 +126,7 @@ void cmpHeadwater::calculateTemps()
 
 }
 
-bool cmpHeadwater::parse (cmpFile *cfile)
+bool cmpHeadwater::parseData (cmpFile *cfile)
 {
     bool okay = true, end = false;
     QString token ("");

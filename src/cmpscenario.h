@@ -38,6 +38,9 @@ public:
     // write any output files
     void outputData();
 
+    QStringList *getPostRivMethods() const;
+    void setPostRivMethods();
+
 signals:
     void done();
     void canceled();
@@ -46,6 +49,9 @@ private:
     cmpSettings *settings;
     cmpRiverSystem *system;
     QList<cmpRelease *> releases;
+    QStringList *files;
+    QStringList *postRivMethods;
+    QStringList *postRivMethodNames;
 
 };
 

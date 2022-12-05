@@ -3,6 +3,7 @@
 
 #include "cmpcommandsettings.h"
 #include "cmpequation.h"
+#include "cmpfile.h"
 
 #include <QStringList>
 
@@ -28,6 +29,8 @@ public:
     void setName(const QString &newName);
     void allocate(int numReachClasses);
     void setDefaults();
+
+    void parseData(cmpFile *cfile);
 
     const QList<float> &getReachPredCoef() const;
     void setReachPredCoef(const QList<float> &newReachPredCoef);

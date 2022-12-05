@@ -8,6 +8,7 @@ cmpReach::cmpReach(cmpRiver *parent) : cmpRiverSegment(parent)
 {
     type = cmpRiverSegment::Reach;
     clear();
+    resetData();
 }
 
 cmpReach::cmpReach (QString rname, cmpRiver *parent) :
@@ -16,6 +17,7 @@ cmpReach::cmpReach (QString rname, cmpRiver *parent) :
     name = QString (rname);
     type = cmpRiverSegment::Reach;
     clear ();
+    resetData();
 }
 
 cmpReach::cmpReach (cmpReach &rhs) :
@@ -48,18 +50,51 @@ void cmpReach::clear ()
 
     waterParticleTT = 0.0;
 
-    for (int i = 0; i < elevChange.count(); i++)
-    {
-        elevChange[i] = 0.0;
-        loss[i] = 0.0;
-    }
-    for (int i = 0; i < velocity.count(); i++)
-    {
-        volumeCurr[i] = 0.0;
-        velocity[i] = 0.0;
-        tempDelta[i] = 0.0;
-    }
+    if (!loss.isEmpty())
+        loss.clear();
+    if (!elevChange.isEmpty())
+        elevChange.clear();
+    if (!volumeCurr.isEmpty())
+        volumeCurr.clear();
+    if (!velocity.isEmpty())
+        velocity.clear();
+    if (!tempDelta.isEmpty())
+        tempDelta.clear();
+
     cmpRiverSegment::setup();
+}
+
+void cmpReach::resetData()
+{
+    allocateDays(366, 2);
+}
+
+void cmpReach::allocateDays(int days, int steps)
+{
+    int daysteps = days * steps;
+
+    cmpRiverSegment::allocateDays(days);
+
+    if (!loss.isEmpty())
+        loss.clear();
+    for (int i = 0; i < days; i++)
+        loss.append(0.0);
+
+    if (!elevChange.isEmpty())
+        elevChange.clear();
+    if (!volumeCurr.isEmpty())
+        volumeCurr.clear();
+    if (!velocity.isEmpty())
+        velocity.clear();
+    if (!tempDelta.isEmpty())
+        tempDelta.clear();
+    for (int i = 0; i < daysteps; i++)
+    {
+        elevChange.append(0.0);
+        volumeCurr.append(0.0);
+        velocity.append(0.0);
+        tempDelta.append(0.0);
+    }
 }
 
 bool cmpReach::parseDesc(cmpFile *descfile)
@@ -96,13 +131,13 @@ bool cmpReach::parseDesc(cmpFile *descfile)
         {
             okay = descfile->readFloatOrNa(na, elevLower);
         }
-        else if (token.compare("latlon", Qt::CaseInsensitive) == 0)
+/*        else if (token.compare("latlon", Qt::CaseInsensitive) == 0)
         {
             cmpRiverPoint *pt = new cmpRiverPoint();
             okay = descfile->readString(token);
             pt->parse(token);
             addCoursePoint(pt);
-        }
+        }*/
         else if (token.compare("end", Qt::CaseInsensitive) == 0)
         {
             descfile->checkEnd("reach", name);
@@ -110,7 +145,7 @@ bool cmpReach::parseDesc(cmpFile *descfile)
         }
         else
         {
-            cmpRiverSegment::parseDesc(descfile);
+            cmpRiverSegment::parseDescToken(token, descfile);
         }
     }
     return okay;
@@ -427,7 +462,7 @@ void cmpReach::setLossMin(float value)
     lossMin = value;
 }
 
-bool cmpReach::parse (cmpFile *cfile)
+bool cmpReach::parseData (cmpFile *cfile)
 {
     bool okay = true, end = false;
     QString token ("");

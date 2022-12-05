@@ -55,6 +55,11 @@ void cmpSpecies::setDefaults()
     transportReturnEqn = new cmpEquation(51);
 }
 
+void cmpSpecies::parseData(cmpFile *cfile)
+{
+
+}
+
 const QList<float> &cmpSpecies::getReachPredCoef() const
 {
     return reachPredCoef;

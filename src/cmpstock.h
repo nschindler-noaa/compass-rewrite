@@ -6,6 +6,7 @@
 #include "cmpequation.h"
 #include "cmpmontecarlomulti.h"
 #include "cmpreachclass.h"
+#include "cmpfile.h"
 
 #include <QStringList>
 
@@ -28,6 +29,8 @@ public:
 
     void allocate(int steps, int numReachClasses);
     void setDefaults();
+
+    void parseData(cmpFile *cfile);
 
     QString *getName() const;
     void setName(QString *newName);

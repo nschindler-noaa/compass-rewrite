@@ -22,8 +22,9 @@ public:
     cmpDam (const cmpDam &rhs);
     ~cmpDam () override;
     void setup ();
+    void resetData();
     void clear ();
-    bool parse (cmpFile *infile) override;
+    bool parseData (cmpFile *infile);
     bool parseToken (QString token, cmpFile *infile);
 
     bool parseDesc (cmpFile *descfile) override;
@@ -223,16 +224,16 @@ private:
                              * started at this dam. If not transport this is nullptr. */
 
     /* nsat stuff */
-    cmpEquation *nsatEqn;    /** Nitrogen supersaturation equation that
+    cmpEquation *nsatEqn;    /**< Nitrogen supersaturation equation that
                            * determines the production of gas during day
                            * hours */
-    cmpEquation *nsatNightEqn;/* Nitrogen supersaturation equation during
+    cmpEquation *nsatNightEqn;/**< Nitrogen supersaturation equation during
                            * night hours */
-    cmpEquation *nsatBackupEqn;/** Nitrogen supersaturation equation for when
+    cmpEquation *nsatBackupEqn;/**< Nitrogen supersaturation equation for when
                            * the spill fraction drops out of the range
                            * in which the day and night equations
                            * reasonably model behavior */
-    float k_entrain;      /** Powerhouse side gas entrainment */
+    float k_entrain;      /**< Powerhouse side gas entrainment */
 
     /* actual depths, calculated from adjacent reaches, with drawdown */
     QList<float> depthForebayDay;/**< Forebay depth at each day [days_per_season]*/

@@ -4,17 +4,22 @@ cmpScenario::cmpScenario(QObject *parent) : QObject(parent)
 {
     settings = nullptr;
     system = nullptr;
+    postRivMethods = new QStringList();
+    postRivMethodNames = new QStringList();
 }
 
 cmpScenario::cmpScenario(cmpSettings *settings, QObject *parent) : QObject(parent)
 {
     setSettings(settings);
     system = nullptr;
+    postRivMethods = new QStringList();
+    postRivMethodNames = new QStringList();
 }
 
 cmpScenario::~cmpScenario()
 {
-
+    delete postRivMethods;
+    delete postRivMethodNames;
 }
 
 void cmpScenario::setSettings(cmpSettings *sets)
@@ -56,13 +61,23 @@ void cmpScenario::readDescriptionFile()
 // read in data files
 void cmpScenario::readDataFiles()
 {
-    QString filename = settings->getCommandSettings()->getInitialData();
+    QStringList files = settings->getCommandSettings()->getFileNameList();
     cmpFile datafile;
-    if (!filename.isEmpty())
+    system->resetData();
+    for (int i = 0, total = files.count(); i < total; i++)
     {
-        datafile.setFileName(filename);
-        system->parseData(&datafile);
+        datafile.setFileName(files.at(i));
+        if (datafile.open(QIODevice::ReadOnly))
+        {
+            datafile.readHeader();
+            datafile.readInfo();
+            system->parseData(&datafile);
+        }
     }
+}
+
+void refresh_data(){
+
 }
 
 // release stuff
@@ -115,4 +130,21 @@ void cmpScenario::runRealTime()
 void cmpScenario::outputData()
 {
 
+}
+
+QStringList *cmpScenario::getPostRivMethods() const
+{
+    return postRivMethods;
+}
+
+void cmpScenario::setPostRivMethods()
+{
+    postRivMethods->append ("sar_vs_date");
+    postRivMethods->append ("latent_mortality");
+    postRivMethods->append ("constant_d");
+    postRivMethods->append ("s3_vs_wtt");
+    postRivMethodNames->append ("SAR vs. Date");
+    postRivMethodNames->append ("Latent Mortality");
+    postRivMethodNames->append ("Constant D");
+    postRivMethodNames->append ("S3 vs Water Travel Time");
 }

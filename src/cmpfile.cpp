@@ -254,7 +254,7 @@ bool cmpFile::readString (QString &string)
 QStringList *cmpFile::splitString(QString &string)
 {
     QString newstring(string.replace('\t',' '));
-    QStringList *tokens =new QStringList (newstring.split(' ', QString::SkipEmptyParts));
+    QStringList *tokens = new QStringList (newstring.split(' ', QString::SkipEmptyParts));
     return tokens;
 }
 
@@ -291,26 +291,25 @@ QString cmpFile::getToken ()
 QString cmpFile::popToken ()
 {
     QString token ("");
-    token.append (getToken ());
-    if (token.length() == 0)
+    while (token.isEmpty())
+    {
         token.append (getToken ());
-    if (token.compare(" ") == 0)
-    {
-        token.clear();
-        token.append(getToken());
+        if (token.compare(" ") == 0)
+        {
+            token.clear();
+        }
+        else if (token.compare("\t") == 0)
+        {
+            token.clear();
+        }
+    /*    if (token.length () < 2)
+        {
+            QRegExp rx ("[a-z] | [A-Z] | [d] | [#]");
+            token.contains (rx);
+            if (rx.isEmpty())
+                token = getToken ();
+        }*/
     }
-    else if (token.compare("\t") == 0)
-    {
-        token.clear();
-        token.append(getToken());
-    }
-/*    if (token.length () < 2)
-    {
-        QRegExp rx ("[a-z] | [A-Z] | [d] | [#]");
-        token.contains (rx);
-        if (rx.isEmpty())
-            token = getToken ();
-    }*/
 #ifdef DEBUG_INPUT
     qDebug("size of token %s is %u", token.toUtf8().data(), static_cast<unsigned>(token.length()));
 #endif
@@ -370,33 +369,23 @@ void cmpFile::skipToEnd ()
 
 bool cmpFile::checkEnd (QString type, QString name)
 {
-    bool okay = true;
-    QString token = popToken ();
-    if (token.contains (type))
+    QString line;
+    bool okay = readString(line);
+    QStringList tokens = line.split('(', QString::SkipEmptyParts);
+    if (okay && tokens.count() > 1)
     {
-        if (!name.isEmpty ())
+        if (!tokens.takeFirst().contains(type))
         {
-            if (!isEOL ())
-                token = popToken ();
-            if (!token.contains (name))
-            {
-                QString msg (QString("{end} statement name '%1' does not match expected '%2'")
-                             .arg (token, name));
-                printMessage (msg);
-            }
-            okay = true;
+            QString msg (QString("{end} statement does not include type '%1'").arg (type));
+            printMessage (msg);
         }
     }
-    else if (token.contains(name.split(' ').at(0)))
+    tokens = tokens[0].split(')', QString::SkipEmptyParts);
+    if (!tokens[0].isEmpty() && !name.isEmpty() && !name.contains(tokens[0].simplified()))
     {
-        QString msg (QString("{end} statement does not include type '%1'").arg (type));
+        QString msg (QString("{end} statement name '%1' does not match expected '%2'")
+                     .arg (tokens[0], name));
         printMessage (msg);
-        skipLine();
-        okay = true;
-    }
-    else
-    {
-        okay = false;
     }
     return okay;
 }

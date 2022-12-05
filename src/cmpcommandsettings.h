@@ -53,6 +53,8 @@ public:
     const QString &getRivDesc() const;
     void setRivDesc(const QString &newRivDesc);
 
+    const QStringList &getFileNameList() const;
+
     const QString &getInitialData() const;
 
     const QString &getCalibFile() const;
@@ -150,6 +152,7 @@ private:
     QString outputFile;   /**< specifies where to create a new file. This may be
                            *   of any type, depending on the extension. */
     QString initialData;  /**< Default data file. */
+    QStringList fileNames; /**< list of input files. */
 };
 
 #endif // CMPCOMMANDSETTINGS_H

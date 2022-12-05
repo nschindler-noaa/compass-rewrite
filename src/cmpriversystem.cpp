@@ -64,6 +64,46 @@ void cmpRiverSystem::deleteAll()
     basins.clear();
 }
 
+void cmpRiverSystem::resetData()
+{
+    int i = 0;
+    int totalspecies = species.count();
+    int totalstocks = stocks.count();
+    int totaldams = dams.count();
+    int totalreaches = reaches.count();
+    int totalheadwtrs = headwaters.count();
+    for (i = 0; i < totalspecies; i++)
+        species[i]->setDefaults();
+    for (i = 0; i < totalstocks; i++)
+        stocks[i]->setDefaults();
+    for (i = 0; i < totaldams; i++)
+    {
+        cmpDam *dam = static_cast<cmpDam *>(findSegment(dams.at(i)));
+        dam->resetData();
+    }
+    for (i = 0; i < totalreaches; i++)
+    {
+        cmpReach *reach = static_cast<cmpReach *>(findSegment(reaches.at(i)));
+        reach->resetData();
+    }
+    for (i = 0; i < totalheadwtrs; i++)
+    {
+        cmpHeadwater *headwtr = static_cast<cmpHeadwater *>(findSegment(headwaters.at(i)));
+        headwtr->resetData();
+    }
+    deleteReleases();
+}
+
+cmpSettings *cmpRiverSystem::getSettings() const
+{
+    return cSettings;
+}
+
+void cmpRiverSystem::setSettings(cmpSettings *newSettings)
+{
+    cSettings = newSettings;
+}
+
 bool cmpRiverSystem::parseDesc(cmpFile *descfile)
 {
     bool okay = true, end = false;
@@ -77,7 +117,7 @@ bool cmpRiverSystem::parseDesc(cmpFile *descfile)
         token = descfile->popToken ();
         if (token.compare ("EOF") == 0)
         {
-            descfile->printMessage("Found EOF in Compass file.");
+            descfile->printMessage("EOF in Compass file.");
             end = true;
         }
         else if (token.compare ("species") == 0)
@@ -106,61 +146,67 @@ bool cmpRiverSystem::parseDesc(cmpFile *descfile)
 
             rivers.append(river);
         }
+        else if (token.startsWith("#"))
+        {
+            descfile->skipLine();
+        }
     }
     return okay;
 }
 
-bool cmpRiverSystem::parseData(cmpFile *rfile)
+bool cmpRiverSystem::parseData(cmpFile *cfile)
 {
     bool okay = true, end = false;
     QString token, val;
     QString name;
-    cmpRiver *river = nullptr;
+    int index = 0;
 
     while (okay && !end)
     {
-        token = rfile->popToken ();
+        token = cfile->popToken ();
         if (token.compare ("EOF") == 0)
         {
-            rfile->printMessage("Found EOF in Compass file.");
+            if (!okay)
+                cfile->printError("Found EOF in Compass file.");
             end = true;
+        }
+        else if (token.compare("migration") == 0)
+        {
+            okay = cfile->readString(name);
+
         }
         else if (token.compare ("species") == 0)
         {
-            okay = rfile->readString(name);
-            speciesNames.append(name);
+            okay = cfile->readString(name);
+            if (speciesNames.contains(name))
+            {
+                index = speciesNames.indexOf(name);
+                species[index]->parseData(cfile);
+            }
+            else
+            {
+
+            }
         }
         else if (token.compare ("stock") == 0)
         {
-            okay = rfile->readString(name);
-            stockNames.append(name);
-        }
-        else if (token.compare ("release_site") == 0)
-        {
-            okay = rfile->readString(name);
-            cmpReleaseSite *newrelsite = new cmpReleaseSite(name);
-            newrelsite->parseDesc(rfile);
-            releaseSites.append(newrelsite);
-        }
-        else if (token.compare ("river") == 0)
-        {
-            token = rfile->popToken ();
-            okay = rfile->readString(name);
-            river = new cmpRiver(name);
-            okay = river->parseDesc(rfile);
-
-            rivers.append(river);
+            okay = cfile->readString(name);
+            if (stockNames.contains(name))
+            {
+                index = stockNames.indexOf(name);
+                stocks[index]->parseData(cfile);
+            }
         }
         else if (token.compare ("reach") == 0)
         {
             QString reachName ("");
-            okay = rfile->readString (reachName);
+            okay = cfile->readString (reachName);
             if (okay)
             {
                 if (reaches.contains(reachName))
                 {
-//                    cmpReach *reach = static_cast<cmpReach *>(findSegment(reachName));
-//                    okay = reach->parse (rfile);
+                    cmpReach *reach = static_cast<cmpReach *>(findSegment(reachName));
+                    okay = reach->parseData (cfile);
                 }
                 else
                 {
@@ -172,13 +218,13 @@ bool cmpRiverSystem::parseData(cmpFile *rfile)
         else if (token.compare ("dam") == 0)
         {
             QString damName ("");
-            okay = rfile->readString (damName);
+            okay = cfile->readString (damName);
             if (okay)
             {
                 if (dams.contains(damName))
                 {
-//                    cmpDam *dam = static_cast<cmpDam *>(findSegment(damName));
-//                    okay = dam->parse (rfile);
+                    cmpDam *dam = static_cast<cmpDam *>(findSegment(damName));
+                    okay = dam->parseData (cfile);
                 }
                 else
                 {
@@ -190,13 +236,13 @@ bool cmpRiverSystem::parseData(cmpFile *rfile)
         else if (token.compare ("headwater") == 0)
         {
             QString hwName ("");
-            okay = rfile->readString (hwName);
+            okay = cfile->readString (hwName);
             if (okay)
             {
                 if (headwaters.contains(hwName))
                 {
                     cmpHeadwater *hwtr = static_cast<cmpHeadwater *>(findSegment(hwName));
-                    okay = hwtr->parse (rfile);
+                    okay = hwtr->parseData (cfile);
                 }
                 else
                 {
@@ -207,14 +253,13 @@ bool cmpRiverSystem::parseData(cmpFile *rfile)
         }
         else if (token.contains ("end"))
         {
-            rfile->skipLine ();
+            cfile->skipLine ();
             end = true;
-//            cfile->checkEnd (*river->name);
         }
         else
         {
-//            rfile->handle_unknown_token (token);
-            rfile->skipLine ();
+            cfile->unknownToken(token, "not a segment");
+            cfile->skipLine ();
         }
     }
     return okay;
@@ -570,7 +615,10 @@ void cmpRiverSystem::computeSegSpill(cmpRiverSegment *seg)
 
 void cmpRiverSystem::deleteReleases ()
 {
-
+    int i = 0, totalreleases = (releases.isEmpty()? 0: releases.count());
+    for (; i < totalreleases; i++)
+        delete releases.at(i);
+    releases.clear();
 }
 
 void cmpRiverSystem::deleteSpill ()

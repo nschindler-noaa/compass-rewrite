@@ -29,12 +29,13 @@ public:
     cmpRiverSegment &operator =(const cmpRiverSegment &rhs);
 
     void setup ();
+    void resetData();
 
+    virtual bool parseData (cmpFile *infile);
     bool parseToken (QString token, cmpFile *infile);
 
-    virtual bool parse (cmpFile *infile);
-
     virtual bool parseDesc (cmpFile *descfile);
+    bool parseDescToken (QString token, cmpFile *descfile);
     virtual void outputDesc(cmpFile *ofile);
 
     cmpRiverPoint * getCurrentPoint ();

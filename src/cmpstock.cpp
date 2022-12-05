@@ -34,6 +34,10 @@ void cmpStock::setDefaults()
 
 }
 
+void cmpStock::parseData(cmpFile *cfile)
+{
+
+}
 
 QString *cmpStock::getName() const
 {
