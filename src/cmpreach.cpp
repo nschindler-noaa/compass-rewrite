@@ -39,11 +39,11 @@ void cmpReach::clear ()
     length = 0.0;
     volume = 0.0;
     surfaceArea = 0.0;
-    depth = 0.0;
+    depthAve = 0.0;
     depthUpper = 0.0;
     depthLower = 0.0;
     elevLower = 0.0;
-    slope = 0.0;
+    wallSlope = 0.0;
 
     lossMax = 0.0;
     lossMin = 0.0;
@@ -125,7 +125,7 @@ bool cmpReach::parseDesc(cmpFile *descfile)
         }
         else if (token.compare("slope", Qt::CaseInsensitive) == 0)
         {
-            okay = descfile->readFloatOrNa(na, slope);
+            okay = descfile->readFloatOrNa(na, wallSlope);
         }
         else if (token.compare("lower_elev", Qt::CaseInsensitive) == 0)
         {
@@ -160,7 +160,7 @@ void cmpReach::outputDesc(cmpFile *ofile)
         ofile->writeString(2, QString("width %1").arg(widthAve));
         ofile->writeString(2, QString("lower_depth %1").arg(depthLower));
         ofile->writeString(2, QString("upper_depth %1").arg(depthUpper));
-        ofile->writeString(2, QString("slope %1").arg(slope));
+        ofile->writeString(2, QString("slope %1").arg(wallSlope));
         ofile->writeString(2, QString("lower_elev %1").arg(elevLower));
         for (int i = 0; i < course.count(); i++)
         {
@@ -184,7 +184,7 @@ void cmpReach::calculateFlows()
 {
     float newloss = 0.0;
     float newflow = 0.0;
-    double slopetan = tan (slope);
+    double slopetan = tan (wallSlope);
     float lwr_depth_max = depthLower * .95; // 5% less than bottom
     float avg_flow = 0.0;
     static float secs_per_step = 3600.0 * 24.0/stepsPerDay;
@@ -326,9 +326,9 @@ float cmpReach::computeWTT(int firstDay, int lastDay)
 
     /* convert to time steps */
     int firstStep = firstDay * stepsPerDay;
-    int lastStep = lastDay * steps_per_season;
+    int lastStep = lastDay * stepsPerSeason;
 
-    for (i = firstStep; i <= lastStep && i < steps_per_season; ++i)
+    for (i = firstStep; i <= lastStep && i < stepsPerSeason; ++i)
         avg_vel += velocity[i];
     avg_vel /= (i-firstStep + 1);
 
@@ -402,14 +402,14 @@ void cmpReach::setsurfaceArea(float value)
     surfaceArea = value;
 }
 
-float cmpReach::getDepth() const
+float cmpReach::getDepthAve() const
 {
-    return depth;
+    return depthAve;
 }
 
-void cmpReach::setDepth(float value)
+void cmpReach::setDepthAve(float value)
 {
-    depth = value;
+    depthAve = value;
 }
 
 float cmpReach::getDepthUpper() const
@@ -434,12 +434,12 @@ void cmpReach::setDepthLower(float value)
 
 float cmpReach::getSlope() const
 {
-    return slope;
+    return wallSlope;
 }
 
 void cmpReach::setSlope(float value)
 {
-    slope = value;
+    wallSlope = value;
 }
 
 float cmpReach::getLossMax() const

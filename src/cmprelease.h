@@ -6,6 +6,7 @@
 #include "cmpreleasesite.h"
 #include "cmpreleasesegmentdata.h"
 #include "cmprealtime.h"
+#include "cmpfile.h"
 
 #include <QStringList>
 
@@ -19,6 +20,9 @@ public:
 
     const QString &getName() const;
     void setName(const QString &newName);
+
+    bool parseData(cmpFile *cfile);
+    void writeData(cmpFile *ofile);
 
     void setSite(cmpReleaseSite *newSite);
 
@@ -77,7 +81,7 @@ private:
                                * then the dam spill experience will be filled
                                * in with this value */
     float totalReleased;    /**< Total fish in last run */
-    QList<cmpReleaseSegmentData *> relSegments; /** List of release segments (hold data and stats) */
+    QList<cmpReleaseSegmentData *> relSegments; /** List of release segments (that hold data and stats) */
     cmpReleaseSegmentStats stats; /**< Summary statistics for this release */
     float migrOnsetMedian;  /**< Migration onset, median value
                                 *  in days (computed) */

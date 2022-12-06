@@ -27,7 +27,7 @@ cmpRiverSegment::cmpRiverSegment (QString segName, cmpRiver *parent) :
         riverName = QString ();
     else
         riverName = parent->getName();
-    name = QString ();
+    name = segName;
     abbrev = QString ();
 
     setup ();
@@ -108,6 +108,12 @@ void cmpRiverSegment::setup ()
     currentPointIndex = -1;
     currentPoint = nullptr;
     widthAve = 1.0;
+    widthLower = widthAve;
+    widthUpper = widthAve;
+    depthLower = 1.0;
+    depthUpper = 1.0;
+    elevLower = 0.0;
+    elevUpper = 0.0;
     type = Null;
     output_flags = 0;
     output_settings = 0;
@@ -115,7 +121,10 @@ void cmpRiverSegment::setup ()
     flowMin = 0.0;
     temp.append(0);
     flow.append(0);
+    daysPerYear = 366;
+    stepsPerDay = 2;
     setDaysPerSeason(366);
+    isRegPoint = false;
     readTemps = false;
     up = nullptr;
     down = nullptr;
@@ -234,6 +243,7 @@ bool cmpRiverSegment::parseDesc(cmpFile *descfile)
             okay = parseDescToken(token, descfile);
         }
     }
+    return okay;
 }
 
 bool cmpRiverSegment::parseDescToken(QString token, cmpFile *descfile)

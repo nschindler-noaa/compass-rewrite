@@ -24,7 +24,7 @@ public:
     void setup ();
     void resetData();
     void clear ();
-    bool parseData (cmpFile *infile);
+    bool parseData (cmpFile *infile) override;
     bool parseToken (QString token, cmpFile *infile);
 
     bool parseDesc (cmpFile *descfile) override;

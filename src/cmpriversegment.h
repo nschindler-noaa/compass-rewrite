@@ -135,6 +135,9 @@ public:
     int getStepsPerDay() const;
     void setStepsPerDay(int newStepsPerDay);
 
+    float getWallSlope() const;
+    void setWallSlope(float newWallSlope);
+
 protected:
     cmpRiverSegment &copy (const cmpRiverSegment &rhs);
 
@@ -162,7 +165,6 @@ protected:
     float elevUpper;
     float elevLower;
 
-
     unsigned int output_flags;
 
     unsigned int output_settings;
@@ -179,6 +181,14 @@ protected:
     bool readTemps;     /**< true if reading temps from data file,
                           *   false if not. */
 
+    bool readGas;            /**< true if values are read from a data file */
+/*    GasDistribution *gas_out; *< Output gas distribution */
+/*    float *initial_gas;       *< Only defined if there is an initial gas
+                               * vector which supercedes any in-river gas */
+
+    bool readTurbidity;      /**< true if values are read from a data file */
+/*    float turbidity[STEPS_IN_SEASON]; *< Turbidity at each model
+                                                            *time step */
 
     cmpRiverSegment *up;  /**< next segment up the same river.*/
     cmpRiverSegment *fork;/**< next segment up for different river. */

@@ -228,3 +228,52 @@ void cmpDataSettings::setNightStart(int newNightStart)
 {
     nightStart = newNightStart;
 }
+
+bool cmpDataSettings::getMigration() const
+{
+    return migration;
+}
+
+void cmpDataSettings::setMigration(QString name)
+{
+    if (name.compare("juvenile", Qt::CaseInsensitive) == 0
+            || name.compare("downstream", Qt::CaseInsensitive) == 0)
+        migration = true;
+    else
+        migration = false; // adult migration - not downstream
+}
+
+void cmpDataSettings::setMigration(bool newMigration)
+{
+    migration = newMigration;
+}
+
+bool cmpDataSettings::getInterrupt() const
+{
+    return interrupt;
+}
+
+void cmpDataSettings::setInterrupt(bool newInterrupt)
+{
+    interrupt = newInterrupt;
+}
+
+bool cmpDataSettings::getCompute_flow_break() const
+{
+    return compute_flow_break;
+}
+
+void cmpDataSettings::setCompute_flow_break(bool newCompute_flow_break)
+{
+    compute_flow_break = newCompute_flow_break;
+}
+
+bool cmpDataSettings::getSummary() const
+{
+    return summary;
+}
+
+void cmpDataSettings::setSummary(bool newSummary)
+{
+    summary = newSummary;
+}

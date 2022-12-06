@@ -31,7 +31,7 @@ public:
     void resetData ();
     void allocateDays(int days, int steps);
 
-    bool parseData (cmpFile *infile);
+    bool parseData (cmpFile *infile) override;
     bool parseToken (QString token, cmpFile *infile);
 
 #ifdef PRED_CALC
@@ -64,8 +64,8 @@ public:
     float getsurfaceArea() const;
     void setsurfaceArea(float value);
 
-    float getDepth() const;
-    void setDepth(float value);
+    float getDepthAve() const;
+    void setDepthAve(float value);
 
     float getDepthUpper() const;
     void setDepthUpper(float value);
@@ -88,12 +88,10 @@ private:
     float length;          /**< Length of segment in miles */
     float volume;          /**< Volume at maximum reservoir level in feet^3*/
     float surfaceArea;     /**< Average area in feet^2 */
-    float depth;           /**< Average maximum depth in feet */
-    float depthUpper;      /**< Maximum depth at upper end of reach in feet */
-    float depthLower;      /**< Maximum depth at lower end of reach in feet */
+    float depthAve;           /**< Average maximum depth in feet */
 //    float elevLower;      /**< Height above sea level, or bottom of
 //                            *  river at the lower end of reach in feet. */
-    float slope;           /**< Angle of sides, from vertical; deg */
+    float wallSlope;           /**< Angle of sides, from vertical; deg */
     QList<float> elevChange; /**< Delta (difference) from maximum [STEPS_IN_SEASON]*/
 
     QList<float> volumeCurr; /**< Current water volume [STEPS_IN_SEASON]*/
@@ -107,9 +105,7 @@ private:
 
     float waterParticleTT;  /**< particle travel time; computed */
 
-    int stepsPerDay;
-    int daysPerSeason;
-    int steps_per_season;
+    int stepsPerSeason;
 
 };
 

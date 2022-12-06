@@ -77,6 +77,19 @@ public:
     int getNightStart() const;
     void setNightStart(int newNightStart);
 
+    bool getMigration() const;
+    void setMigration(QString name);
+    void setMigration(bool newMigration);
+
+    bool getInterrupt() const;
+    void setInterrupt(bool newInterrupt);
+
+    bool getCompute_flow_break() const;
+    void setCompute_flow_break(bool newCompute_flow_break);
+
+    bool getSummary() const;
+    void setSummary(bool newSummary);
+
 private:
     /** Downstream (juvenile) or upstream (adult) model */
     bool migration;          /**< Type of migration JUVENILE or Downstream (true), or ADULT or Upstream (false). JUVENILE is the default. */

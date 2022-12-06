@@ -1,6 +1,6 @@
 #include "cmpriversystem.h"
 
-#include "cmpheadwater.h"
+//#include "cmpheadwater.h"
 
 cmpRiverSystem::cmpRiverSystem(QObject *parent) :
     QObject(parent)
@@ -173,7 +173,7 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
         else if (token.compare("migration") == 0)
         {
             okay = cfile->readString(name);
-
+            cSettings->getDataSettings()->setMigration(name);
         }
         else if (token.compare ("species") == 0)
         {
@@ -249,6 +249,18 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
  //                   cmpLog::outlog->add(cmpLog::Error, "No headwater by this name");
  //                   cmpLog::outlog->add(cmpLog::Error, hwName);
                 }
+            }
+        }
+        else if (token.compare ("release") == 0)
+        {
+            QString relName ("");
+            okay = cfile->readString (relName);
+            if (okay)
+            {
+                cmpRelease *newrel = new cmpRelease();
+                newrel->setName(relName);
+                releases.append(newrel);
+                newrel->parseData(cfile);
             }
         }
         else if (token.contains ("end"))

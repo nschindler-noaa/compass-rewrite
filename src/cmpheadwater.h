@@ -27,21 +27,12 @@ public:
     void calculateTemps ();
 
 protected:
-    bool flowsRead;     /**< true if flow values are read from a data file. */
     bool regulated;          /**< Whether this is a regulated or unregulated headwater */
     float flowCoefficient;   /**< For unregulated flow */
 
     float flowMean;          /**< Mean flow at this headwater */
 
     QList<float> elevChange; /**< Delta from max */
-/*    GasDistribution *gas_out; *< Output gas distribution */
-/*    float *initial_gas;       *< Only defined if there is an initial gas
-                               * vector which supercedes any in-river gas */
-
-/*    float turbidity[STEPS_IN_SEASON]; *< Turbidity at each model
-                                                            *time step */
-/*    bool turbidityRead;       *< true if values are read from a data file */
-
 };
 
 #endif // CMPHEADWATER_H

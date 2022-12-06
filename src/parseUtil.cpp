@@ -419,7 +419,7 @@ bool parse_reach (cmpFile *cfile, cmpReach *rch)
         {
             okay = read_float (cfile->popToken (), &tempFloat,
                                QString("Depth"));
-            rch->setDepth(tempFloat);
+            rch->setDepthAve(tempFloat);
         }
         else if (token.compare ("lower_depth", Qt::CaseInsensitive) == 0)
         {
