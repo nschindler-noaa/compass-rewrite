@@ -4,7 +4,7 @@
 
 cmpStock::cmpStock()
 {
-    name = new QString ("generic");
+    name = QString ("generic");
     inriverReturnEqn = new cmpEquation();
     transportReturnEqn = new cmpEquation();
     reachClasses.append(new cmpReachClass("0"));
@@ -14,7 +14,6 @@ cmpStock::cmpStock()
 
 cmpStock::~cmpStock()
 {
-    delete name;
     delete inriverReturnEqn;
     delete transportReturnEqn;
     while (reachClasses.count() > 0)
@@ -34,19 +33,31 @@ void cmpStock::setDefaults()
 
 }
 
-void cmpStock::parseData(cmpFile *cfile)
+bool cmpStock::parseData(cmpFile *cfile)
 {
+    bool okay = true, end = false;
+    QString token ("");
 
-}
+    while (okay && !end)
+    {
+        token = cfile->popToken ();
+        if (token.compare ("eof", Qt::CaseInsensitive) == 0)
+        {
+            cfile->printEOF("Stock data.");
+            okay = false;
+        }
+        else if (token.compare("end", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->checkEnd("reach", name);
+            end = true;
+        }
+        else
+        {
+            cfile->unknownToken(token, name);
+        }
+    }
 
-QString *cmpStock::getName() const
-{
-    return name;
-}
-
-void cmpStock::setName(QString *newName)
-{
-    name = newName;
+    return okay;
 }
 
 const cmpEquation *cmpStock::getMigrationEqn(int rc) const
@@ -158,3 +169,4 @@ void cmpStock::setCovmat(int rc, cmpMonteCarloMulti *newCovmat)
 {
     reachClasses.at(rc)->setCovmat(newCovmat);
 }
+

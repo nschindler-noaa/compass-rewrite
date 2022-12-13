@@ -27,6 +27,7 @@ void cmpRiverSystem::setup ()
     releaseSites.append(new cmpReleaseSite());
     speciesNames.append(QString());
     stockNames.append(QString());
+    reachClassNames.append(QString());
     powerhouses.append(QString());
     dams.append(QString());
     reaches.append(QString());
@@ -62,6 +63,18 @@ void cmpRiverSystem::deleteAll()
     reaches.clear();
     headwaters.clear();
     basins.clear();
+}
+
+const QStringList &cmpRiverSystem::getReachClassNames() const
+{
+    return reachClassNames;
+}
+
+void cmpRiverSystem::setReachClassName(int index, const QString &newReachClassName)
+{
+    while (reachClassNames.count() < index)
+        reachClassNames.append(QString());
+    reachClassNames[index] = newReachClassName;
 }
 
 void cmpRiverSystem::resetData()
@@ -123,16 +136,19 @@ bool cmpRiverSystem::parseDesc(cmpFile *descfile)
         else if (token.compare ("species") == 0)
         {
             okay = descfile->readString(name);
-            speciesNames.append(name.simplified());
+            name = name.simplified().replace(' ', '_');
+            speciesNames.append(name);
         }
         else if (token.compare ("stock") == 0)
         {
             okay = descfile->readString(name);
+            name = name.simplified().replace(' ', '_');
             stockNames.append(name);
         }
         else if (token.compare ("release_site") == 0)
         {
             okay = descfile->readString(name);
+            name = name.simplified().replace(' ', '_');
             newrelsite = new cmpReleaseSite(name);
             newrelsite->parseDesc(descfile);
             releaseSites.append(newrelsite);
@@ -141,6 +157,7 @@ bool cmpRiverSystem::parseDesc(cmpFile *descfile)
         {
             river = new cmpRiver(this);
             okay = descfile->readString(name);
+            name = name.simplified().replace(' ', '_');
             river->setName(name);
             okay = river->parseDesc(descfile);
 
@@ -157,9 +174,16 @@ bool cmpRiverSystem::parseDesc(cmpFile *descfile)
 bool cmpRiverSystem::parseData(cmpFile *cfile)
 {
     bool okay = true, end = false;
-    QString token, val;
+    QString token, stringval;
     QString name;
+    QStringList tokens;
     int index = 0;
+    int tmpInt = 0;
+    int numDays = 366;
+    int timeSteps = 2;
+    int damSlices = 2;
+    float tmpFloat = 0;
+    cmpDataSettings *dSettings = cSettings->getDataSettings();
 
     while (okay && !end)
     {
@@ -173,7 +197,87 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
         else if (token.compare("migration") == 0)
         {
             okay = cfile->readString(name);
-            cSettings->getDataSettings()->setMigration(name);
+            if (okay) dSettings->setMigration(name);
+        }
+        else if (token.compare("days_in_season") == 0)
+        {
+            okay = cfile->readInt(tmpInt);
+            if(okay)
+            {
+                dSettings->setNumDaysInSeason(tmpInt);
+                numDays = tmpInt;
+                allocate(numDays, timeSteps, damSlices);
+            }
+        }
+        else if (token.compare("time_steps_per_day") == 0)
+        {
+            okay = cfile->readInt(tmpInt);
+            if(okay) dSettings->setTimeStepsPerDay(tmpInt);
+        }
+        else if (token.compare("dam_slices_per_day") == 0)
+        {
+            okay = cfile->readInt(tmpInt);
+            if(okay) dSettings->setDamSlicesPerDay(tmpInt);
+        }
+        else if (token.compare("day_start") == 0)
+        {
+            okay = cfile->readInt(tmpInt);
+            if(okay) dSettings->setDayStart(tmpInt);
+        }
+        else if (token.compare("night_start") == 0)
+        {
+            okay = cfile->readInt(tmpInt);
+            if (okay) dSettings->setNightStart(tmpInt);
+        }
+        else if (token.compare("compute_gas") == 0)
+        {
+            okay = cfile->readString(stringval);
+            if (stringval.compare("on", Qt::CaseInsensitive) == 0)
+                dSettings->setCalcGas(true);
+            else
+                dSettings->setCalcGas(false);
+        }
+        else if (token.compare("compute_growth") == 0)
+        {
+            okay = cfile->readString(stringval);
+            if (stringval.compare("on", Qt::CaseInsensitive) == 0)
+                dSettings->setCalcGrowth(true);
+            else
+                dSettings->setCalcGrowth(false);
+        }
+        else if (token.compare("compute_turbidity") == 0)
+        {
+            okay = cfile->readString(stringval);
+            if (stringval.compare("on", Qt::CaseInsensitive) == 0)
+                dSettings->setCalcTurbidity(true);
+            else
+                dSettings->setCalcTurbidity(false);
+        }
+        else if (token.compare("num_reach_classes") == 0)
+        {
+            okay = cfile->readInt(tmpInt);
+            if (okay)
+            {
+                for (int i = 0; i < tmpInt; i++)
+                {
+                    token = cfile->popToken();
+                    if (token.compare("reach_class_name") == 0)
+                    {
+                        okay = cfile->readInt(tmpInt);
+                        if (okay) okay = cfile->readString(name);
+                        if (okay) setReachClassName(tmpInt, name);
+                    }
+                    else
+                    {
+                        cfile->pushToken(token);
+                        i = tmpInt;
+                    }
+                    for (int i = 0, total = species.count(); i < total; i++)
+                        species[i]->setReachClassNames(reachClassNames);
+                    for (int i = 0, total = stocks.count(); i < total; i++)
+                        stocks[i]->setReachClassNames(reachClassNames);
+                }
+            }
         }
         else if (token.compare ("species") == 0)
         {
@@ -185,7 +289,8 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
             }
             else
             {
-
+                cfile->printError(QString("Species name %1 not found.").arg(name));
+                cfile->skipToEnd();
             }
         }
         else if (token.compare ("stock") == 0)
@@ -195,6 +300,11 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
             {
                 index = stockNames.indexOf(name);
                 stocks[index]->parseData(cfile);
+            }
+            else
+            {
+                cfile->printError(QString("Stock name %1 not found.").arg(name));
+                cfile->skipToEnd();
             }
         }
         else if (token.compare ("reach") == 0)
@@ -210,8 +320,8 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
                 }
                 else
                 {
-//                    cmpLog::outlog->add(cmpLog::Error, "No reach by this name");
-//                    cmpLog::outlog->add(cmpLog::Error, reachName);
+                    cfile->printError(QString("Reach name %1 not found.").arg(name));
+                    cfile->skipToEnd();
                 }
             }
         }
@@ -228,8 +338,8 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
                 }
                 else
                 {
-//                    cmpLog::outlog->add(cmpLog::Error, "No dam by this name");
-//                    cmpLog::outlog->add(cmpLog::Error, damName);
+                    cfile->printError(QString("Dam name %1 not found.").arg(name));
+                    cfile->skipToEnd();
                 }
             }
         }
@@ -246,8 +356,8 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
                 }
                 else
                 {
- //                   cmpLog::outlog->add(cmpLog::Error, "No headwater by this name");
- //                   cmpLog::outlog->add(cmpLog::Error, hwName);
+                    cfile->printError(QString("Headwater name %1 not found.").arg(name));
+                    cfile->skipToEnd();
                 }
             }
         }
@@ -257,11 +367,164 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
             okay = cfile->readString (relName);
             if (okay)
             {
-                cmpRelease *newrel = new cmpRelease();
-                newrel->setName(relName);
-                releases.append(newrel);
-                newrel->parseData(cfile);
+                tokens = relName.split(' ', QString::SkipEmptyParts);
+                if (tokens.count() < 3)
+                    okay = false;
+                else
+                {
+                    cmpRelease *newrel = new cmpRelease();
+                    cmpSpecies *spec = findSpecies(tokens.at(0));
+                    cmpReleaseSite *site = findReleaseSite(tokens.at(1));
+                    tokens.at(2).toInt(&okay, tmpInt);
+                    newrel->setSpecies(spec);
+                    newrel->setSite(site);
+                    newrel->setStartDay(tmpInt);
+                    newrel->setName(relName);
+                    releases.append(newrel);
+                    newrel->parseData(cfile);
+                }
             }
+        }
+        else if (token.compare ("gas_dissp_exp") == 0)
+        {
+            okay = cfile->readFloatOrNa(stringval, tmpFloat);
+            if (okay) dSettings->setGasDisspExp(tmpFloat);
+        }
+        else if (token.compare ("hw_flow_prop"))
+        {
+            okay = cfile->readFloatOrNa(stringval, tmpFloat);
+            if (okay) dSettings->setHwFlowProp(tmpFloat);
+        }
+        else if (token.compare ("ufree_eqn") == 0)
+        {
+            okay = cfile->readInt(tmpInt);
+            if (okay)
+            {
+                token = cfile->readInt(tmpInt);
+                cmpEquation *fflow = new cmpEquation(tmpInt);
+                fflow->parseData(cfile);
+                dSettings->setFreeFlowEqn(fflow);
+            }
+        }
+        else if (token.compare("ufree_max", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readFloatOrNa(stringval, tmpFloat);
+            if (okay) dSettings->setFreeFlowMax(tmpFloat);
+        }
+        else if (token.compare("pre_energy_density", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readFloatOrNa(stringval, tmpFloat);
+            if (okay) dSettings->setPreyEnergyDensity(tmpFloat);
+        }
+        else if (token.compare("length_weight_b0", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readFloatOrNa(stringval, tmpFloat);
+            if (okay) dSettings->setLengthWeightB0(tmpFloat);
+        }
+        else if (token.compare("length_weight_b1", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readFloatOrNa(stringval, tmpFloat);
+            if (okay) dSettings->setLengthWeightB1(tmpFloat);
+        }
+        else if (token.compare("fork_threshold", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readFloatOrNa(stringval, tmpFloat);
+            if (okay) dSettings->setForkThreshold(tmpFloat);
+        }
+        else if (token.compare("water_travel_upper_segment", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readString(stringval);
+            if (okay) dSettings->setWaterTravelUpperSegment(stringval);
+        }
+        else if (token.compare("water_travel_lower_segment", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readString(stringval);
+            if (okay) dSettings->setWaterTravelLowerSegment(stringval);
+        }
+        else if (token.compare("water_travel_first_day", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readInt(tmpInt);
+            if (okay) dSettings->setWaterTravelFirstDay(tmpInt);
+        }
+        else if (token.compare("water_travel_last_day", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readInt(tmpInt);
+            if (okay) dSettings->setWaterTravelLastDay(tmpInt);
+        }
+        else if (token.compare("min_migration_rate", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readFloatOrNa(stringval, tmpFloat);
+            if (okay) dSettings->setMigrationRateMin(tmpFloat);
+        }
+        else if (token.compare("suppress_variation", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readString(stringval);
+            if (okay)
+            {
+                if (stringval.compare("on", Qt::CaseInsensitive) == 0)
+                    dSettings->setSuppressVariation(true);
+                else
+                    dSettings->setSuppressVariation(false);
+            }
+        }
+        else if (token.compare("pred_vol_interaction", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readString(stringval);
+            if (okay)
+            {
+                if (stringval.compare("on", Qt::CaseInsensitive) == 0)
+                    dSettings->setPredVolInteraction(true);
+                else
+                    dSettings->setPredVolInteraction(false);
+            }
+        }
+        else if (token.compare("age_dependent_fge", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readString(stringval);
+            if (okay)
+            {
+                if (stringval.compare("on", Qt::CaseInsensitive) == 0)
+                    dSettings->setAgeDependentFge(true);
+                else
+                    dSettings->setAgeDependentFge(false);
+            }
+        }
+        else if (token.compare("truncate_travel_vect", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readString(stringval);
+            if (okay)
+            {
+                if (stringval.compare("on", Qt::CaseInsensitive) == 0)
+                    dSettings->setTruncateTravelVect(true);
+                else
+                    dSettings->setTruncateTravelVect(false);
+            }
+        }
+        else if (token.compare("truncate_res_survival", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readString(stringval);
+            if (okay)
+            {
+                if (stringval.compare("on", Qt::CaseInsensitive) == 0)
+                    dSettings->setTruncateResSurvival(true);
+                else
+                    dSettings->setTruncateResSurvival(false);
+            }
+        }
+        else if (token.compare("compute_mu_method", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readInt(tmpInt);
+            if (okay) dSettings->setComputeMuMethod(tmpInt);
+        }
+        else if (token.compare("year_traveltime_indicator", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readInt(tmpInt);
+            if (okay) dSettings->setYearTraveltimeIndicator(tmpInt);
+        }
+        else if (token.compare("mortality_class", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readString(stringval);
+            if (okay) dSettings->setMortClass(stringval);
         }
         else if (token.contains ("end"))
         {
@@ -345,12 +608,28 @@ bool cmpRiverSystem::construct()
     cmpRiver *riv = nullptr;
     cmpRiverSegment *cur = nullptr;
     cmpRiverSegment *prev = nullptr;
+    QString name;
     QString curRiver ("");
 
     if (segments.count() < 2)
         okay = false;
 
     if (okay) {
+        // create species
+        for (int i = 0, total = speciesNames.count(); i < total; i++)
+        {
+            name = speciesNames.at(i);
+            species.append(new cmpSpecies());
+            species[i]->setName(name);
+        }
+        // create stocks
+        for (int i = 0, total = stockNames.count(); i < total; i++)
+        {
+            name = stockNames.at(i);
+            stocks.append(new cmpStock());
+            stocks[i]->setName(name);
+        }
+        // connect segments
         prev = static_cast<cmpRiverSegment *> (segments.at (0));
         curRiver = QString (prev->getRiverName());
         for (int i = 1; okay && i < segments.count(); i++)
@@ -471,7 +750,7 @@ cmpStock * cmpRiverSystem::findStock(QString name)
     for (int i = 0; i < stocks.count(); i++)
     {
         st = stocks.at (i);
-        if (st->getName()->compare(name) == 0)
+        if (st->getName().compare(name) == 0)
             break;
     }
     return st;
@@ -641,4 +920,28 @@ void cmpRiverSystem::deleteSpill ()
         static_cast <cmpDam *> (segments.at (i))->deleteSpill ();
     }
  }
+
+void cmpRiverSystem::allocate(int numDays, int timeSteps, int damSlices)
+{
+    int totalSegs = segments.count();
+    cmpRiverSegment::SegmentType type;
+    for (int i = 0; i < totalSegs; i ++)
+    {
+        type = segments.at(i)->getType();
+        switch (type)
+        {
+        case cmpRiverSegment::Reach:
+            static_cast<cmpReach*>(segments.at(i))->allocateDays(numDays, damSlices);
+            break;
+        case cmpRiverSegment::Dam:
+            static_cast<cmpDam*>(segments.at(i))->allocateDays(numDays, timeSteps);
+            break;
+        case cmpRiverSegment::Headwater:
+            static_cast<cmpHeadwater*>(segments.at(i))->allocateDays(numDays);
+            break;
+        default:
+            segments.at(i)->allocateDays(numDays);
+        }
+    }
+}
 

@@ -243,6 +243,7 @@ bool cmpFile::readString (QString &string)
                 string.append (token);
             }
         }
+        string = string.simplified();
     }
     else
     {
@@ -937,3 +938,21 @@ void cmpFile::unknownToken (QString token, QString segment)
     }
     printError(message);
 }
+
+void cmpFile::incorrectValue (int val, QString name)
+{
+    QString message("Problem reading integer value ");
+    message.append(QString::number(val));
+    if (!name.isEmpty())
+        message.append(QString(" for %1").arg(name));
+    printError(message);
+}
+void cmpFile::incorrectValue (float val, QString name)
+{
+    QString message("Problem reading float value ");
+    message.append(QString::number(val));
+    if (!name.isEmpty())
+        message.append(QString(" for %1").arg(name));
+    printError(message);
+}
+

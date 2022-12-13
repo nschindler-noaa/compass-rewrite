@@ -25,6 +25,7 @@ void cmpHeadwater::allocateDays(int numdays)
     elevChange.clear();
     for (int i = 0; i < numdays; i++)
         elevChange.append(0.0);
+    cmpRiverSegment::allocateDays(numdays);
 }
 
 void cmpHeadwater::resetData()

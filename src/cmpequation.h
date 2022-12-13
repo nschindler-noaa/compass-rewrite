@@ -1,6 +1,8 @@
 #ifndef CMPEQUATION_H
 #define CMPEQUATION_H
 
+#include "cmpfile.h"
+
 #include <QStringList>
 
 /** \class parameter \brief A class that holds equation parameter values. */
@@ -54,6 +56,8 @@ public:
     bool isEqual(const cmpEquation &rhs);
     bool operator == (const cmpEquation &rhs);
     bool operator == (cmpEquation &rhs);
+
+    bool parseData(cmpFile *cfile);
 
     /** Set up all aspects of equation for its id: parameters, name, formula, etc. */
     void setupEquation();

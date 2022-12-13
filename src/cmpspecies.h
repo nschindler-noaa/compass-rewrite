@@ -30,7 +30,7 @@ public:
     void allocate(int numReachClasses);
     void setDefaults();
 
-    void parseData(cmpFile *cfile);
+    bool parseData(cmpFile *cfile);
 
     const QList<float> &getReachPredCoef() const;
     void setReachPredCoef(const QList<float> &newReachPredCoef);
@@ -74,8 +74,12 @@ public:
     cmpEquation *getInriverLatentMortEqn() const;
     void setInriverLatentMortEqn(cmpEquation *newInriverLatentMortEqn);
 
+    const QStringList &getReachClassNames() const;
+    void setReachClassNames(const QStringList &newReachClassNames);
+
 protected:
     QString name;               /**< Name of species/cohort */
+    QStringList reachClassNames; /**< reference list of reach class names */
 
     QList<float> reachPredCoef; /**< Reach predation coefficients */
     QList<float> pprimeA;       /**< Used to calculate 'p' for growth calculations */

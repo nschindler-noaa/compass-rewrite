@@ -90,6 +90,81 @@ public:
     bool getSummary() const;
     void setSummary(bool newSummary);
 
+    float getGasDisspExp() const;
+    void setGasDisspExp(float newGasDisspExp);
+
+    float getHwFlowProp() const;
+    void setHwFlowProp(float newHwFlowProp);
+
+    cmpEquation *getFreeFlowEqn() const;
+    void setFreeFlowEqn(cmpEquation *newFreeFlowEqn);
+
+    float getFreeFlowMax() const;
+    void setFreeFlowMax(float newFreeFlowMax);
+
+    float getPreyEnergyDensity() const;
+    void setPreyEnergyDensity(float newPreyEnergyDensity);
+
+    float getLengthWeightB0() const;
+    void setLengthWeightB0(float newLengthWeightB0);
+
+    float getLengthWeightB1() const;
+    void setLengthWeightB1(float newLengthWeightB1);
+
+    float getForkThreshold() const;
+    void setForkThreshold(float newForkThreshold);
+
+    const QString &getWaterTravelUpperSegment() const;
+    void setWaterTravelUpperSegment(const QString &newWaterTravelUpperSegment);
+
+    const QString &getWaterTravelLowerSegment() const;
+    void setWaterTravelLowerSegment(const QString &newWaterTravelLowerSegment);
+
+    int getWaterTravelFirstDay() const;
+    void setWaterTravelFirstDay(int newWaterTravelFirstDay);
+
+    int getWaterTravelLastDay() const;
+    void setWaterTravelLastDay(int newWaterTravelLastDay);
+
+    int getWaterTravelTime() const;
+    void setWaterTravelTime(int newWaterTravelTime);
+
+    float getMigrationRateMin() const;
+    void setMigrationRateMin(float newMigrationRateMin);
+
+    bool getSuppressVariation() const;
+    void setSuppressVariation(bool newSuppressVariation);
+
+    bool getPredVolInteraction() const;
+    void setPredVolInteraction(bool newPredVolInteraction);
+
+    bool getAgeDependentFge() const;
+    void setAgeDependentFge(bool newAgeDependentFge);
+
+    bool getTruncateTravelVect() const;
+    void setTruncateTravelVect(bool newTruncateTravelVect);
+
+    bool getTruncateResSurvival() const;
+    void setTruncateResSurvival(bool newTruncateResSurvival);
+
+    bool getComputeMuMethod() const;
+    void setComputeMuMethod(bool newComputeMuMethod);
+
+    int getYearTraveltimeIndicator() const;
+    void setYearTraveltimeIndicator(int newYearTraveltimeIndicator);
+
+    int getYearTraveltimeOffset() const;
+    void setYearTraveltimeOffset(int newYearTraveltimeOffset);
+
+    QString &getMortClassString();
+    void setMortClass(QString &mortclass);
+    MortalityClass getMortClass() const;
+    void setMortClass(MortalityClass newMortClass);
+
+    ReturnHypothesis getFishReturnHyp() const;
+
+    void setFishReturnHyp(ReturnHypothesis newFishReturnHyp);
+
 private:
     /** Downstream (juvenile) or upstream (adult) model */
     bool migration;          /**< Type of migration JUVENILE or Downstream (true), or ADULT or Upstream (false). JUVENILE is the default. */
@@ -134,40 +209,36 @@ private:
     /** Whether to compute growth, if false, it passes down a default value. (for juvenile only) */
     bool calcGrowth;
 
+    float gasDisspExp;      /**< gas dissipation default for all reaches. Default is 0.20 */
+    float hwFlowProp;  /**< Default is 1.00 */
 
-    float gas_dissp_exp;      /**< gas dissipation default for all reaches */ // 0.20
-    float hw_flow_prop;  // 1.00
+    cmpEquation *freeFlowEqn;    /**< Default free flowing segment velocity equation (ft/sec) */
 
-    cmpEquation *freeFlow;    /**< Default free flowing segment velocity equation (ft/sec) */ //ufree_eqn	9
-//		parameter 0  0.000000
-//		parameter 1  4.500000
-//		parameter 2  0.000000
-//	end ufree_eqn ()
-
-    float freeFlowMax;        /**< maximum value for free flowing velocity */ //ufree_max 8.000000
-    float preyEnergyDensity;  /**< Used in growth calculations   */ // 5400.000000
-    float lengthWeightB0;     /**< Used in length to weight conversions. */ // -11.580000
-    float lengthWeightB1;     /**< Used in length to weight conversions. */ // 3.033000
-    float fork_threshold;     /**< Proportion of total flow a fork needs to be
-                               *  "significant" - range [0.0-0.4] */ // 0.100000
-    QString waterTravelUpperSegment;  /**< Upper seg for computation */ // Little_Goose_Pool
-    QString waterTravelLowerSegment;  /**< Lower seg for computation */ // Estuary
-    int waterTravelFirstDay;  /**< First day for computation */ // 1
-    int waterTravelLastDay;   /**< Last day for computation */ // 365
+    float freeFlowMax;        /**< maximum value for free flowing velocity. Default is 8.000000 */
+    float preyEnergyDensity;  /**< Used in growth calculations. Default is 5400.000000 */
+    float lengthWeightB0;     /**< Used in length to weight conversions. Default is -11.580000 */
+    float lengthWeightB1;     /**< Used in length to weight conversions. Default is 3.033000 */
+    float forkThreshold;     /**< Proportion of total flow a fork needs to be
+                               *  "significant" - range [0.0-0.4]. Default is 0.100000 */
+    QString waterTravelUpperSegment;  /**< Upper seg for computation. Default is Little_Goose_Pool */
+    QString waterTravelLowerSegment;  /**< Lower seg for computation. Default is Estuary */
+    int waterTravelFirstDay;  /**< First day for computation. Default is 1 */
+    int waterTravelLastDay;   /**< Last day for computation. Default is 365 */
     int waterTravelTime;      /**< Average water particle travel time */
 
-    float migrationRateMin;   /**< Minimum migration rate in mi/day for the entire run */ // 1.000000
+    float migrationRateMin;   /**< Minimum migration rate in mi/day for the entire run. Default is 1.000000 */
     bool suppressVariation;   /**< Variation suppression to speed up calcs, default is true */
     bool predVolInteraction;  /**< Predation and volume interaction, default is false */
     bool ageDependentFge;     /**< Age dependent Fish Guidance Efficiency, defaul is false */
     bool truncateTravelVect;  /**< Truncate travel vector to speed up calcs, default is true */
     bool truncateResSurvival; /**< Truncate reservoir survival to speed up calcs, default is true */
-    bool compute_mu_method;   /**< Whether to compute mu using down stream dam (true) or up stream dam (false).
+    bool computeMuMethod;   /**< Whether to compute mu using down stream dam (true) or up stream dam (false).
                                *   It defaults to false for backward compatibility */
     int yearTraveltimeIndicator; // 0
     int yearTraveltimeOffset; /**< Whether to use a parameter for eqns 52 and 59 for a tt offset */
     MortalityClass mortClass; /**< Which mortalities are calculated - only a few combinations are allowed:
                                *   GasAndPredation, XT, and Custom. */
+    QString mortClassString; /**< string representation of mort class */
     ReturnHypothesis fishReturnHyp; /**< Which hypothesis should be used for
                                *   fish return calculations \ref OceanHypothesis */
 

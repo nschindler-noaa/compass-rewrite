@@ -114,7 +114,7 @@ void cmpRiverSegment::setup ()
     depthUpper = 1.0;
     elevLower = 0.0;
     elevUpper = 0.0;
-    type = Null;
+//    type = Reach;
     output_flags = 0;
     output_settings = 0;
     flowMax = 0.0;
@@ -454,7 +454,7 @@ void cmpRiverSegment::setReadTemps(bool value)
     readTemps = value;
 }
 
-cmpRiverSegment::SegmentType cmpRiverSegment::getType() const
+cmpRiverSegment::SegmentType cmpRiverSegment::getType()
 {
     return type;
 }

@@ -30,10 +30,7 @@ public:
     void allocate(int steps, int numReachClasses);
     void setDefaults();
 
-    void parseData(cmpFile *cfile);
-
-    QString *getName() const;
-    void setName(QString *newName);
+    bool parseData(cmpFile *cfile);
 
     const cmpEquation *getMigrationEqn(int rc) const;
     void setMigrationEqn(int rc, cmpEquation *newMigrationEqn);
@@ -68,8 +65,8 @@ public:
     const cmpMonteCarloMulti *getCovmat(int rc) const;
     void setCovmat(int rc, cmpMonteCarloMulti *newCovmat);
 
+
 private:
-    QString  *name;              /**< Name of the stock */
     QList<cmpReachClass *> reachClasses; /**< Reach classes for this stock. */
 
 };

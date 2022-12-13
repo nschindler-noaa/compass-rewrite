@@ -97,6 +97,8 @@ public slots:
 //    void unknownToken (QString token, QString name); /**< token not recognized, message printed */
     void obsoleteToken (QString obsToken, QString newToken = QString());
     void unknownToken (QString obsToken, QString segment = QString());
+    void incorrectValue (int val, QString name = QString());
+    void incorrectValue (float val, QString name = QString());
 
     void printEOF (QString data = QString (""));
     void printError (QString errmsg);

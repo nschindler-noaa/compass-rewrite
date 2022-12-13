@@ -27,6 +27,66 @@ void cmpRelease::setName(const QString &newName)
     name = newName;
 }
 
+bool cmpRelease::parseData(cmpFile *cfile)
+{
+    bool okay = true, end = false;
+    QString token ("");
+
+    while (okay && !end)
+    {
+        token = cfile->popToken ();
+        if (token.compare ("eof", Qt::CaseInsensitive) == 0)
+        {
+            cfile->printEOF("Release data.");
+            okay = false;
+        }
+        else if (token.compare("end", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->checkEnd("release", name);
+            end = true;
+        }
+        else
+        {
+            okay = parseToken (token, cfile);
+        }
+    }
+    return okay;
+}
+
+bool cmpRelease::parseToken(QString token, cmpFile *cfile)
+{
+    bool okay = true;
+    float tempFloat;
+    QString na("");
+
+    if (token.compare ("stock", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(na);
+        setStockName(na);
+    }
+    else if (token.compare ("intial_spill_experience", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatOrNa(na, tempFloat);
+        setInitialSpillExperience(tempFloat);
+    }
+    else if (token.compare ("length", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatOrNa(na, tempFloat);
+        setFishLength(tempFloat);
+    }
+    else if (token.compare ("number", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatOrNa(na, tempFloat);
+        setNumber(1, tempFloat);
+    }
+    return okay;
+}
+
+void cmpRelease::writeData(cmpFile *ofile)
+{
+
+}
+
 void cmpRelease::setSite(cmpReleaseSite *newSite)
 {
     site = newSite;
@@ -145,4 +205,24 @@ float cmpRelease::getMigrOnsetMedian() const
 void cmpRelease::setMigrOnsetMedian(float newMigrOnsetMedian)
 {
     migrOnsetMedian = newMigrOnsetMedian;
+}
+
+const QString &cmpRelease::getStockName() const
+{
+    return stockName;
+}
+
+float cmpRelease::getFishLength() const
+{
+    return fishLength;
+}
+
+void cmpRelease::setFishLength(float newFishLength)
+{
+    fishLength = newFishLength;
+}
+
+void cmpRelease::setStockName(QString stkName)
+{
+    stockName = stkName;
 }

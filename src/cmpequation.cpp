@@ -335,6 +335,59 @@ void cmpEqnParameter::setId(int newId)
     id = newId;
 }
 
+bool cmpEquation::parseData(cmpFile *cfile)
+{
+    bool okay = true, end = false;
+    QString token;
+    float tmpVal = 0;
+    int tmpInt = 0;
+
+    while (okay && !end)
+    {
+        token = cfile->popToken ();
+        if (token.compare ("eof", Qt::CaseInsensitive) == 0)
+        {
+            cfile->printEOF("Equation data.");
+            okay = false;
+        }
+        else if (token.compare("end", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->checkEnd("equation", name);
+            end = true;
+        }
+        else if (token.compare("parameter", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->readInt(tmpInt);
+            if (okay)
+            {
+                okay = cfile->readFloatOrNa(token, tmpVal);
+                if (okay)
+                {
+                    if (tmpInt > numEqnParams)
+                        cfile->printError(QString("Too many parameters for equation %1").arg(name));
+                    else
+                        setParameter(tmpInt, tmpVal);
+                }
+                else
+                {
+                    cfile->incorrectValue(tmpVal, name);
+                }
+            }
+            else
+            {
+                cfile->incorrectValue(tmpInt, name);
+            }
+            if (!okay)
+                cfile->skipToEnd();
+        }
+        else
+        {
+            cfile->unknownToken(token, name);
+        }
+    }
+    return okay;
+}
+
 void cmpEquation::setupEquation()
 {
     switch (id)

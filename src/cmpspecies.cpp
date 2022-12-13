@@ -55,9 +55,31 @@ void cmpSpecies::setDefaults()
     transportReturnEqn = new cmpEquation(51);
 }
 
-void cmpSpecies::parseData(cmpFile *cfile)
+bool cmpSpecies::parseData(cmpFile *cfile)
 {
+    bool okay = true, end = false;
+    QString token ("");
 
+    while (okay && !end)
+    {
+        token = cfile->popToken ();
+        if (token.compare ("eof", Qt::CaseInsensitive) == 0)
+        {
+            cfile->printEOF("Stock data.");
+            okay = false;
+        }
+        else if (token.compare("end", Qt::CaseInsensitive) == 0)
+        {
+            okay = cfile->checkEnd("reach", name);
+            end = true;
+        }
+        else
+        {
+            cfile->unknownToken(token, name);
+        }
+    }
+
+    return okay;
 }
 
 const QList<float> &cmpSpecies::getReachPredCoef() const
@@ -188,4 +210,14 @@ cmpEquation *cmpSpecies::getInriverLatentMortEqn() const
 void cmpSpecies::setInriverLatentMortEqn(cmpEquation *newInriverLatentMortEqn)
 {
     inriverLatentMortEqn = newInriverLatentMortEqn;
+}
+
+const QStringList &cmpSpecies::getReachClassNames() const
+{
+    return reachClassNames;
+}
+
+void cmpSpecies::setReachClassNames(const QStringList &newReachClassNames)
+{
+    reachClassNames = newReachClassNames;
 }

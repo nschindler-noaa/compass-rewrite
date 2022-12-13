@@ -6,7 +6,8 @@ float Ufree = 0.045;		/* kfs x10-1*/
 
 cmpReach::cmpReach(cmpRiver *parent) : cmpRiverSegment(parent)
 {
-    type = cmpRiverSegment::Reach;
+    type = Reach;
+    cmpRiverSegment::setType(cmpRiverSegment::Reach);
     clear();
     resetData();
 }
@@ -15,7 +16,8 @@ cmpReach::cmpReach (QString rname, cmpRiver *parent) :
     cmpRiverSegment (parent)
 {
     name = QString (rname);
-    type = cmpRiverSegment::Reach;
+    type = Reach;
+    cmpRiverSegment::setType(cmpRiverSegment::Reach);
     clear ();
     resetData();
 }
@@ -24,7 +26,8 @@ cmpReach::cmpReach (cmpReach &rhs) :
     cmpRiverSegment(rhs)
 {
     name = QString (rhs.getName());
-    type = cmpRiverSegment::Reach;
+    type = Reach;
+    cmpRiverSegment::setType(cmpRiverSegment::Reach);
     copy (rhs);
 }
 
@@ -95,6 +98,7 @@ void cmpReach::allocateDays(int days, int steps)
         velocity.append(0.0);
         tempDelta.append(0.0);
     }
+    cmpRiverSegment::allocateDays(days);
 }
 
 bool cmpReach::parseDesc(cmpFile *descfile)

@@ -38,6 +38,7 @@ public:
 
     QStringList speciesNames;
     QStringList stockNames;
+    QStringList reachClassNames;
     QStringList powerhouses;
     QStringList dams;
     QStringList reaches;
@@ -55,6 +56,9 @@ public:
 
     cmpSettings *getSettings() const;
     void setSettings(cmpSettings *newCSettings);
+
+    const QStringList &getReachClassNames() const;
+    void setReachClassName(int index, const QString &newReachClassName);
 
 signals:
     void constructed (bool okay);
@@ -81,6 +85,10 @@ public slots:
     cmpRiverSegment *getMouth() {return segments.at(0);}
     void deleteReleases ();
     void deleteSpill ();
+    void allocate(int numDays, int numSteps, int numSlices);
+
+private:
+
 };
 
 #endif // CMPRIVERSYSTEM_H

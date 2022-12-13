@@ -127,9 +127,10 @@ bool cmpRiver::parseDesc(cmpFile *descfile)
             if (okay)
             {
                 cmpReach *reach = new cmpReach (this);
+                reachName = reachName.simplified().replace(' ', '_');
                 reach->setName(reachName);
                 rs->reaches.append (reachName);
-                rs->segments.append ((cmpRiverSegment *) reach);
+                rs->segments.append (reach);
                 reach->setRiverName(getName());
                 okay = reach->parseDesc(descfile);
                 addSegment(reach);
@@ -141,9 +142,10 @@ bool cmpRiver::parseDesc(cmpFile *descfile)
             okay = descfile->readString (damName);
             if (okay)
             {
+                damName = damName.simplified().replace(' ', '_');
                 cmpDam *dam = new cmpDam (damName);
                 rs->dams.append (damName);
-                rs->segments.append ((cmpRiverSegment *) dam);
+                rs->segments.append (dam);
                 dam->setRiverName(getName());
                 okay = dam->parseDesc(descfile);
                 addSegment(dam);
@@ -155,9 +157,10 @@ bool cmpRiver::parseDesc(cmpFile *descfile)
             okay = descfile->readString (hwName);
             if (okay)
             {
+                hwName = hwName.simplified().replace(' ', '_');
                 cmpHeadwater *head = new cmpHeadwater (hwName);
                 rs->headwaters.append (hwName);
-                rs->segments.append ((cmpRiverSegment *) head);
+                rs->segments.append (head);
                 head->setRiverName(getName());
                 okay = head->parseDesc(descfile);
                 addSegment(head);
@@ -179,7 +182,7 @@ bool cmpRiver::parseDesc(cmpFile *descfile)
     if (okay && cur->getType() != cmpRiverSegment::Headwater)
     {
         QString hname (getName());
-        hname.append(" Headwater");
+        hname.append("_Headwater");
         cur->setUpperSegment(new cmpHeadwater (hname, this));
         cur->getUpperSegment()->setLowerSegment(cur);
         rs->segments.append (cur->getUpperSegment());

@@ -96,12 +96,12 @@ public:
 
     /** Type of river segment */
     enum SegmentType {
-        Null = -1,     /**< not a segment */
-        Dam,           /**< Dam segment */
         Reach,         /**< Reach (pool or free-flowing) segment */
+        Dam,           /**< Dam segment */
         Headwater      /**< Headwater segment - required for every river */
+//        Null           /**< not a segment */
     };
-    SegmentType getType() const;
+    SegmentType getType();
     void setType(const SegmentType &value);
 
 

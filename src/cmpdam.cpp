@@ -5,7 +5,7 @@
 cmpDam::cmpDam(cmpRiver *parent) : cmpRiverSegment(parent)
 {
     name = QString ();
-    type = cmpRiverSegment::Dam;
+    setType(Dam);
     setup ();
 }
 
@@ -13,7 +13,7 @@ cmpDam::cmpDam(QString dname, cmpRiver *parent) :
     cmpRiverSegment (parent)
 {
     name = QString (dname);
-    type = cmpRiverSegment::Dam;
+    setType(Dam);
     setup ();
 }
 
@@ -126,6 +126,7 @@ void cmpDam::allocateDays(int days, int slices)
         spillPlanned.append(0);
         daylightProportion.append(0);
     }
+    cmpRiverSegment::allocateDays(days);
 }
 
 void cmpDam::calculateFlow()

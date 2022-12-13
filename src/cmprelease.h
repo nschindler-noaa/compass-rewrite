@@ -22,6 +22,7 @@ public:
     void setName(const QString &newName);
 
     bool parseData(cmpFile *cfile);
+    bool parseToken(QString token, cmpFile*cfile);
     void writeData(cmpFile *ofile);
 
     void setSite(cmpReleaseSite *newSite);
@@ -29,6 +30,7 @@ public:
     void setSpecies(cmpSpecies *newSpecies);
 
     void setStock(cmpStock *newStock);
+    void setStockName(QString stkName);
 
     int getStartDay() const;
     void setStartDay(int newStartDay);
@@ -60,12 +62,19 @@ public:
     float getMigrOnsetMedian() const;
     void setMigrOnsetMedian(float newMigrOnsetMedian);
 
+    const QString &getStockName() const;
+
+    float getFishLength() const;
+    void setFishLength(float newFishLength);
+
 private:
     QString name;
     bool active;
     cmpReleaseSite *site;
     cmpSpecies *species;
     cmpStock *stock;
+    QString stockName;
+    float fishLength;
     int startDay;        /**< Offset into season */
     QList<float> number; /**< The release distribution up to [days_per_season] - startDay*/
 //#ifdef REALTIME
