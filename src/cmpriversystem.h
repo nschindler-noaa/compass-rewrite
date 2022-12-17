@@ -23,6 +23,7 @@ public:
     cmpRiverSystem (QString filename, QObject *parent = nullptr);
     ~cmpRiverSystem () override;
     void setup ();
+    void setEquationNames();
     void resetData ();
     void deleteAll ();
 
@@ -90,5 +91,6 @@ public slots:
 private:
 
 };
+
 
 #endif // CMPRIVERSYSTEM_H

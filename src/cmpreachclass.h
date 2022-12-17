@@ -12,6 +12,11 @@ public:
     cmpReachClass(const QString &newName = QString());
     ~cmpReachClass();
 
+    void copy(const cmpReachClass &rhs);
+
+    const QString &getName() const;
+    void setName(QString &newName);
+
     void setDefaults();
     void restoreMeanValues();
     void allocate(int steps);
@@ -20,11 +25,11 @@ public:
     cmpEquation *getMigrationEqn() const;
     void setMigrationEqn(cmpEquation *newMigrationEqn);
 
-    float getMvCoef() const;
-    void setMvCoef(float newMvCoef);
+    float getMigrVarCoef() const;
+    void setMigrVarCoef(float newMvCoef);
 
-    float getDistanceCoeff() const;
-    void setDistanceCoeff(float newDistanceCoeff);
+    float getDistCoeff() const;
+    void setDistCoeff(float newDistanceCoeff);
 
     float getTimeCoeff() const;
     void setTimeCoeff(float newTimeCoeff);
@@ -55,33 +60,45 @@ public:
     cmpEquation *getCopySurvivalEqn() const;
     void setCopySurvivalEqn(cmpEquation *newCopySurvivalEqn);
 
-    QString *getName() const;
-    void setName(QString *newName);
+    float getReachPredCoef() const;
+    void setReachPredCoef(float newReachPredCoef);
+
+    float getPprimeA() const;
+    void setPprimeA(float newPprimeA);
+
+    float getPprimeB() const;
+    void setPprimeB(float newPprimeB);
 
 private:
-    QString *name;           /**< Reach Class name. */
+    QString name;        /**< Reach Class name. */
+    // migration (travel)
+    float vVar;          /**< Herterogeneity of species - travel time distribution  */
+    float migrVarCoef;   /**< migration variance  */
+    float distCoeff;     /**< "a" in "sqrt( a * x^2 + b * t^2 )"  */
+    float timeCoeff;     /**< "b" in "sqrt( a * x^2 + b * t^2 )"  */
     cmpEquation *migrationEqn; /**< migration equation */
-    float     mvCoef;        /**< migration variance  */
-    float     distanceCoeff; /**< "a" in "sqrt( a * x^2 + b * t^2 )"  */
-    float     timeCoeff;     /**< "b" in "sqrt( a * x^2 + b * t^2 )"  */
 
-    float     sigmaD;        /**< reach survival error parameter  */
-    float     procStdDev;    /**< reach survival process variation  */
+    QList<float> migrB1Factor; /**< migration factor calculated (steps in season) */
 
-    QList<float> migrB1Factor; /**< migration factor  (steps in season) */
-    float     vvar;          /**< Herterogeneity of species - travel time distribution  */
+    // survival
+    float reachSurvivalCoef; /**< Reach survival coefficient (alpha)  */
+    float reachPredCoef; /**< Reach predation coefficients */
+
+    float sigmaD;        /**< reach survival error parameter  */
+    float procStdDev;    /**< reach survival process variation  */
 
     /** This equation is used with the CUSTOM_CLASS mortality class so that
      * additional X-T-Theta models may be implemented and used easily. */
     cmpEquation *customSurvivalEqn;
 
-    /* COMPASS reservoir survival model stuff */
-    /** Reach survival coefficient (alpha)  */
-    float     reachSurvivalCoef;
+    // growth
+    float pprimeA;       /**< Used to calculate 'p' for growth calculations */
+    float pprimeB;       /**< Used to calculate 'p' for growth calculations */
 
+    // Monte Carlo requirements
     /** This is a pointer to a covariant matrix used in Monte Carlo mode to
      *  create variation in the custom survival equation. */
-    cmpMonteCarloMulti*   covmat;
+    cmpMonteCarloMulti*  covmat;
     /**< This is a copy of the reach class survival equation that
      *  is needed to restore the mean values after variation. */
     cmpEquation *copySurvivalEqn;

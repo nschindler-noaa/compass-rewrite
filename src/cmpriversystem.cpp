@@ -272,10 +272,6 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
                         cfile->pushToken(token);
                         i = tmpInt;
                     }
-                    for (int i = 0, total = species.count(); i < total; i++)
-                        species[i]->setReachClassNames(reachClassNames);
-                    for (int i = 0, total = stocks.count(); i < total; i++)
-                        stocks[i]->setReachClassNames(reachClassNames);
                 }
             }
         }
@@ -285,6 +281,8 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
             if (speciesNames.contains(name))
             {
                 index = speciesNames.indexOf(name);
+                species[index]->setDefaults();
+                species[index]->setReachClassNames(reachClassNames);
                 species[index]->parseData(cfile);
             }
             else
@@ -298,8 +296,39 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
             okay = cfile->readString(name);
             if (stockNames.contains(name))
             {
-                index = stockNames.indexOf(name);
-                stocks[index]->parseData(cfile);
+                QString stName = name;
+                int stIndex = 0;
+                stIndex = stockNames.indexOf(stName);
+                token = cfile->popToken();
+                if (token.compare("species", Qt::CaseInsensitive) == 0)
+                {
+                    okay = cfile->readString(name);
+                    if (okay)
+                    {
+                        index = speciesNames.indexOf(name);
+                        if (index < 0)
+                        {
+                            cfile->printError(QString("Species name %1 not found.").arg(name));
+                            cfile->skipToEnd();
+                        }
+                        else
+                        {
+                            stocks[stIndex]->copy(*static_cast<cmpStock *>(species.at(index)));
+                            stocks[stIndex]->setName(stName);
+                            stocks[stIndex]->setReachClassNames(reachClassNames);
+                            stocks[stIndex]->parseData(cfile);
+                        }
+                    }
+                    else
+                    {
+                        cfile->skipToEnd();
+                    }
+                }
+                else
+                {
+                    cfile->printError(QString("'species' token not found."));
+                    cfile->skipToEnd();
+                }
             }
             else
             {
@@ -546,12 +575,18 @@ bool cmpRiverSystem::parseReleaseSite(cmpFile *cfile, cmpReleaseSite *relsite)
     QString line;
     cmpRiverPoint *rivpt = new cmpRiverPoint();
     okay = cfile->readString(line);
-    rivpt->parse(line);
-    relsite->setLatlon(rivpt);
-    releaseSites.append(relsite);
-    okay = cfile->checkEnd ("release_site", relsite->getName());
-    rivpt = nullptr;
-    return true;
+    if (okay)
+    {
+        rivpt->parse(line);
+        relsite->setLatlon(rivpt);
+        releaseSites.append(relsite);
+        okay = cfile->checkEnd ("release_site", relsite->getName());
+    }
+    else
+    {
+        cfile->printError(QString("problem reading release site %1").arg(relsite->getName()));
+    }
+    return okay;
 }
 
 bool cmpRiverSystem::outputDesc(cmpFile *descfile)
@@ -944,4 +979,5 @@ void cmpRiverSystem::allocate(int numDays, int timeSteps, int damSlices)
         }
     }
 }
+
 

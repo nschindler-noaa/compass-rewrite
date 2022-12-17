@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
         QCoreApplication a (argc, argv);
         cmpConsole c;
         QObject::connect(&c, SIGNAL(done(int)),
-                         &a, SLOT(QCoreApplication::quit()), Qt::QueuedConnection);
+                         &a, SLOT(QCoreApplication::exit(int)), Qt::QueuedConnection);
         retval = c.run(qApp->arguments());
     }
     // else, start gui mode

@@ -530,6 +530,7 @@ void cmpDataSettings::setMortClass(MortalityClass newMortClass)
     case XT:            // Distance and time model.
         mortClassString = QString("xt");
         break;
+    default:
     case Custom:         // Custom mortality model using average water temperature, average flow,
         mortClassString = QString("custom");
         break;

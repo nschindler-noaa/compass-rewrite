@@ -2,7 +2,10 @@
 
 cmpReachClass::cmpReachClass(const QString &newName)
 {
-    name = new QString(newName);
+    if (!newName.isEmpty())
+        name = QString(newName);
+    else
+        name = QString("class_0");
     migrationEqn = nullptr;
     customSurvivalEqn = nullptr;
     copySurvivalEqn = nullptr;
@@ -12,7 +15,6 @@ cmpReachClass::cmpReachClass(const QString &newName)
 
 cmpReachClass::~cmpReachClass()
 {
-    delete name;
     deleteEqns();
 }
 
@@ -32,22 +34,42 @@ void cmpReachClass::deleteEqns()
     covmat = nullptr;
 }
 
+void cmpReachClass::copy(const cmpReachClass &rhs)
+{
+
+}
+
+const QString &cmpReachClass::getName() const
+{
+    return name;
+}
+
+void cmpReachClass::setName(QString &newName)
+{
+    name = newName;
+}
+
 void cmpReachClass::setDefaults()
 {
     deleteEqns();
-    mvCoef = 0;
-    distanceCoeff = 0;
+    migrVarCoef = 0;
+    distCoeff = 0;
     timeCoeff = 0;
     sigmaD = 0;
     procStdDev = 0;
-    vvar = 0;
+    vVar = 0;
+    reachSurvivalCoef = 1;
+    reachPredCoef = 0;
+
+    pprimeA = 0;
+    pprimeB = 0;
 
     migrationEqn = new cmpEquation();
     customSurvivalEqn = new cmpEquation(EQ_SURVIVAL_Z15);
     copySurvivalEqn = new cmpEquation(*customSurvivalEqn);
     covmat = new cmpMonteCarloMulti();
 
-    allocate(migrB1Factor.count());
+    allocate(732);
 }
 
 void cmpReachClass::allocate(int steps)
@@ -56,7 +78,7 @@ void cmpReachClass::allocate(int steps)
         migrB1Factor.append(0);
     while (migrB1Factor.count() > steps)
         migrB1Factor.takeLast();
-    for (int i = 0; i < migrB1Factor.count(); i++)
+    for (int i = 0; i < steps; i++)
         migrB1Factor[i] = 0;
 }
 
@@ -70,24 +92,24 @@ void cmpReachClass::setMigrationEqn(cmpEquation *newMigrationEqn)
     migrationEqn = newMigrationEqn;
 }
 
-float cmpReachClass::getMvCoef() const
+float cmpReachClass::getMigrVarCoef() const
 {
-    return mvCoef;
+    return migrVarCoef;
 }
 
-void cmpReachClass::setMvCoef(float newMvCoef)
+void cmpReachClass::setMigrVarCoef(float newMvCoef)
 {
-    mvCoef = newMvCoef;
+    migrVarCoef = newMvCoef;
 }
 
-float cmpReachClass::getDistanceCoeff() const
+float cmpReachClass::getDistCoeff() const
 {
-    return distanceCoeff;
+    return distCoeff;
 }
 
-void cmpReachClass::setDistanceCoeff(float newDistanceCoeff)
+void cmpReachClass::setDistCoeff(float newDistanceCoeff)
 {
-    distanceCoeff = newDistanceCoeff;
+    distCoeff = newDistanceCoeff;
 }
 
 float cmpReachClass::getTimeCoeff() const
@@ -122,12 +144,12 @@ void cmpReachClass::setProcStdDev(float newProcStdDev)
 
 float cmpReachClass::getVvar() const
 {
-    return vvar;
+    return vVar;
 }
 
 void cmpReachClass::setVvar(float newVvar)
 {
-    vvar = newVvar;
+    vVar = newVvar;
 }
 
 float cmpReachClass::getMigrB1Factor(int index) const
@@ -159,8 +181,10 @@ cmpEquation *cmpReachClass::getCustomSurvivalEqn() const
 
 void cmpReachClass::setCustomSurvivalEqn(cmpEquation *newCustomSurvivalEqn)
 {
+    if (customSurvivalEqn != nullptr)
+        delete customSurvivalEqn;
     customSurvivalEqn = newCustomSurvivalEqn;
-    copySurvivalEqn = customSurvivalEqn;
+    copySurvivalEqn = new cmpEquation(*customSurvivalEqn);
 }
 
 float cmpReachClass::getReachSurvivalCoef() const
@@ -180,6 +204,8 @@ cmpMonteCarloMulti *cmpReachClass::getCovmat() const
 
 void cmpReachClass::setCovmat(cmpMonteCarloMulti *newCovmat)
 {
+    if (covmat != nullptr)
+        delete covmat;
     covmat = newCovmat;
 }
 
@@ -190,15 +216,37 @@ cmpEquation *cmpReachClass::getCopySurvivalEqn() const
 
 void cmpReachClass::setCopySurvivalEqn(cmpEquation *newCopySurvivalEqn)
 {
-    copySurvivalEqn = newCopySurvivalEqn;
+    if (copySurvivalEqn != nullptr)
+        delete copySurvivalEqn;
+    copySurvivalEqn = new cmpEquation(*newCopySurvivalEqn);
 }
 
-QString *cmpReachClass::getName() const
+float cmpReachClass::getReachPredCoef() const
 {
-    return name;
+    return reachPredCoef;
 }
 
-void cmpReachClass::setName(QString *newName)
+void cmpReachClass::setReachPredCoef(float newReachPredCoef)
 {
-    name = newName;
+    reachPredCoef = newReachPredCoef;
+}
+
+float cmpReachClass::getPprimeA() const
+{
+    return pprimeA;
+}
+
+void cmpReachClass::setPprimeA(float newPprimeA)
+{
+    pprimeA = newPprimeA;
+}
+
+float cmpReachClass::getPprimeB() const
+{
+    return pprimeB;
+}
+
+void cmpReachClass::setPprimeB(float newPprimeB)
+{
+    pprimeB = newPprimeB;
 }

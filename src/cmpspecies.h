@@ -3,6 +3,7 @@
 
 #include "cmpcommandsettings.h"
 #include "cmpequation.h"
+#include "cmpreachclass.h"
 #include "cmpfile.h"
 
 #include <QStringList>
@@ -24,22 +25,70 @@ class cmpSpecies
 {
 public:
     cmpSpecies();
+    cmpSpecies(const cmpSpecies &rhs);
+    ~cmpSpecies();
+
+    void copy(const cmpSpecies &rhs);
 
     const QString &getName() const;
     void setName(const QString &newName);
-    void allocate(int numReachClasses);
     void setDefaults();
 
     bool parseData(cmpFile *cfile);
+    bool readReachClassValue(QString &newString, int &rc, float &value);
 
-    const QList<float> &getReachPredCoef() const;
-    void setReachPredCoef(const QList<float> &newReachPredCoef);
+    void allocateClasses(int numReachClasses);
+    void allocate(int steps, int numReachClasses);
 
-    const QList<float> &getPprimeA() const;
-    void setPprimeA(const QList<float> &newPprimeA);
+    const QStringList &getReachClassNames() const;
+    void setReachClassNames(const QStringList &newReachClassNames);
+    const QString &getReachClassName (int rc) const;
+    void setReachClassName(int rc, QString &newName);
 
-    const QList<float> &getPprimeB() const;
-    void setPprimeB(const QList<float> &newPprimeB);
+    const cmpReachClass *getReachClass(int rc) const;
+    void setReachClass(int rc, cmpReachClass *newReachClass);
+
+    const cmpEquation *getMigrationEqn(int rc) const;
+    void setMigrationEqn(int rc, cmpEquation *newMigrationEqn);
+
+    float getMigrVarCoef(int rc) const;
+    void setMigrVarCoef(int rc, float newMvCoef);
+
+    float getDistCoeff(int rc) const;
+    void setDistCoeff(int rc, float newDistanceCoeff);
+
+    float getTimeCoeff(int rc) const;
+    void setTimeCoeff(int rc, float newTimeCoeff);
+
+    float getSigmaD(int rc) const;
+    void setSigmaD(int rc, float newSigmaD);
+
+    float getProcStdDev(int rc) const;
+    void setProcStdDev(int rc, float newProcStdDev);
+
+    float getMigrB1Factor(int rc, int step) const;
+    void setMigrB1Factor(int rc, int step, float newMigrB1Factor);
+
+    float getVvar(int rc) const;
+    void setVvar(int rc, float newVvar);
+
+    cmpEquation *getCustomSurvivalEqn(int rc) const;
+    void setCustomSurvivalEqn(int rc, cmpEquation *newCustomSurvivalEqn);
+
+    float getReachSurvivalCoef(int rc) const;
+    void setReachSurvivalCoef(int rc, float newReachSurvivalCoef);
+
+    const cmpMonteCarloMulti *getCovmat(int rc) const;
+    void setCovmat(int rc, cmpMonteCarloMulti *newCovmat);
+
+    float getReachPredCoef(int rc) const;
+    void setReachPredCoef(int rc, float newReachPredCoef);
+
+    float getPprimeA(int rc) const;
+    void setPprimeA(int rc, float newPprimeA);
+
+    float getPprimeB(int rc) const;
+    void setPprimeB(int rc, float newPprimeB);
 
     float getTailracePredCoef() const;
     void setTailracePredCoef(float newTailracePredCoef);
@@ -68,28 +117,21 @@ public:
     cmpEquation *getTransportReturnEqn() const;
     void setTransportReturnEqn(cmpEquation *newTransportReturnEqn);
 
-    float getReachSurvivalCoef(int rc) const;
-    void setReachSurvivalCoef(int rc, float newReachSurvivalCoef);
-
     cmpEquation *getInriverLatentMortEqn() const;
     void setInriverLatentMortEqn(cmpEquation *newInriverLatentMortEqn);
 
-    const QStringList &getReachClassNames() const;
-    void setReachClassNames(const QStringList &newReachClassNames);
-
 protected:
     QString name;               /**< Name of species/cohort */
-    QStringList reachClassNames; /**< reference list of reach class names */
+    QStringList reachClassNames;/**< list of reach class names */
+    QList<cmpReachClass *> reachClasses; /**< list of reach classes */
 
-    QList<float> reachPredCoef; /**< Reach predation coefficients */
-    QList<float> pprimeA;       /**< Used to calculate 'p' for growth calculations */
-    QList<float> pprimeB;       /**< Used to calculate 'p' for growth calculations */
     float tailracePredCoef;     /**< Used in dam predation mortality */
     float forebayPredCoef;      /**< Used in dam predation mortality */
 
-    cmpEquation *gasmortEqn;    /**< Gas bubble disease mortality equation */
-    cmpEquation *fishdensEqn;   /**< Fish density, used in gas mortality calculations */
+    cmpEquation *gasMortEqn;    /**< Gas bubble disease mortality equation */
+    cmpEquation *fishDepthEqn;  /**< Fish density, used in gas mortality calculations */
 
+    // return (ocean survival)
     float inriverLatentMort;    /**< Latent mortality for post-Bonneville
                                  * calculations (inriver) */
     float transportLatentMort;  /**< Latent mortality for post-Bonneville
@@ -99,7 +141,7 @@ protected:
     float differentialReturn;
 
     /* These equations are used to estimate a return rate for adults based on
-     * arrival timing at the transport destination (i.e. below Bonneville) */
+     * arrival timing at the transport destination (i.e. ocean survival) */
     cmpEquation  *inriverReturnEqn; /**< return rate for inriver fish */
     cmpEquation  *transportReturnEqn;/**< return rate for transported fish */
 
@@ -108,5 +150,7 @@ protected:
     cmpEquation *inriverLatentMortEqn;
 
 };
+
+typedef cmpSpecies cmpStock ;
 
 #endif // CMPSPECIES_H

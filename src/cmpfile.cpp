@@ -370,7 +370,7 @@ void cmpFile::skipToEnd ()
 
 bool cmpFile::checkEnd (QString type, QString name)
 {
-    QString line;
+    QString line, namestr;
     bool okay = readString(line);
     QStringList tokens = line.split('(', QString::SkipEmptyParts);
     if (okay && tokens.count() > 1)
@@ -382,11 +382,15 @@ bool cmpFile::checkEnd (QString type, QString name)
         }
     }
     tokens = tokens[0].split(')', QString::SkipEmptyParts);
-    if (!tokens[0].isEmpty() && !name.isEmpty() && !name.contains(tokens[0].simplified()))
+    if (!tokens.isEmpty())
     {
-        QString msg (QString("{end} statement name '%1' does not match expected '%2'")
-                     .arg (tokens[0], name));
-        printMessage (msg);
+        namestr = tokens[0].simplified().replace(' ', '_');
+        if(!name.isEmpty() && !name.contains(namestr))
+        {
+            QString msg (QString("{end} statement name '%1' does not match expected '%2'")
+                         .arg (namestr, name));
+            printMessage (msg);
+        }
     }
     return okay;
 }

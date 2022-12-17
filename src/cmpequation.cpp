@@ -1,17 +1,24 @@
 #include "cmpequation.h"
 
+static void setEquationNames();
+static QStringList equationNames;
+
+
 cmpEquation::cmpEquation()
 {
+    setEquationNames();
     setId(0);
 }
 
 cmpEquation::cmpEquation(int eqid)
 {
+    setEquationNames();
     setId(eqid);
 }
 
 cmpEquation::cmpEquation(QString eqname)
 {
+    setEquationNames();
     setName(eqname);
 }
 
@@ -87,13 +94,14 @@ const QString &cmpEquation::getName() const
 
 void cmpEquation::setName(const QString &newName)
 {
-    name = newName;
-    if (newName.contains("LIN0", Qt::CaseInsensitive)) {
+    bool okay = true;
+    int id = equationNames.indexOf(newName);
+    if (id < 0)
+        id = newName.toInt(&okay);
+    if (okay)
+        setId(id);
+    else
         setId(0);
-    }
-    else if (newName.contains("LIN1", Qt::CaseInsensitive)) {
-        setId(1);
-    }
 }
 
 const QString &cmpEquation::getDescription() const
@@ -335,7 +343,7 @@ void cmpEqnParameter::setId(int newId)
     id = newId;
 }
 
-bool cmpEquation::parseData(cmpFile *cfile)
+bool cmpEquation::parseData(cmpFile *cfile, QString type)
 {
     bool okay = true, end = false;
     QString token;
@@ -350,27 +358,26 @@ bool cmpEquation::parseData(cmpFile *cfile)
             cfile->printEOF("Equation data.");
             okay = false;
         }
-        else if (token.compare("end", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->checkEnd("equation", name);
-            end = true;
-        }
         else if (token.compare("parameter", Qt::CaseInsensitive) == 0)
         {
             okay = cfile->readInt(tmpInt);
             if (okay)
             {
-                okay = cfile->readFloatOrNa(token, tmpVal);
-                if (okay)
+                if (tmpInt > numEqnParams)
                 {
-                    if (tmpInt > numEqnParams)
-                        cfile->printError(QString("Too many parameters for equation %1").arg(name));
-                    else
-                        setParameter(tmpInt, tmpVal);
+                    cfile->printError(QString("Too many parameters for equation %1").arg(name));
                 }
                 else
                 {
-                    cfile->incorrectValue(tmpVal, name);
+                    okay = cfile->readFloatOrNa(token, tmpVal);
+                    if (okay)
+                    {
+                        setParameter(tmpInt, tmpVal);
+                    }
+                    else
+                    {
+                        cfile->incorrectValue(tmpVal, name);
+                    }
                 }
             }
             else
@@ -379,6 +386,14 @@ bool cmpEquation::parseData(cmpFile *cfile)
             }
             if (!okay)
                 cfile->skipToEnd();
+        }
+        else if (token.compare("end", Qt::CaseInsensitive) == 0)
+        {
+            if (type.isEmpty())
+                okay = cfile->checkEnd("equation", name);
+            else
+                okay = cfile->checkEnd(type, name);
+            end = true;
         }
         else
         {
@@ -1094,7 +1109,7 @@ void cmpEquation::setupEquation()
         numValParams = 0;
         setNumParameters(numEqnParams + numValParams);
         setParameter(0, 0.00000887, 0.0,  0.001, "A"); //
-        setParameter(1,   3.017,  0.0,   10.0,   "B"); //
+        setParameter(1, 3.017,      0.0, 10.0,   "B"); //
         break;
     case EQ_RSW:
         name = QString("RSW");
@@ -1238,6 +1253,17 @@ void cmpEquation::setupEquation()
         setParameter(2,   0.5,   0.0,   1.0,  "p2"); // p2  - night time value
         break;
 
+    case EQ_RETURN_LOG:
+        name = QString("RETURN_LOG");
+        description = QString("Return probability");
+        formula = QString("exp(B0+B1*day+B2*day^2)/1+exp(B0+B1*day+B2*day^2)");
+        numEqnParams = 3;
+        numValParams = 0;
+        setNumParameters(numEqnParams + numValParams);
+        setParameter(0,   0.0, -10.0,  10.0,  "B0");
+        setParameter(1,   0.0, -10.0,  10.0,  "B1");
+        setParameter(2,   0.0, -10.0,  10.0,  "B2");
+        break;
     case EQ_LATENT_MORT_WTT:
         name = QString("LATENT_MORT_WTT");
         description = QString("Latent Mortality (S3 vs WTT)");
@@ -1276,3 +1302,79 @@ void cmpEquation::setupEquation()
 
     }
 }
+
+void setEquationNames()
+{
+    equationNames.append("LIN0");
+    equationNames.append("LIN1");
+    equationNames.append("LIN2");
+    equationNames.append("LIN3");
+    equationNames.append("EXP0");
+    equationNames.append("EXP1");
+    equationNames.append("EXP2");
+    equationNames.append("EXP3");
+    equationNames.append("POW0");
+    equationNames.append("POW1");
+    equationNames.append("POW2");
+    equationNames.append("POW3");
+    equationNames.append("NSAT0");
+    equationNames.append("FL_ACT");
+    equationNames.append("DELAY0");
+    equationNames.append("NSAT3");
+    equationNames.append("LOG0");
+    equationNames.append("NSAT1");
+    equationNames.append("NSAT2");
+    equationNames.append("GMORT0");
+    equationNames.append("DRIFT");
+    equationNames.append("DELAY1");
+    equationNames.append("FGE0");
+    equationNames.append("NSAT4");
+    equationNames.append("MIGR");
+    equationNames.append("GMORT1");
+    equationNames.append("GMORT2");
+    equationNames.append("FDENS");
+    equationNames.append("TRANS");
+    equationNames.append("NSAT5");
+    equationNames.append("NSAT6");
+    equationNames.append("GAS_DISP");
+    equationNames.append("GAS_DISP_RIGHT");  // Unused
+    equationNames.append("MIGR2");
+    equationNames.append("GMORT3");
+    equationNames.append("CUB0");
+    equationNames.append("CUB1");
+    equationNames.append("PRED_TEMP1");
+    equationNames.append("PRED_TEMP2");
+    equationNames.append("MIGR1");
+    equationNames.append("MIGR3");
+    equationNames.append("MIGR4");
+    equationNames.append("MIGR5");
+    equationNames.append("MIGR6");
+    equationNames.append("SPILL_EFFICIENCY");
+    equationNames.append("FLUSHTRANS");  // Unused
+    equationNames.append("DELAY3");
+    equationNames.append("MIGR7");
+    equationNames.append("MIGR8");
+    equationNames.append("MIGR9");
+    equationNames.append("MIGR10");
+    equationNames.append("RETURN_LOG");
+    equationNames.append("MIGR11");
+    equationNames.append("SIMPLEMORT5");  // Unused
+    equationNames.append("FLUSHTRANS5");  // Unused
+    equationNames.append("RSW");
+    equationNames.append("SURVIVAL_LINEAR");
+    equationNames.append("SURVIVAL_Z15");
+    equationNames.append("LATENT_MORT_WTT");
+    equationNames.append("MIGR12");
+    equationNames.append("MIGR13");
+    equationNames.append("FGE1");
+    equationNames.append("NSAT7");
+    equationNames.append("SURVIVAL_Z15_PRED_1");
+    equationNames.append("SPILL_EFF_PROBIT");
+    equationNames.append("FGE2");
+    equationNames.append("SURVIVAL_Z15_PRED_2");
+    equationNames.append("SURVIVAL_Z15_PRED_3");
+    equationNames.append("SWITCH0");
+    equationNames.append("MIGR14");
+    equationNames.append("SURVIVAL_XT_1");
+}
+

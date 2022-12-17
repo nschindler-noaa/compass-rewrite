@@ -52,12 +52,15 @@ public:
     virtual ~cmpEquation();
     cmpEquation &operator = (const cmpEquation &rhs);
 
+    /** copy an existing equation */
+    cmpEquation *copy(const cmpEquation &rhs);
+
     /** Equality */
     bool isEqual(const cmpEquation &rhs);
     bool operator == (const cmpEquation &rhs);
     bool operator == (cmpEquation &rhs);
 
-    bool parseData(cmpFile *cfile);
+    bool parseData(cmpFile *cfile, QString type = QString());
 
     /** Set up all aspects of equation for its id: parameters, name, formula, etc. */
     void setupEquation();
@@ -108,15 +111,13 @@ private:
     QString description;/**< description of the equation [optional] */
     QString formula;    /**< equation string representation */
 
-    /** copy an existing equation */
-    cmpEquation *copy(const cmpEquation &rhs);
-
     int numEqnParams;   /**< number of parameters for this equation */
     int numValParams;   /**< number of value parameters needed to calculate
                              the general curve for a graphic display. */
 
     QList<cmpEqnParameter *> parameters; /**< list of parameters: this includes
                               equation parameters and value parameters. */
+
 };
 
 enum cmpEqnNum {
@@ -193,5 +194,7 @@ enum cmpEqnNum {
     EQ_SURVIVAL_XT_1       = 70,
     NUM_EQNS
 };
+
+
 
 #endif // CMPEQUATION_H
