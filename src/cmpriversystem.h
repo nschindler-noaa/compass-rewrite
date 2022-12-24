@@ -72,7 +72,13 @@ public slots:
     bool parseData (cmpFile *cfile);
     bool parseReleaseSite(cmpFile *cfile, cmpReleaseSite *relsite);
     bool outputDesc (cmpFile *descfile);
-    bool outputData (cmpFile *cfile);
+    bool outputData (cmpFile *cfile, bool outputAll);
+    bool outputAllSpecies(cmpFile *outfile, bool outputAll);
+    bool outputAllStocks(cmpFile *outfile, bool outputAll);
+    bool outputPostRiverData(cmpFile *outfile, bool outputAll);
+    bool outputRiverYrData(cmpFile *outfile, bool outputAll);
+    bool outputDamOpsData(cmpFile *outfile, bool outputAll);
+
     bool initialize ();
     bool construct ();
     void computeFlows ();

@@ -1,9 +1,11 @@
 #ifndef CMPDATASETTINGS_H
 #define CMPDATASETTINGS_H
 
-#include "cmpequation.h"
+//#include "cmpequation.h"
 
 #include <QStringList>
+
+class cmpEquation;
 
 /** /brief Mortality class types. Mortality class determines what calculations
  *  to perform when determining mortality. */
@@ -162,8 +164,9 @@ public:
     void setMortClass(MortalityClass newMortClass);
 
     ReturnHypothesis getFishReturnHyp() const;
-
+    QString getFishReturnHypStr() const;
     void setFishReturnHyp(ReturnHypothesis newFishReturnHyp);
+    void setFishReturnHyp(QString name);
 
 private:
     /** Downstream (juvenile) or upstream (adult) model */

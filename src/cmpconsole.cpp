@@ -3,6 +3,8 @@
 #include "cmpfile.h"
 #include "cmpriversystem.h"
 
+#include <QString>
+
 cmpConsole::cmpConsole(QObject *parent) : QObject(parent)
 {
     outfile = nullptr;
@@ -55,7 +57,7 @@ int cmpConsole::run(QStringList args)
     scenario->run();
 
     // write any output files
-    scenario->outputData();
+    scenario->outputData(settings->getCommandSettings()->getOutputFile(), settings->getCommandSettings()->getOutputAllData());
 
     emit done(0);
     return 0;

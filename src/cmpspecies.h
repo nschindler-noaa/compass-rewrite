@@ -36,6 +36,7 @@ public:
 
     bool parseData(cmpFile *cfile);
     bool readReachClassValue(QString &newString, int &rc, float &value);
+    void writeData(cmpFile *outfile, bool outputAll);
 
     void allocateClasses(int numReachClasses);
     void allocate(int steps, int numReachClasses);

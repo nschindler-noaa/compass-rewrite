@@ -6,6 +6,8 @@
 #include <cstdio>
 #include <iostream>
 
+#include <QDateTime>
+
 using namespace std;
 
 cmpFile::cmpFile(QObject *parent) :
@@ -194,33 +196,66 @@ bool cmpFile::readInfo ()
 //    }
 //}
 
-void cmpFile::writeHeader ()
+void cmpFile::writeHeader (cmpSettings *sets, QString type)
 {
-    QString sep ("#==========================================================");
-    this->open(QIODevice::WriteOnly);
-    this->write (sep.toUtf8());
-    for (int i = 0; i < header->count(); i++)
+    QString sep (HEADER_BORDER);
+    QString os, user, date, line, space;
+    int spaces;
+
+    writeString (0, sep);
+    if (header->isEmpty())
     {
-        write (header->at (i).toUtf8());
+        os = QString("COMPASS ver %1 #").arg(sets->getAppVersion());
+        line = QString (QString("# COMPASS %1 File").arg(type));
+        spaces = line.count() + os.count();
+        space.fill(' ', 79-spaces);
+        line.append(space);
+        line.append(os);
+        writeString(0, line);
+        space.clear();
+        space.fill(' ', 77);
+        line = QString("#%1#").arg(space);
+        writeString(0, line);
+        user = QString("# Written by %1 on ").arg(sets->getUserSettings()->getUserName());
+        date = QDateTime::currentDateTime().toString("dd mmm yyyy at hh:mm ap ");
+        int spaces = user.count() + date.count();
+        space.clear();
+        space.fill(' ', 78-spaces);
+        line = QString("%1%2%3#").arg(user, date, space);
+        writeString(0, line);
     }
-    write (sep.toUtf8());
+    else
+    {
+        for (int i = 0, total = header->count(); i < total; i++)
+        {
+            writeString (0, header->at (i));
+        }
+    }
+    writeString (0, sep);
+    close();
 }
 
-void cmpFile::writeInfo (QString notes)
+void cmpFile::writeInfo (QString newnotes)
 {
     QString version (QString::number(dataVersion));
     open (QIODevice::WriteOnly);
-    write (version.toUtf8());
+    writeString (0, "version", version);
     if (!creator->isEmpty())
-        write (creator->toUtf8());
+        writeString (0, "creator", *creator);
     if (!createdDate->isEmpty())
-        write (createdDate->toUtf8());
+        writeString (0, "createdDate", *createdDate);
     if (!modifier->isEmpty())
-        write (modifier->toUtf8());
+        writeString (0, "modifier", *modifier);
     if (!modifiedDate->isEmpty())
-        write (modifiedDate->toUtf8());
-    if (!notes.isEmpty())
-        write (notes.toUtf8());
+        writeString (0, "modifiedDate", *modifiedDate);
+    if (!notes->isEmpty())
+    {
+        QStringList notetokens(newnotes.split('\n'));
+        for (int i = 0, total = notetokens.count(); i < total; i++)
+            writeString (0, "notes", notetokens.at(i));
+        for (int i = 0, total = notes->count(); i < total; i++)
+            writeString (0, "notes", notes->at(i));
+    }
 }
 
 //bool CompassFile::read
@@ -561,27 +596,36 @@ void cmpFile::writeIndent (int indent)
         write ("\t", 1);
 }
 
-void cmpFile::writeValue(int indent, QString keyword, float value, float *defaultValue)
+void cmpFile::writeValue(int indent, QString keyword, double value, double defaultValue)
 {
-    if (defaultValue == nullptr || floatIsNotEqual(value, *defaultValue))
+    if (floatIsNotEqual(value, defaultValue))
     {
         QString valueString(QString::number(value));
         writeString(indent, keyword, valueString);
     }
 }
 
-void cmpFile::writeValue(int indent, QString keyword, int value, int *defaultValue)
+void cmpFile::writeValue(int indent, QString keyword, float value, float defaultValue)
 {
-    if (defaultValue == nullptr || value != *defaultValue)
+    if (floatIsNotEqual(value, defaultValue))
+    {
+        QString valueString(QString::number(value, 'g', 2));
+        writeString(indent, keyword, valueString);
+    }
+}
+
+void cmpFile::writeValue(int indent, QString keyword, int value, int defaultValue)
+{
+    if (value != defaultValue)
     {
         QString valueString(QString::number(value));
         writeString(indent, keyword, valueString);
     }
 }
 
-void cmpFile::writeNumberedValue(int indent, QString keyword, int index, int value, int *defaultVal)
+void cmpFile::writeNumberedValue(int indent, QString keyword, int index, int value, int defaultVal)
 {
-    if (defaultVal == nullptr || value != *defaultVal)
+    if (value != defaultVal)
     {
         QString num(QString::number(index));
         QString val(QString::number(value));
@@ -589,9 +633,9 @@ void cmpFile::writeNumberedValue(int indent, QString keyword, int index, int val
     }
 }
 
-void cmpFile::writeNumberedValue(int indent, QString keyword, int index, float value, float *defaultVal)
+void cmpFile::writeNumberedValue(int indent, QString keyword, int index, float value, float defaultVal)
 {
-    if (defaultVal == nullptr || floatIsNotEqual(value, *defaultVal))
+    if (floatIsNotEqual(value, defaultVal))
     {
         QString num(QString::number(index));
         QString val(QString::number(value));
@@ -726,8 +770,16 @@ float cmpFile::convertFloat(float val, Data::OutputConversion ctype)
     return retval;
 }
 
-void cmpFile::writeFloatArray (int indent, float arry[], int size, Data::OutputConversion ctype,
-                      Data::Type dtype, float *defaultval)
+void cmpFile::writeFloatArray(int indent, QList<float> *arry, int size,
+                      Data::OutputConversion ctype,
+                      Data::Type dtype, float defaultval)
+{
+
+}
+
+void cmpFile::writeFloatArray (int indent, float arry[], int size,
+                       Data::OutputConversion ctype,
+                       Data::Type dtype, float defaultval)
 {
     int num_on_line = 0;
 
@@ -789,14 +841,14 @@ void cmpFile::writeFloatArray (int indent, float arry[], int size, Data::OutputC
     }
     else
     {
-        qWarning("Integer array is nullptr.");
+        qWarning("Float array is nullptr.");
 //        cmpLog::outlog->add(cmpLog::Error, QString("Integer array is nullptr."));
         writeFloat (0.0, dtype);
     }
 }
 
 void cmpFile::writeIntArray (int indent, int arry[], int size, Data::OutputConversion ctype,
-                                 int *defaultval)
+                                 int defaultval)
 {
     int num_on_line = 0;
 

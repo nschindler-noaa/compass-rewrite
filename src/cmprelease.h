@@ -23,7 +23,7 @@ public:
 
     bool parseData(cmpFile *cfile);
     bool parseToken(QString token, cmpFile*cfile);
-    void writeData(cmpFile *ofile);
+    void writeData(cmpFile *ofile, bool outputAll);
 
     void setSite(cmpReleaseSite *newSite);
 

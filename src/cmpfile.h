@@ -1,6 +1,9 @@
 #ifndef CMPFILE_H
 #define CMPFILE_H
 
+#include "cmpsettings.h"
+#include "dataConversion.h"
+
 #include <QFile>
 #include <QStringList>
 
@@ -10,7 +13,6 @@
 
 #define HEADER_BORDER "#============================================================================#"
 
-#include "dataConversion.h"
 
 class cmpFile : public QFile
 {
@@ -26,7 +28,8 @@ public:
     bool readInfo ();
 //    bool readData ();
 
-    void writeHeader ();
+//    void write (bool outputAll);
+    void writeHeader (cmpSettings *sets, QString type);
     void writeInfo (QString notes = QString(""));
 //    void writeData ();
 
@@ -65,19 +68,22 @@ public:
     void writeSpace ();
     void writeBorder ();
     void writeIndent (int indent);
-    void writeValue (int indent, QString keyword, float value, float *defaultValue = nullptr);
-    void writeValue (int indent, QString keyword, int value, int *defaultValue = nullptr);
-    void writeNumberedValue(int indent, QString keyword, int index, int value, int *defaultVal = nullptr);
-    void writeNumberedValue(int indent, QString keyword, int index, float value, float *defaultVal = nullptr);
+    void writeValue (int indent, QString keyword, double value, double defaultValue = 100000);
+    void writeValue (int indent, QString keyword, float value, float defaultValue = 100000);
+    void writeValue (int indent, QString keyword, int value, int defaultValue = 100000);
+    void writeNumberedValue(int indent, QString keyword, int index, int value, int defaultVal = 100000);
+    void writeNumberedValue(int indent, QString keyword, int index, float value, float defaultVal = 100000);
     void writeString (int indent, QString keyword, QString option1 = QString(), QString option2 = QString ());
     void writeStringNR (int indent, QString keyword, QString option1 = QString ());
     void writeFloatOrNa (float val, Data::Type dtype = Data::Float);
     void writeFloat (double val, Data::Type dtype = Data::Float);
     void writeInt (int val);
+    void writeFloatArray (int indent, QList<float> *arry, int size, Data::OutputConversion ctype,
+                          Data::Type dtype, float defaultval);
     void writeFloatArray (int indent, float arry[], int size, Data::OutputConversion ctype,
-                          Data::Type dtype, float *defaultval);
+                          Data::Type dtype, float defaultval);
     void writeIntArray (int indent, int arry[], int size, Data::OutputConversion ctype,
-                        int *defaultval);
+                        int defaultval);
     void writeEnd (int indent, QString keyword, QString name = QString());
     int convertInt (int val, Data::OutputConversion ctype);
     float convertFloat (float val, Data::OutputConversion ctype);

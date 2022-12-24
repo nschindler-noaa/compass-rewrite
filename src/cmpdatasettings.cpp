@@ -1,5 +1,5 @@
 #include "cmpdatasettings.h"
-
+#include "cmpequation.h"
 
 cmpDataSettings::cmpDataSettings()
 {
@@ -542,7 +542,40 @@ void cmpDataSettings::setFishReturnHyp(ReturnHypothesis newFishReturnHyp)
     fishReturnHyp = newFishReturnHyp;
 }
 
+void cmpDataSettings::setFishReturnHyp(QString name)
+{
+    if (name.compare("sar_vs_date", Qt::CaseInsensitive) == 0)
+        setFishReturnHyp(SARvsDate);
+    else if (name.compare("s3_vs_date", Qt::CaseInsensitive) == 0)
+        setFishReturnHyp(S3vsWTT);
+    else if (name.compare("latent_mort", Qt::CaseInsensitive) == 0)
+        setFishReturnHyp(LatentMort);
+    else if (name.compare("constant_d", Qt::CaseInsensitive) == 0)
+        setFishReturnHyp(ConstantD);
+}
+
 ReturnHypothesis cmpDataSettings::getFishReturnHyp() const
 {
     return fishReturnHyp;
+}
+
+QString cmpDataSettings::getFishReturnHypStr() const
+{
+    switch (fishReturnHyp)
+    {
+    case SARvsDate:
+        return QString("sar_vs_date");
+//        break;
+    case S3vsWTT:
+        return QString("s3_vs_date");
+//        break;
+    case LatentMort:
+        return QString("latent_mort");
+//        break;
+    case ConstantD:
+        return QString("constant_d");
+//        break;
+    default:
+        return QString("");
+    }
 }

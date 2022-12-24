@@ -403,6 +403,15 @@ bool cmpEquation::parseData(cmpFile *cfile, QString type)
     return okay;
 }
 
+void cmpEquation::writeData(cmpFile *outfile, int indent, bool outputAll)
+{
+    int parmindent = indent + 1;
+    outfile->writeValue(indent, name, id);
+    for (int i = 0; i < numEqnParams; i++)
+        outfile->writeValue(parmindent, "parameter", parameters.at(i)->getValue());
+    outfile->writeEnd(indent, name);
+}
+
 void cmpEquation::setupEquation()
 {
     switch (id)

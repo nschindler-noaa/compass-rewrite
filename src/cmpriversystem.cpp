@@ -1,12 +1,10 @@
 #include "cmpriversystem.h"
 
-//#include "cmpheadwater.h"
 
 cmpRiverSystem::cmpRiverSystem(QObject *parent) :
     QObject(parent)
 {
     setup ();
-//    cmpRiverSystem = this;
 }
 
 cmpRiverSystem::cmpRiverSystem(QString riverFile, QObject *parent) :
@@ -14,7 +12,6 @@ cmpRiverSystem::cmpRiverSystem(QString riverFile, QObject *parent) :
 {
     cmpFile cf(riverFile);
     setup();
-//    cmpRiverSystem = this;
     parseDesc (&cf);
 }
 
@@ -336,6 +333,12 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
                 cfile->skipToEnd();
             }
         }
+        else if (token.compare ("post_bonneville_hypothesis") == 0)
+        {
+            okay = cfile->readString(name);
+            if (okay)
+                dSettings->setFishReturnHyp(name);
+        }
         else if (token.compare ("reach") == 0)
         {
             QString reachName ("");
@@ -591,7 +594,7 @@ bool cmpRiverSystem::parseReleaseSite(cmpFile *cfile, cmpReleaseSite *relsite)
 
 bool cmpRiverSystem::outputDesc(cmpFile *descfile)
 {
-    bool okay = true, end = false;
+    bool okay = true;
     QString token (""), val ("");
 
     if (descfile->open(QIODevice::WriteOnly))
@@ -603,14 +606,16 @@ bool cmpRiverSystem::outputDesc(cmpFile *descfile)
         for (int i = 0; i < stockNames.count(); i++)
             descfile->writeString(0, "stock", stockNames.at(i));
         descfile->writeNewline();
-        for (int i = 0; i < releaseSites.count(); i++)
+        for (int i = 0, total = releaseSites.count(); i < total; i++)
+        {
             releaseSites.at(i)->outputDesc(descfile);
+            descfile->writeNewline();
+        }
 
         // output rivers
-        for (int i = 0; i < rivers.count(); i++)
+        for (int i = 0, total = rivers.count(); i < total; i++)
         {
             rivers.at(i)->outputDesc(descfile);
-//            outputRiver(rivers->at(i), descfile);
             descfile->writeNewline();
         }
     }
@@ -621,7 +626,7 @@ bool cmpRiverSystem::outputDesc(cmpFile *descfile)
     return okay;
 }
 
-bool cmpRiverSystem::outputData(cmpFile *cfile)
+bool cmpRiverSystem::outputData(cmpFile *cfile, bool outputAll)
 {
     bool okay = true;
     if (cfile->open(QIODevice::WriteOnly))
@@ -636,6 +641,56 @@ bool cmpRiverSystem::outputData(cmpFile *cfile)
     }
     return okay;
 }
+
+bool cmpRiverSystem::outputAllSpecies(cmpFile *outfile, bool outputAll)
+{
+    bool okay = true;
+    int total = species.count();
+    for (int i = 0; i < total; i++)
+    {
+        species.at(i)->writeData(outfile, outputAll);
+        outfile->writeNewline();
+    }
+    return okay;
+}
+
+bool cmpRiverSystem::outputAllStocks(cmpFile *outfile, bool outputAll)
+{
+    bool okay = true;
+    int total = stocks.count();
+    for (int i = 0; i < total; i++)
+    {
+        stocks.at(i)->writeData(outfile, outputAll);
+        outfile->writeNewline();
+    }
+    return okay;
+}
+
+bool cmpRiverSystem::outputPostRiverData(cmpFile *outfile, bool outputAll)
+{
+    bool okay = true;
+    QString name(cSettings->getDataSettings()->getFishReturnHypStr());
+    if (outputAll || name.compare("sar_vs_date") != 0)
+        outfile->writeString(0, "post_bonneville_hypothesis", name);
+    outfile->writeNewline();
+    // more to come - species return eqns
+    return okay;
+}
+
+bool cmpRiverSystem::outputRiverYrData(cmpFile *outfile, bool outputAll)
+{
+    bool okay = true;
+
+    return okay;
+}
+
+bool cmpRiverSystem::outputDamOpsData(cmpFile *outfile, bool outputAll)
+{
+    bool okay = true;
+
+    return okay;
+}
+
 
 bool cmpRiverSystem::construct()
 {
@@ -725,6 +780,28 @@ bool cmpRiverSystem::construct()
 bool cmpRiverSystem::initialize()
 {
     bool okay = true;
+    cmpDam *dm;
+    cmpReach *rc;
+    cmpHeadwater *hw;
+    for (int i = 0, total = segments.count(); i < total; i++)
+    {
+        switch (segments.at(i)->getType())
+        {
+        case cmpRiverSegment::Headwater:
+            hw = static_cast<cmpHeadwater*>(segments[i]);
+            hw->resetData();
+            break;
+        case cmpRiverSegment::Reach:
+            rc = static_cast<cmpReach *>(segments[i]);
+            rc->setType(cmpRiverSegment::Reach);
+            rc->setup();
+            break;
+        case cmpRiverSegment::Dam:
+            dm = static_cast<cmpDam *>(segments[i]);
+            dm->setup();
+            break;
+        }
+    }
 
     return okay;
 }
@@ -793,9 +870,11 @@ cmpStock * cmpRiverSystem::findStock(QString name)
 
 cmpTransport * cmpRiverSystem::findTransport(QString name)
 {
-//    cmpDam *dm = static_cast<cmpDam *> (findSegment(name));
-
-    return nullptr; //dm->getTransport();
+    cmpTransport *trans = nullptr;
+    cmpDam *dm = static_cast<cmpDam *> (findSegment(name));
+    if (!(dm == nullptr))
+        trans = dm->getTransport();
+    return trans;
 }
 
 cmpRelease * cmpRiverSystem::findRelease(QString name)
@@ -859,30 +938,33 @@ void cmpRiverSystem::fillHeadwaters ()
     }
 }
 
-/** Downstream flow propogation. Headwaters are always done first, then
+/** Downstream flow propogation, done recursively.
+ *  Headwaters are always done first, then
  *  the downstream segments.  */
 
 void cmpRiverSystem::computeSegFlow (cmpRiverSegment *seg)
 {
-/*    if (seg->getUpperSegment() != nullptr)
+    if (seg->getUpperSegment() != nullptr)
     {
             computeSegFlow(seg->getUpperSegment());
         if (seg->getForkSegment() != nullptr)
             computeSegFlow(seg->getForkSegment());
 
-        if (seg->getType() == cmpRiverSegment::cmpDam)
+        if (seg->getType() == cmpRiverSegment::Dam)
             static_cast <cmpDam *> (seg)->calculateFlow();
-        else if (seg->getType() == cmpRiverSegment::cmpReach)
+        else if (seg->getType() == cmpRiverSegment::Reach)
             static_cast <cmpReach *> (seg)->calculateFlow();
     }
     else if (seg->getType() == cmpRiverSegment::Headwater)
+    {
         static_cast <cmpHeadwater *> (seg)->calculateFlow();
+    }
     else
     {
-        QString msg (QString ("Segment %1 is not headwater and has no upstream segment.").arg (*seg->getName()));
-        cmpLog::outlog->add(cmpLog::Error, msg);
+        QString msg (QString ("Segment %1 is not headwater and has no upstream segment.").arg (seg->getName()));
+//        cmpLog::outlog->add(cmpLog::Error, msg);
         return;
-    }*/
+    }
 }
 
 /** Downstream temperature propogation. Headwaters are always done first, then
@@ -895,7 +977,7 @@ void cmpRiverSystem::computeTemps ()
 
 void cmpRiverSystem::computeSegTemp (cmpRiverSegment *seg)
 {
-/*    if (seg->getUpperSegment() != nullptr)
+    if (seg->getUpperSegment() != nullptr)
     {
         computeSegTemp(seg->getUpperSegment());
         if (seg->getForkSegment() != nullptr)
@@ -903,22 +985,22 @@ void cmpRiverSystem::computeSegTemp (cmpRiverSegment *seg)
 
         if (!seg->getReadTemps())
         {
-            if (seg->getType() == cmpRiverSegment::cmpDam)
+            if (seg->getType() == cmpRiverSegment::Dam)
                 static_cast <cmpDam *> (seg)->calculateTemp ();
-            else if (seg->getType() == cmpRiverSegment::cmpReach)
+            else if (seg->getType() == cmpRiverSegment::Reach)
                 static_cast <cmpReach *> (seg)->calculateTemp ();
         }
     }
     else if (seg->getType() == cmpRiverSegment::Headwater)
     {
         if (!seg->getReadTemps())
-            static_cast <Headwater *> (seg)->calculateTemp ();
+            static_cast<cmpHeadwater *>(seg)->calculateTemp ();
     }
     else
     {
-        QString msg (QString ("Segment %1 is not headwater and has no upstream segment.").arg (*seg->name));
-        cmpLog::outlog->add(cmpLog::Error, msg);
-    }*/
+        QString msg (QString ("Segment %1 is not headwater and has no upstream segment.").arg (seg->getName()));
+//        cmpLog::outlog->add(cmpLog::Error, msg);
+    }
 }
 
 void cmpRiverSystem::computeSpill ()
@@ -974,8 +1056,6 @@ void cmpRiverSystem::allocate(int numDays, int timeSteps, int damSlices)
         case cmpRiverSegment::Headwater:
             static_cast<cmpHeadwater*>(segments.at(i))->allocateDays(numDays);
             break;
-        default:
-            segments.at(i)->allocateDays(numDays);
         }
     }
 }
