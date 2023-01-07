@@ -26,6 +26,8 @@ public:
     void clear ();
     bool parseData (cmpFile *infile) override;
     bool parseToken (QString token, cmpFile *infile);
+    void writeData (cmpFile *outfile, bool outputAll);
+    void writeAllData (cmpFile *outfile, int indent);
 
     bool parseDesc (cmpFile *descfile) override;
     void outputDesc (cmpFile *outfile) override;
@@ -145,6 +147,15 @@ public:
     cmpFishway *getFishway() const;
     void setFishway(cmpFishway *value);
 
+    cmpEquation *getNsatEqn() const;
+    void setNsatEqn(cmpEquation *newNsatEqn);
+
+    cmpEquation *getNsatNightEqn() const;
+    void setNsatNightEqn(cmpEquation *newNsatNightEqn);
+
+    cmpEquation *getNsatBackupEqn() const;
+    void setNsatBackupEqn(cmpEquation *newNsatBackupEqn);
+
 private:
     /* Spillway information  */
     cmpSpillway *spillway; /**< Spillway pointer holds information about the spillway. */
@@ -155,8 +166,8 @@ private:
     cmpFishway *fishway;   /**< Fishway pointer holds information about the fishway for adult migration only.
                             * If no fishway, this pointer is nullptr.*/
 
-    /** Pointer to the dam species information */
-    cmpDamSpecies *species;
+    /** Pointer to the dam species information for each species */
+    QList<cmpDamSpecies *> species;
 
     /** List of pointers to powerhouses. If there are no powerhouses, this pointer is nullptr. */
     QList<cmpPowerhouse *> powerhouses;

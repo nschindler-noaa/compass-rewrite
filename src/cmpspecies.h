@@ -36,7 +36,10 @@ public:
 
     bool parseData(cmpFile *cfile);
     bool readReachClassValue(QString &newString, int &rc, float &value);
-    void writeData(cmpFile *outfile, bool outputAll);
+    void writeData(cmpFile *outfile, int indent, bool outputAll);
+    void writeReachClassData(cmpFile *outfile, int indent, bool outputAll);
+    void writeSpeciesData(cmpFile *outfile, int indent, bool outputAll);
+    void writeFishReturnEqns(cmpFile *outfile, int indent, bool outputAll);
 
     void allocateClasses(int numReachClasses);
     void allocate(int steps, int numReachClasses);
@@ -152,6 +155,6 @@ protected:
 
 };
 
-typedef cmpSpecies cmpStock ;
+//typedef cmpSpecies cmpStock ;
 
 #endif // CMPSPECIES_H

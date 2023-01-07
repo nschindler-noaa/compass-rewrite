@@ -54,8 +54,8 @@ cmpRiverSegment &cmpRiverSegment::copy (const cmpRiverSegment &rhs)
     currentPoint = rhs.currentPoint;
     widthAve = rhs.widthAve;
     type = rhs.type;
-    output_flags = rhs.output_flags;
-    output_settings = rhs.output_settings;
+    outputFlags = rhs.outputFlags;
+    outputSettings = rhs.outputSettings;
     flowMax = rhs.flowMax;
     flowMin = rhs.flowMin;
     for (int i = 0, total = rhs.temp.count(); i < total; i++)
@@ -70,6 +70,16 @@ cmpRiverSegment &cmpRiverSegment::copy (const cmpRiverSegment &rhs)
     temp_1 = -1;
 
     return *this;
+}
+
+int cmpRiverSegment::getOutputSettings() const
+{
+    return outputSettings;
+}
+
+void cmpRiverSegment::setOutputSettings(unsigned int newOutputSettings)
+{
+    outputSettings = newOutputSettings;
 }
 
 int cmpRiverSegment::getStepsPerDay() const
@@ -115,8 +125,8 @@ void cmpRiverSegment::setup ()
     elevLower = 0.0;
     elevUpper = 0.0;
 //    type = Reach;
-    output_flags = 0;
-    output_settings = 0;
+    outputFlags = 0;
+    outputSettings = 0;
     flowMax = 0.0;
     flowMin = 0.0;
     temp.append(0);
@@ -139,8 +149,8 @@ cmpRiverSegment::~cmpRiverSegment ()
 
 void cmpRiverSegment::resetData()
 {
-    output_flags = 0;
-    output_settings = 0;
+    outputFlags = 0;
+    outputSettings = 0;
     setDaysPerSeason(366);
     readTemps = false;
     temp_1 = -1;
@@ -197,11 +207,11 @@ bool cmpRiverSegment::parseToken(QString token, cmpFile *cfile)
     }
     else if (token.compare ("output_settings", Qt::CaseInsensitive) == 0)
     {
-       okay = cfile->readUnsigned (output_settings);
+       okay = cfile->readInt(outputSettings);
     }
     else if (token.compare ("output_flags", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readUnsigned (output_flags);
+        okay = cfile->readInt(outputFlags);
     }
     else if (token.compare ("output_gas", Qt::CaseInsensitive) == 0)
     {
@@ -217,6 +227,69 @@ bool cmpRiverSegment::parseToken(QString token, cmpFile *cfile)
     }
 
     return okay;
+}
+
+void cmpRiverSegment::writeConfigData(cmpFile *outfile, int indent, bool outputAll)
+{
+    outfile->writeValue(indent, "output_settings", outputSettings);
+}
+
+void cmpRiverSegment::writeFlowData(cmpFile *outfile, int indent, bool outputAll)
+{
+    float fdef = (outputAll? 100000: 0);
+    outfile->writeValue(indent, "flow_max", getFlowMax(), fdef);
+    if (readFlows)
+    {
+        outfile->writeStringNR(indent, "flow");
+        outfile->writeFloatArray(indent, &flow, flow.count(), Data::None, Data::Fixed, fdef);
+    }
+}
+
+void cmpRiverSegment::writeGasData (cmpFile *outfile, int indent, bool outputAll)
+{
+    if (readGas)
+    {
+//        float fdef = (outputAll? 100000: 0);
+        outfile->writeString(indent, "output_gas", "on");
+//        if (initialGas.isEmpty())
+//        {
+//            gas_out->writeData(outfile, indent, outputAll);
+//        }
+//        else
+//        {
+//            outfile->writeStringNR(indent, "initial_gas");
+//            outfile->writeFloatArray(indent, &gas_out, gas_out.count(), Data::None, Data::Fixed, fdef);
+//        }
+    }
+    else
+    {
+        outfile->writeString(indent, "output_gas", "off");
+    }
+}
+
+void cmpRiverSegment::writeTempData (cmpFile *outfile, int indent, bool outputAll)
+{
+    if (readTemps)
+    {
+        float fdef = (outputAll? 100000: 0);
+        outfile->writeStringNR(indent, "water_temp");
+        outfile->writeFloatArray(indent, &temp, temp.count(), Data::None, Data::Fixed, fdef);
+    }
+}
+
+void cmpRiverSegment::writeTurbidData (cmpFile *outfile, int indent, bool outputAll)
+{
+    //    float fdef = (outputAll? 100000: 0);
+        if (readTurbidity)
+        {
+            outfile->writeString(indent, "input_turbidity", "on");
+    //        outfile->writeStringNR(indent, "input_turbidity");
+    //        outfile->writeFloatArray(indent, &turbidity, turbidity.count(), Data::None, Data::Fixed, fdef);
+        }
+        else
+        {
+            outfile->writeString(indent, "input_turbidity", "off");
+        }
 }
 
 bool cmpRiverSegment::parseDesc(cmpFile *descfile)
@@ -454,6 +527,11 @@ void cmpRiverSegment::setReadTemps(bool value)
     readTemps = value;
 }
 
+const QString &cmpRiverSegment::getTypeStr() const
+{
+    return typeStr;
+}
+
 cmpRiverSegment::SegmentType cmpRiverSegment::getType()
 {
     return type;
@@ -462,6 +540,18 @@ cmpRiverSegment::SegmentType cmpRiverSegment::getType()
 void cmpRiverSegment::setType(const cmpRiverSegment::SegmentType &value)
 {
     type = value;
+    switch (type)
+    {
+    case Dam:
+        typeStr = QString("dam");
+        break;
+    case Reach:
+        typeStr = QString ("reach");
+        break;
+    case Headwater:
+        typeStr = QString ("headwater");
+        break;
+    }
 }
 
 bool cmpRiverSegment::getIsRegPoint() const

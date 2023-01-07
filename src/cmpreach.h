@@ -33,6 +33,8 @@ public:
 
     bool parseData (cmpFile *infile) override;
     bool parseToken (QString token, cmpFile *infile);
+    void writeData (cmpFile *outfile, int indent, bool outputAll);
+    void writeConfigData (cmpFile *outfile, int indent, bool outputAll);
 
 #ifdef PRED_CALC
     /** Species-specific parameters for reaches */
@@ -52,8 +54,10 @@ public:
     void calculateFish() override;
     void calculateStats() override;
 
-    int getRclass() const;
-    void setRclass(int value);
+    int getReachClass() const;
+    void setReachClass(int value);
+    QString getReachClassStr() const;
+    void setReachClassStr(QString rclass);
 
     float getLength() const;
     void setLength(float value);
@@ -85,6 +89,7 @@ public:
 private:
     int rclass;            /**< Reach class number which should be on
                             * the interval [0..num_reach_classes-1] */
+    QString reachClass;
     float length;          /**< Length of segment in miles */
     float volume;          /**< Volume at maximum reservoir level in feet^3*/
     float surfaceArea;     /**< Average area in feet^2 */

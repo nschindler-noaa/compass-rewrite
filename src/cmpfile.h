@@ -73,6 +73,8 @@ public:
     void writeValue (int indent, QString keyword, int value, int defaultValue = 100000);
     void writeNumberedValue(int indent, QString keyword, int index, int value, int defaultVal = 100000);
     void writeNumberedValue(int indent, QString keyword, int index, float value, float defaultVal = 100000);
+    void writeTitledValue(int indent, QString keyword, QString title, int value, int defaultVal = 100000);
+    void writeTitledValue(int indent, QString keyword, QString title, float value, float defaultVal = 100000);
     void writeString (int indent, QString keyword, QString option1 = QString(), QString option2 = QString ());
     void writeStringNR (int indent, QString keyword, QString option1 = QString ());
     void writeFloatOrNa (float val, Data::Type dtype = Data::Float);
@@ -91,6 +93,9 @@ public:
 //                                     int size, float *array,
 //                                     oconv conversion, unsigned mult,
 //                                     enum FloatType output_type, float *default_value);
+
+    int getDataVersion() const;
+    void setDataVersion(int newDataVersion);
 
 signals:
     void eof (bool);      /**< signals end of file reached */

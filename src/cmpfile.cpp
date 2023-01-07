@@ -25,7 +25,7 @@ cmpFile::cmpFile (const QString &name, QObject *parent) :
 void cmpFile::setup ()
 {
     header = new QStringList ();
-    dataVersion = 0;
+    dataVersion = CURRENT_DATA_VERSION;
     creator = new QString();
     createdDate = new QString();
     modifier = new QString();
@@ -643,6 +643,24 @@ void cmpFile::writeNumberedValue(int indent, QString keyword, int index, float v
     }
 }
 
+void cmpFile::writeTitledValue(int indent, QString keyword, QString title, int value, int defaultVal)
+{
+    if (value != defaultVal)
+    {
+        QString val(QString::number(value));
+        writeString(indent, keyword, title, val);
+    }
+}
+
+void cmpFile::writeTitledValue(int indent, QString keyword, QString title, float value, float defaultVal)
+{
+    if (floatIsNotEqual(value, defaultVal))
+    {
+        QString val(QString::number(value));
+        writeString(indent, keyword, title, val);
+    }
+}
+
 void cmpFile::writeString (int indent, QString keyword, QString option1, QString option2)
 {
     writeIndent(indent);
@@ -953,7 +971,17 @@ void cmpFile::printError (QString errmsg)
 QString cmpFile::getFileLine ()
 {
    return QString((QString("File: %1, Line: %2").arg
-                      (fileName(), QString::number(lineNum))));
+                   (fileName(), QString::number(lineNum))));
+}
+
+int cmpFile::getDataVersion() const
+{
+    return dataVersion;
+}
+
+void cmpFile::setDataVersion(int newDataVersion)
+{
+    dataVersion = newDataVersion;
 }
 
 void cmpFile::obsoleteToken (QString obsToken, QString newToken)

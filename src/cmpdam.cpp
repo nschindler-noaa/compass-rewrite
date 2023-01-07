@@ -230,6 +230,43 @@ bool cmpDam::parseToken (QString token, cmpFile *cfile)
     return okay;
 }
 
+void cmpDam::writeData(cmpFile *outfile, bool outputAll)
+{
+    float dval = 0;
+    outfile->writeString(0, "dam", name);
+    if (outputAll)
+    {
+        writeAllData(outfile, 1);
+    }
+    else
+    {
+        outfile->writeValue(1, "output_settings", getOutputSettings(), 0);
+        outfile->writeValue(1, "tailrace_length", getLengthTailrace(), dval);
+        outfile->writeValue(1, "flow_min", getFlowMin(), dval);
+    }
+    outfile->writeEnd(0, "dam", name);
+}
+
+void cmpDam::writeAllData(cmpFile *outfile, int indent)
+{
+    cmpEquation *eqn;
+    outfile->writeValue(indent, "output_settings", getOutputSettings());
+    outfile->writeValue(indent, "tailrace_length", getLengthTailrace());
+    outfile->writeValue(indent, "flow_min", getFlowMin());
+    eqn = getNsatEqn();
+    outfile->writeValue(indent, "nsat_day_equation", eqn->getId());
+    eqn->writeParameters(outfile, indent, true);
+    outfile->writeEnd(indent, "nsat_day_equation");
+    eqn = getNsatNightEqn();
+    outfile->writeValue(indent, "nsat_night_equation", eqn->getId());
+    eqn->writeParameters(outfile, indent, true);
+    outfile->writeEnd(indent, "nsat_night_equation");
+    eqn = getNsatBackupEqn();
+    outfile->writeValue(indent, "nsat_backup_equation", eqn->getId());
+    eqn->writeParameters(outfile, indent, true);
+    outfile->writeEnd(indent, "nsat_backup_equation");
+}
+
 bool cmpDam::parseDesc (cmpFile *descfile)
 {
     bool okay = true, end = false;
@@ -813,4 +850,34 @@ cmpFishway *cmpDam::getFishway() const
 void cmpDam::setFishway(cmpFishway *value)
 {
     fishway = value;
+}
+
+cmpEquation *cmpDam::getNsatEqn() const
+{
+    return nsatEqn;
+}
+
+void cmpDam::setNsatEqn(cmpEquation *newNsatEqn)
+{
+    nsatEqn = newNsatEqn;
+}
+
+cmpEquation *cmpDam::getNsatNightEqn() const
+{
+    return nsatNightEqn;
+}
+
+void cmpDam::setNsatNightEqn(cmpEquation *newNsatNightEqn)
+{
+    nsatNightEqn = newNsatNightEqn;
+}
+
+cmpEquation *cmpDam::getNsatBackupEqn() const
+{
+    return nsatBackupEqn;
+}
+
+void cmpDam::setNsatBackupEqn(cmpEquation *newNsatBackupEqn)
+{
+    nsatBackupEqn = newNsatBackupEqn;
 }

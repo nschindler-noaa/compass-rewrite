@@ -15,6 +15,7 @@ public:
 
     bool parseData (cmpFile *infile) override;
     bool parseToken (QString token, cmpFile *infile);
+    void writeData (cmpFile *outfile, int indent, bool outputAll);
 
     void allocateDays(int numdays);
     void calculateFlow () override;

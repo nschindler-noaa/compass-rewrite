@@ -33,6 +33,12 @@ public:
 
     virtual bool parseData (cmpFile *infile);
     bool parseToken (QString token, cmpFile *infile);
+    void outputData (cmpFile *outfile, bool outputAll);
+    void writeConfigData (cmpFile *outfile, int indent, bool outputAll);
+    void writeFlowData (cmpFile *outfile, int indent, bool outputAll);
+    void writeGasData (cmpFile *outfile, int indent, bool outputAll);
+    void writeTempData (cmpFile *outfile, int indent, bool outputAll);
+    void writeTurbidData (cmpFile *outfile, int indent, bool outputAll);
 
     virtual bool parseDesc (cmpFile *descfile);
     bool parseDescToken (QString token, cmpFile *descfile);
@@ -138,6 +144,11 @@ public:
     float getWallSlope() const;
     void setWallSlope(float newWallSlope);
 
+    int getOutputSettings() const;
+    void setOutputSettings(unsigned int newOutput_settings);
+
+    const QString &getTypeStr() const;
+
 protected:
     cmpRiverSegment &copy (const cmpRiverSegment &rhs);
 
@@ -145,6 +156,7 @@ protected:
 
     QString riverName;
     QString name;
+    QString typeStr;
     QString abbrev;
 
     QList<cmpRiverPoint *> course;
@@ -165,9 +177,9 @@ protected:
     float elevUpper;
     float elevLower;
 
-    unsigned int output_flags;
+    int outputFlags;
 
-    unsigned int output_settings;
+    int outputSettings;
 
     bool isRegPoint;
     bool readFlows;

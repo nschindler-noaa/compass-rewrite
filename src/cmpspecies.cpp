@@ -388,6 +388,81 @@ bool cmpSpecies::readReachClassValue(QString &newString, int &rc, float &value)
     return okay;
 }
 
+void cmpSpecies::writeData(cmpFile *outfile, int indent, bool outputAll)
+{
+    outfile->writeString(indent, "species", name);
+    writeReachClassData(outfile, indent+1, outputAll);
+    writeSpeciesData(outfile, indent+1, outputAll);
+    outfile->writeNewline();
+    outfile->writeEnd(indent, "species", name);
+}
+
+void cmpSpecies::writeReachClassData(cmpFile *outfile, int indent, bool outputAll)
+{
+    int total = reachClasses.count();
+    QString rcName;
+    cmpEquation *eqn;
+    for (int i = 0; i < total; i++)
+    {
+        rcName = reachClassNames.at(i);
+        outfile->writeTitledValue(indent, "reach_pred_coef", rcName, getReachPredCoef(i), (outputAll? 100000: 0.0));
+        outfile->writeTitledValue(indent, "pprime_a", rcName, getPprimeA(i), (outputAll? 100000: 0.0));
+        outfile->writeTitledValue(indent, "pprime_b", rcName, getPprimeB(i), (outputAll? 100000: 0.0));
+        outfile->writeTitledValue(indent, "v_var", rcName, getVvar(i), (outputAll? 100000: 100.0));
+        outfile->writeTitledValue(indent, "migr_var_coef", rcName,getMigrVarCoef(i), (outputAll? 100000: 1.0));
+        outfile->writeTitledValue(indent, "time_coef", rcName, getTimeCoeff(i), (outputAll? 100000: 1.0));
+        outfile->writeTitledValue(indent, "distance_coef", rcName, getDistCoeff(i), (outputAll? 100000: 0.0));
+        outfile->writeTitledValue(indent, "sigma_d", rcName, getSigmaD(i), (outputAll? 100000: 0.0));
+        outfile->writeTitledValue(indent, "reach_survival_coef", rcName, getReachSurvivalCoef(i), (outputAll? 100000: 1.0));
+        eqn = reachClasses[i]->getMigrationEqn();   //     migration_eqn Class_0 0
+        outfile->writeString(indent, "migration_eqn", rcName, QString::number(eqn->getId()));
+        eqn->writeParameters(outfile, indent, outputAll);
+        outfile->writeEnd(indent, "migration_eqn", rcName);
+        eqn = reachClasses[i]->getCustomSurvivalEqn(); //        custom_survival_eqn Class_0 57
+        outfile->writeString(indent, "custom_survival_eqn", rcName, QString::number(eqn->getId()));
+        eqn->writeParameters(outfile, indent, outputAll);
+        outfile->writeEnd(indent, "custom_survival_eqn", rcName);
+
+        outfile->writeNewline();
+    }
+}
+
+void cmpSpecies::writeSpeciesData(cmpFile *outfile, int indent, bool outputAll)
+{
+    float dval = 0;
+    cmpEquation *eqn;
+    if (outputAll)
+        dval = 1000000;
+    outfile->writeValue(indent, "forebay_pred_coef", getForebayPredCoef(), dval);
+    outfile->writeValue(indent, "tailrace_pred_coef", getTailracePredCoef(), dval);
+    outfile->writeNewline();
+    eqn = getFishdensEqn();
+    outfile->writeValue(indent, "fish_depth_eqn", eqn->getId());
+    eqn->writeParameters(outfile, indent, outputAll);
+    outfile->writeEnd(indent, "fish_depth_eqn");
+    outfile->writeNewline();
+    eqn = getGasmortEqn();
+    outfile->writeValue(indent, "gas_mort_eqn", eqn->getId());
+    eqn->writeParameters(outfile, indent, outputAll);
+    outfile->writeEnd(indent, "gas_mort_eqn");
+    outfile->writeNewline();
+    writeFishReturnEqns(outfile, indent, outputAll);
+}
+
+void cmpSpecies::writeFishReturnEqns(cmpFile *outfile, int indent, bool outputAll)
+{
+    cmpEquation *eqn;
+    eqn = getInriverReturnEqn();
+    outfile->writeValue(0, "inriver_return_eqn", eqn->getId());
+    eqn->writeParameters(outfile, indent, outputAll);
+    outfile->writeEnd(0, "inriver_return_eqn");
+    outfile->writeNewline();
+    eqn = getTransportReturnEqn();
+    outfile->writeValue(0, "transport_return_eqn", eqn->getId());
+    eqn->writeParameters(outfile, indent, outputAll);
+    outfile->writeEnd(0, "transport_return_eqn");
+}
+
 const cmpEquation *cmpSpecies::getMigrationEqn(int rc) const
 {
     return reachClasses[rc]->getMigrationEqn();

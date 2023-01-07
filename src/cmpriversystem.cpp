@@ -333,7 +333,8 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
                 cfile->skipToEnd();
             }
         }
-        else if (token.compare ("post_bonneville_hypothesis") == 0)
+        else if (token.compare ("post_bonneville_hypothesis", Qt::CaseInsensitive) == 0 ||
+                 token.compare ("fish_return_hypothesis", Qt::CaseInsensitive) == 0)
         {
             okay = cfile->readString(name);
             if (okay)
@@ -648,7 +649,7 @@ bool cmpRiverSystem::outputAllSpecies(cmpFile *outfile, bool outputAll)
     int total = species.count();
     for (int i = 0; i < total; i++)
     {
-        species.at(i)->writeData(outfile, outputAll);
+        species.at(i)->writeData(outfile, 0, outputAll);
         outfile->writeNewline();
     }
     return okay;
@@ -660,7 +661,7 @@ bool cmpRiverSystem::outputAllStocks(cmpFile *outfile, bool outputAll)
     int total = stocks.count();
     for (int i = 0; i < total; i++)
     {
-        stocks.at(i)->writeData(outfile, outputAll);
+        stocks.at(i)->writeData(outfile, 0, outputAll);
         outfile->writeNewline();
     }
     return okay;
@@ -669,12 +670,57 @@ bool cmpRiverSystem::outputAllStocks(cmpFile *outfile, bool outputAll)
 bool cmpRiverSystem::outputPostRiverData(cmpFile *outfile, bool outputAll)
 {
     bool okay = true;
+    int total = species.count();
+    QString title = QString("fish_return_hypothesis");
     QString name(cSettings->getDataSettings()->getFishReturnHypStr());
+    cmpEquation *eqn;
+    if (outfile->getDataVersion() < 20)
+    {
+        title = QString("post_bonneville_hypothesis");
+    }
     if (outputAll || name.compare("sar_vs_date") != 0)
-        outfile->writeString(0, "post_bonneville_hypothesis", name);
+        outfile->writeString(0, title, name);
     outfile->writeNewline();
-    // more to come - species return eqns
+    // species return eqns
+    for (int i = 0; i < total; i++)
+    {
+        name = species.at(i)->getName();
+        outfile->writeString(0, "species", name);
+        outfile->writeNewline();
+        species[i]->writeFishReturnEqns(outfile, 0, outputAll);
+        outfile->writeNewline();
+        outfile->writeEnd(0, "species", name);
+        outfile->writeNewline();
+    }
     return okay;
+}
+
+bool cmpRiverSystem::outputConfigData(cmpFile *outfile, bool outputAll)
+{
+    int total = segments.count();
+    int rclass = 0, outSetting = 0;
+    cmpRiverSegment::SegmentType stype;
+    QString type, name, rClass = QString();
+    for (int i = 0; i < total; i++)
+    {
+        name = segments.at(i)->getName();
+        stype = segments.at(i)->getType();
+        type = segments.at(i)->getTypeStr();
+        outfile->writeString(0, type, name);
+        switch (stype)
+        {
+        case cmpRiverSegment::Reach:
+            static_cast<cmpReach *>(segments.at(i))->writeConfigData(outfile, 1, outputAll);
+            break;
+        default:
+            segments.at(i)->writeConfigData(outfile, 1, outputAll);
+        }
+        outfile->writeEnd(0, type, name);
+        outfile->writeNewline();
+
+        rClass.clear();
+    }
+    return true;
 }
 
 bool cmpRiverSystem::outputRiverYrData(cmpFile *outfile, bool outputAll)
@@ -687,7 +733,17 @@ bool cmpRiverSystem::outputRiverYrData(cmpFile *outfile, bool outputAll)
 bool cmpRiverSystem::outputDamOpsData(cmpFile *outfile, bool outputAll)
 {
     bool okay = true;
-
+    int total = segments.count();
+    cmpDam *dam;
+    for (int i = 0; i < total; i++)
+    {
+        if (segments.at(i)->getType() == cmpRiverSegment::Dam)
+        {
+            dam = static_cast<cmpDam *>(segments[i]);
+            dam->writeData(outfile, outputAll);
+            outfile->writeNewline();
+        }
+    }
     return okay;
 }
 

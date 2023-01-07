@@ -61,7 +61,7 @@ public:
     bool operator == (cmpEquation &rhs);
 
     bool parseData(cmpFile *cfile, QString type = QString());
-    void writeData(cmpFile *outfile, int indent, bool outputAll);
+    void writeParameters(cmpFile *outfile, int indent, bool outputAll);
 
     /** Set up all aspects of equation for its id: parameters, name, formula, etc. */
     void setupEquation();

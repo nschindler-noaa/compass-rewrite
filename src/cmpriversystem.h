@@ -76,6 +76,7 @@ public slots:
     bool outputAllSpecies(cmpFile *outfile, bool outputAll);
     bool outputAllStocks(cmpFile *outfile, bool outputAll);
     bool outputPostRiverData(cmpFile *outfile, bool outputAll);
+    bool outputConfigData(cmpFile *outfile, bool outputAll);
     bool outputRiverYrData(cmpFile *outfile, bool outputAll);
     bool outputDamOpsData(cmpFile *outfile, bool outputAll);
 

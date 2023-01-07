@@ -18,22 +18,18 @@
  *
  * A release includes a name of its stock.
  *
-
+ */
 
 
 class cmpStock : public cmpSpecies
 {
 public:
     cmpStock();
-    cmpStock(const cmpStock &rhs);
-    ~cmpStock();
 
-    void setDefaults();
-
-    bool parseData(cmpFile *cfile);
+    void writeData(cmpFile *outfile, int indent, bool outputAll);
 
 private:
 
-};*/
+};
 
 #endif // CMPSTOCK_H

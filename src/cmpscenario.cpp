@@ -170,8 +170,8 @@ void cmpScenario::outputData(QString filename, bool outputAll)
         {
             outfile->writeHeader(settings, "Operations");
             outfile->writeInfo();
-            writeDataSettings(outfile, outputAll);
-            outfile->writeNewline();
+//            writeDataSettings(outfile, outputAll);
+//            outfile->writeNewline();
             writeDamOpsData(outfile, outputAll);
         }
         // Write a calibration data file.
@@ -191,7 +191,7 @@ void cmpScenario::outputData(QString filename, bool outputAll)
         // Write a post bonneville data file.
         else if (filename.endsWith(".pbn", Qt::CaseInsensitive))
         {
-            outfile->writeHeader(settings, "Post-River");
+            outfile->writeHeader(settings, "Fish Return");
             outfile->writeInfo();
             writePostRivData(outfile, outputAll);
         }
@@ -274,11 +274,14 @@ void cmpScenario::writeAllStocks(cmpFile *outfile, bool outputAll)
 
 void cmpScenario::writeRunSettings(cmpFile *outfile, bool outputAll)
 {
+    cmpEquation *eqn = settings->getDataSettings()->getFreeFlowEqn();
     outfile->writeValue(0, "gas_dissp_exp", settings->getDataSettings()->getGasDisspExp());
     outfile->writeValue(0, "hw_flow_prop", settings->getDataSettings()->getHwFlowProp());
 
     outfile->writeNewline();
-    settings->getDataSettings()->getFreeFlowEqn()->writeData(outfile, 0, outputAll);
+    outfile->writeValue(0, "ufree_eqn", eqn->getId());
+    eqn->writeParameters(outfile, 1, outputAll);
+    outfile->writeEnd(0, "ufree_eqn");
     outfile->writeNewline();
 
     outfile->writeValue(0, "ufree_max", settings->getDataSettings()->getFreeFlowMax()); // 8.0);
@@ -301,7 +304,7 @@ void cmpScenario::writeRunSettings(cmpFile *outfile, bool outputAll)
 
     outfile->writeString(0, "mortality_class", settings->getDataSettings()->getMortClassString());//custom
 }
-
+// control file (.ctrl)
 QStringList *cmpScenario::writeCtrlData(cmpFile *outfile)
 {
     QString file = outfile->fileName().replace(".ctrl", ".riv", Qt::CaseInsensitive);
@@ -320,21 +323,21 @@ QStringList *cmpScenario::writeCtrlData(cmpFile *outfile)
 
     return outputFiles;
 }
-
+// river year data file (.riv)
 void cmpScenario::writeRiverYrData(cmpFile *outfile, bool outputAll)
 {
     system->outputRiverYrData(outfile, outputAll);
 }
-
+// dam ops file (.ops)
 void cmpScenario::writeDamOpsData(cmpFile *outfile, bool outputAll)
 {
     system->outputDamOpsData(outfile, outputAll);
 }
-
+// calibration file (.clb)
 void cmpScenario::writeCalibData(cmpFile *outfile, bool outputAll)
 {
 }
-
+// release file (.rls)
 void cmpScenario::writeReleaseData(cmpFile *outfile, bool outputAll)
 {
     for (int i = 0, total = releases.count(); i < total; i++)
@@ -343,17 +346,17 @@ void cmpScenario::writeReleaseData(cmpFile *outfile, bool outputAll)
         outfile->writeNewline();
     }
 }
-
+// fish return (.pbn)
 void cmpScenario::writePostRivData(cmpFile *outfile, bool outputAll)
 {
     system->outputPostRiverData(outfile, outputAll);
 }
-
+// config file (.etc)
 void cmpScenario::writeConfigData(cmpFile *outfile, bool outputAll)
 {
-
+    system->outputConfigData(outfile, outputAll);
 }
-
+// scenario file (.scn or .dat)
 void cmpScenario::writeScnData(cmpFile *outfile, bool outputAll)
 {
     writeDataSettings(outfile, outputAll);

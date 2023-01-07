@@ -366,14 +366,24 @@ void cmpReach::calculateStats()
 
 }
 
-int cmpReach::getRclass() const
+int cmpReach::getReachClass() const
 {
     return rclass;
 }
 
-void cmpReach::setRclass(int value)
+void cmpReach::setReachClass(int value)
 {
     rclass = value;
+}
+
+QString cmpReach::getReachClassStr() const
+{
+    return reachClass;
+}
+
+void cmpReach::setReachClassStr(QString rclass)
+{
+    reachClass = rclass;
 }
 
 float cmpReach::getLength() const
@@ -497,8 +507,14 @@ bool cmpReach::parseToken (QString token, cmpFile *cfile)
 {
     bool okay = true;
     QString na("");
+    QString tmpstr;
 
-    if (token.compare ("elevation_change", Qt::CaseInsensitive) == 0)
+    if (token.compare ("reach_class", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpstr);
+        reachClass = tmpstr;
+    }
+    else if (token.compare ("elevation_change", Qt::CaseInsensitive) == 0)
     {
         okay = cfile->readFloatArray (elevChange);
     }
@@ -520,4 +536,18 @@ bool cmpReach::parseToken (QString token, cmpFile *cfile)
     }
 
     return okay;
+}
+
+void cmpReach::writeData(cmpFile *outfile, int indent, bool outputAll)
+{
+    outfile->writeString(indent, "reach", name);
+    writeConfigData(outfile, indent+1, outputAll);
+
+    outfile->writeEnd(indent, "reach", name);
+}
+
+void cmpReach::writeConfigData(cmpFile *outfile, int indent, bool outputAll)
+{
+    outfile->writeString(indent, "reach_class", reachClass);
+    outfile->writeValue (indent, "output_settings", outputSettings);
 }
