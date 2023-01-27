@@ -5,7 +5,8 @@
 cmpDam::cmpDam(cmpRiver *parent) : cmpRiverSegment(parent)
 {
     name = QString ();
-    setType(Dam);
+    type = cmpRiverSegment::Dam;
+    typeStr = "dam";
     setup ();
 }
 
@@ -13,7 +14,8 @@ cmpDam::cmpDam(QString dname, cmpRiver *parent) :
     cmpRiverSegment (parent)
 {
     name = QString (dname);
-    setType(Dam);
+    type = cmpRiverSegment::Dam;
+    typeStr = "dam";
     setup ();
 }
 
@@ -25,7 +27,8 @@ cmpDam::~cmpDam ()
 void cmpDam::setup()
 {
     basin = nullptr;
-    species = nullptr;
+    if (!species.isEmpty())
+        species.clear();
     phouseSide =  Right;
     lengthTailrace = 0.0;
     elevBase = 0.0;
@@ -47,12 +50,17 @@ void cmpDam::setup()
     spillMax = 0.0;
     spillSide = Left;
 
+    nsatEqn = nullptr;
+    nsatNightEqn = nullptr;
+    nsatBackupEqn = nullptr;
+
     flowMax = 0.0;
     flowProjectMin = 0.0;
     flowRiverMin = 0.0;
 
     allocateDays(366, 2);
 
+    spillWeir = nullptr;
     transport = nullptr;
     fishway = nullptr;
 }
@@ -67,9 +75,8 @@ void cmpDam::clear()
     if (basin != nullptr)
         delete basin;
     basin = nullptr;
-    if (species != nullptr)
-        delete species;
-    species = nullptr;
+    while (!species.isEmpty())
+        delete species.takeLast();
 
     delete spillway;
     spillway = nullptr;
@@ -204,15 +211,39 @@ bool cmpDam::parseData (cmpFile *cfile)
 bool cmpDam::parseToken (QString token, cmpFile *cfile)
 {
     bool okay = true;
-    QString na ("");
+    QString na (""), tmpstr;
 
-    if (token.compare ("elevation_change", Qt::CaseInsensitive) == 0)
+
+    if (token.compare ("tailrace_length", Qt::CaseInsensitive) == 0)
     {
-//        okay = cfile->readFloatArray (elev_change);
+        okay = cfile->readFloatOrNa(na, lengthTailrace);
     }
-    else if (token.compare("loss_max", Qt::CaseInsensitive) == 0)
+    else if (token.compare("nsat_day_equation", Qt::CaseInsensitive) == 0)
     {
-//        okay = cfile->readFloatOrNa(na, loss_max);
+        okay = cfile->readString(tmpstr);
+        if (nsatEqn != nullptr)
+            nsatEqn->setName(tmpstr);
+        else
+            nsatEqn = new cmpEquation(tmpstr);
+        nsatEqn->parseData(cfile, "nsat_day_equation");
+    }
+    else if (token.compare("nsat_backup_equation", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpstr);
+        if (nsatBackupEqn != nullptr)
+            nsatBackupEqn->setName(tmpstr);
+        else
+            nsatBackupEqn = new cmpEquation(tmpstr);
+        nsatBackupEqn->parseData(cfile, "nsat_backup_equation");
+    }
+    else if (token.compare("nsat_night_equation", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpstr);
+        if (nsatNightEqn != nullptr)
+            nsatNightEqn->setName(tmpstr);
+        else
+            nsatNightEqn = new cmpEquation(tmpstr);
+        nsatNightEqn->parseData(cfile, "nsat_night_equation");
     }
     else if (token.compare("loss_min", Qt::CaseInsensitive) == 0)
     {
@@ -233,38 +264,153 @@ bool cmpDam::parseToken (QString token, cmpFile *cfile)
 void cmpDam::writeData(cmpFile *outfile, bool outputAll)
 {
     float dval = 0;
+    cmpEquation *eqn = nullptr;
+    int total = 0;
+
     outfile->writeString(0, "dam", name);
+
     if (outputAll)
     {
         writeAllData(outfile, 1);
     }
     else
     {
-        outfile->writeValue(1, "output_settings", getOutputSettings(), 0);
-        outfile->writeValue(1, "tailrace_length", getLengthTailrace(), dval);
-        outfile->writeValue(1, "flow_min", getFlowMin(), dval);
+        outfile->writeValue(1, "output_settings", outputSettings, 0);
+        outfile->writeValue(1, "tailrace_length", lengthTailrace, dval);
+        outfile->writeValue(1, "spill_cap", spillMax);
+        outfile->writeStringNR(1, "actual_spill");
+        outfile->writeFloatArray(1, spill, Data::None, Data::Float, dval);
+        outfile->writeValue(1, "gas_theta", gasTheta, dval);
+        outfile->writeValue(1, "k_entrain", entrainK, dval);
+        outfile->writeValue(1, "entrain_factor", entrainFactor, dval);
+        if (readGas)
+        {
+            outfile->writeString(1, "output_gas", "On");
+            // output the gas distribution
+        }
+        else
+        {
+            outfile->writeString(1, "output_gas", "Off");
+        }
+        if (readTurbidity)
+        {
+            outfile->writeString(1, "input_turbidity", "On");
+            // output the input turbidity
+        }
+        else
+        {
+            outfile->writeString(1, "input_turbidity", "Off");
+        }
+        if (basin != nullptr)
+        {
+            outfile->writeStringNR(1, "storage_volume");
+            outfile->writeFloatArray(1, basin->getVolume(), Data::None, Data::Float, dval);
+        }
+        outfile->writeNewline();
+        eqn = getNsatEqn();
+        if (eqn != nullptr && eqn != (new cmpEquation(eqn->getId())))
+        {
+            outfile->writeValue(1, "nsat_day_equation", eqn->getId());
+            eqn->writeParameters(outfile, 2, false);
+            outfile->writeEnd(1, "nsat_day_equation");
+        }
+        eqn = getNsatNightEqn();
+        if (eqn != nullptr && eqn != (new cmpEquation(eqn->getId())))
+        {
+            outfile->writeValue(1, "nsat_night_equation", eqn->getId());
+            eqn->writeParameters(outfile, 2, false);
+            outfile->writeEnd(1, "nsat_night_equation");
+        }
+        eqn = getNsatBackupEqn();
+        if (eqn != nullptr && eqn != (new cmpEquation(eqn->getId())))
+        {
+            outfile->writeValue(1, "nsat_backup_equation", eqn->getId());
+            eqn->writeParameters(outfile, 2, false);
+            outfile->writeEnd(1, "nsat_backup_equation");
+        }
+
+        powerhouses.at(0)->writeData(outfile, 1, outputAll);
+        total = powerhouses.count();
+        for (int i = 1; i < total; i++)
+        {
+            QString name2(QString("%1_%2").arg(name).arg(i+1));
+            outfile->writeString(1, "additional_powerhouse", name2);// Bonneville_Dam_2
+            powerhouses.at(i)->writeSecondData(outfile, 1, outputAll);
+            outfile->writeEnd(1, "additional_powerhouse", name2);
+        }
     }
-    outfile->writeEnd(0, "dam", name);
 }
 
 void cmpDam::writeAllData(cmpFile *outfile, int indent)
 {
+    int total = 0;
     cmpEquation *eqn;
-    outfile->writeValue(indent, "output_settings", getOutputSettings());
-    outfile->writeValue(indent, "tailrace_length", getLengthTailrace());
-    outfile->writeValue(indent, "flow_min", getFlowMin());
+    outfile->writeValue(1, "output_settings", outputSettings);
+    outfile->writeValue(1, "tailrace_length", lengthTailrace);
+    outfile->writeValue(1, "spill_cap", spillMax);
+    outfile->writeStringNR(1, "actual_spill");
+    outfile->writeFloatArray(1, spill, Data::None, Data::Float, 100000.0);
+    outfile->writeValue(1, "gas_theta", gasTheta);
+    outfile->writeValue(1, "k_entrain", entrainK);
+    outfile->writeValue(1, "entrain_factor", entrainFactor);
+    if (readGas)
+    {
+        outfile->writeString(1, "output_gas", "On");
+        // output the gas distribution
+    }
+    else
+    {
+        outfile->writeString(1, "output_gas", "Off");
+    }
+    if (readTurbidity)
+    {
+        outfile->writeString(1, "input_turbidity", "On");
+        // output the input turbidity
+    }
+    else
+    {
+        outfile->writeString(1, "input_turbidity", "Off");
+    }
+    if (basin != nullptr)
+    {
+        outfile->writeStringNR(1, "storage_volume");
+        outfile->writeFloatArray(1, basin->getVolume(), Data::None, Data::Float, 100000.0);
+    }
+    outfile->writeNewline();
     eqn = getNsatEqn();
-    outfile->writeValue(indent, "nsat_day_equation", eqn->getId());
-    eqn->writeParameters(outfile, indent, true);
-    outfile->writeEnd(indent, "nsat_day_equation");
+    if (eqn != nullptr)
+    {
+        outfile->writeValue(1, "nsat_day_equation", eqn->getId());
+        eqn->writeParameters(outfile, 2, true);
+        outfile->writeEnd(1, "nsat_day_equation");
+        outfile->writeNewline();
+    }
     eqn = getNsatNightEqn();
-    outfile->writeValue(indent, "nsat_night_equation", eqn->getId());
-    eqn->writeParameters(outfile, indent, true);
-    outfile->writeEnd(indent, "nsat_night_equation");
+    if (eqn != nullptr)
+    {
+        outfile->writeValue(1, "nsat_night_equation", eqn->getId());
+        eqn->writeParameters(outfile, 2, true);
+        outfile->writeEnd(1, "nsat_night_equation");
+        outfile->writeNewline();
+    }
     eqn = getNsatBackupEqn();
-    outfile->writeValue(indent, "nsat_backup_equation", eqn->getId());
-    eqn->writeParameters(outfile, indent, true);
-    outfile->writeEnd(indent, "nsat_backup_equation");
+    if (eqn != nullptr)
+    {
+        outfile->writeValue(1, "nsat_backup_equation", eqn->getId());
+        eqn->writeParameters(outfile, 2, true);
+        outfile->writeEnd(1, "nsat_backup_equation");
+        outfile->writeNewline();
+    }
+
+    powerhouses.at(0)->writeData(outfile, 1, true);
+    total = powerhouses.count();
+    for (int i = 1; i < total; i++)
+    {
+        QString name2(QString("%1_%2").arg(name).arg(i+1));
+        outfile->writeString(1, "additional_powerhouse", name2);// Bonneville_Dam_2
+        powerhouses.at(i)->writeSecondData(outfile, 2, true);
+        outfile->writeEnd(1, "additional_powerhouse", name2);
+    }
 }
 
 bool cmpDam::parseDesc (cmpFile *descfile)
@@ -334,25 +480,25 @@ bool cmpDam::parseDesc (cmpFile *descfile)
         }
         else if (token.compare("powerhouse_capacity", Qt::CaseInsensitive) == 0)
         {
-            okay = descfile->readFloatOrNa(na, tempFloat);
             if (powerhouses.isEmpty())
                 powerhouses.append(new cmpPowerhouse());
-            powerhouses.at(0)->setCapacity(tempFloat);
+            okay = descfile->readFloatOrNa(na, tempFloat);
+            if (okay && powerhouses.count() > 0)
+                powerhouses.at(0)->setCapacity(tempFloat);
         }
         else if (token.compare("powerhouse_2_capacity", Qt::CaseInsensitive) == 0)
         {
-            okay = descfile->readFloatOrNa(na, tempFloat);
-            if (powerhouses.count() < 2)
+            while (powerhouses.count() < 2)
                 powerhouses.append(new cmpPowerhouse());
-            powerhouses.at(1)->setCapacity(tempFloat);
+            okay = descfile->readFloatOrNa(na, tempFloat);
+            if (okay && powerhouses.count() > 1)
+                powerhouses.at(1)->setCapacity(tempFloat);
         }
         else if (token.compare("storage_basin", Qt::CaseInsensitive) == 0)
         {
             basin = new cmpBasin();
-            okay = descfile->readFloatOrNa(na, tempFloat);
-            basin->setVolumeMin(tempFloat);
-            okay = descfile->readFloatOrNa(na, tempFloat);
-            basin->setVolumeMax(tempFloat);
+            descfile->readString(token);
+            okay = basin->parseDesc(token);
         }
         else if (token.compare("fishway", Qt::CaseInsensitive) == 0)
         {
@@ -375,62 +521,57 @@ bool cmpDam::parseDesc (cmpFile *descfile)
 
 void cmpDam::outputDesc(cmpFile *outfile)
 {
+    float tmpfloat = 0;
+    int tmpint = 0;
+    int indent1 = 1, indent2 = 2;
     if (!outfile->isOpen())
         outfile->open(QIODevice::WriteOnly);
 
     if (outfile->isOpen())
     {
+        QString namestr = name;
         int num = getNumPowerhouses();
-        outfile->writeString(0, "dam", name);
-        outfile->writeString(1, "abbrev", getAbbrev());
+        outfile->writeString(indent1, "dam", namestr.replace('_', ' '));
+        outfile->writeString(indent2, "abbrev", getAbbrev());
+        outfile->writeString(indent2+1, QString("latlon"), getCourse().at(0)->getLatLon());
+        if (basin != nullptr)
+            outfile->writeString(indent2, "storage_basin", basin->getText());
+        outfile->writeValue(indent2, "floor_elevation", getElevBase());
+        outfile->writeValue(indent2, "forebay_elevation", getElevForebay());
+        outfile->writeValue(indent2, "tailrace_elevation", getElevTailrace());
+        tmpfloat = getHeightBypass();
+        if (tmpfloat > 0.1)
+            outfile->writeValue(indent2, "bypass_elevation", tmpfloat);
+        outfile->writeValue(indent2, "spillway_width", getSpillway()->getWidth());
+        outfile->writeString(indent2, "spill_side", getSpillSideText());
+        tmpint = getSpillway()->getNumGates();
+        if (tmpint > 0)
+        {
+            outfile->writeValue(indent2, "ngates", tmpint);
+            outfile->writeValue(indent2, "gate_width", getSpillway()->getGateWidth());
+            outfile->writeValue(indent2, "pergate", getSpillway()->getPerGate());
+        }
+        outfile->writeValue(indent2, "basin_length", getLengthBasin());
+        outfile->writeValue(indent2, "sgr", specGrav);
         for (int i = 0; i < num; i++)
         {
             if (i == 0)
-                outfile->writeStringNR(1, "powerhouse_capacity ");
+                outfile->writeValue(indent2, "powerhouse_capacity", powerhouses.at(i)->getCapacity());
 
             else
-                outfile->writeStringNR(1, QString("powerhouse_%1_capacity ").arg(QString::number(i+1)));
-
-            outfile->writeFloatOrNa(powerhouses.at(i)->getCapacity());
+                outfile->writeValue(indent2, QString("powerhouse_%1_capacity").arg(QString::number(i+1)),
+                                    powerhouses.at(i)->getCapacity());
         }
 
-        outfile->writeStringNR(1, "floor_elevation ");
-        outfile->writeFloatOrNa(getElevBase());
-        outfile->writeStringNR(1, "forebay_elevation ");
-        outfile->writeFloatOrNa(getElevForebay());
-        outfile->writeStringNR(1, "tailrace_elevation ");
-        outfile->writeFloatOrNa(getElevTailrace());
-        outfile->writeStringNR(1, "bypass_elevation ");
-        outfile->writeFloatOrNa(getHeightBypass());
-        outfile->writeStringNR(1, "spillway_width ");
-        outfile->writeFloatOrNa(getSpillway()->getWidth());
-        outfile->writeStringNR(1, "spill_side ");
-        outfile->writeFloatOrNa(getSpillSide());
-        outfile->writeStringNR(1, "pergate ");
-        outfile->writeFloatOrNa(getSpillway()->getPerGate());
-        outfile->writeStringNR(1, "numgates ");
-        outfile->writeFloatOrNa(getSpillway()->getNumGates());
-        outfile->writeStringNR(1, "gate_width ");
-        outfile->writeFloatOrNa(getSpillway()->getGateWidth());
-        outfile->writeStringNR(1, "basin_length ");
-        outfile->writeFloatOrNa(getLengthBasin());
-        outfile->writeStringNR(1, "sgr ");
-        outfile->writeFloatOrNa(specGrav);
-        outfile->writeStringNR(1, "numgates ");
-        outfile->writeFloatOrNa(getSpillway()->getNumGates());
-        outfile->writeStringNR(1, "numgates ");
-        outfile->writeFloatOrNa(getSpillway()->getNumGates());
         if (getFishway() != nullptr) {
-            outfile->writeString(1, "fishway");//, getFishway()->getTypeString());
-            outfile->writeString(2, "type", getFishway()->getTypeString());
-            outfile->writeValue(2, "length", getFishway()->getLength());
-            outfile->writeValue(2, "capacity", getFishway()->getCapacity());
-            outfile->writeValue(2, "velocity", getFishway()->getVelocity());
-            outfile->writeString(1, "end", "fishway");
+            outfile->writeString(indent2, "fishway");
+            outfile->writeString(3, "type", getFishway()->getTypeString());
+            outfile->writeValue(3, "length", getFishway()->getLength());
+            outfile->writeValue(3, "capacity", getFishway()->getCapacity());
+            outfile->writeValue(3, "velocity", getFishway()->getVelocity());
+            outfile->writeString(indent2, "end", "fishway");
         }
-        outfile->writeString(1, "latlon", getCourse().at(0)->getLatLon());
-
-        outfile->writeString(0, "end", QString("(%1)").arg(name));
+        outfile->writeEnd(indent1, QString("dam"), namestr);
     }
 }
 
@@ -454,14 +595,16 @@ void cmpDam::setBasin(cmpBasin *value)
     basin = value;
 }
 
-cmpDamSpecies *cmpDam::getSpecies() const
+cmpDamSpecies *cmpDam::getSpecies(int index) const
 {
-    return species;
+    return species.at(index);
 }
 
-void cmpDam::setSpecies(cmpDamSpecies *spec)
+void cmpDam::setSpecies(int index, cmpDamSpecies *spec)
 {
-    species = spec;
+    while (species.count() < index)
+        species.append(new cmpDamSpecies());
+    species[index] = spec;
 }
 
 cmpPowerhouse *cmpDam::getPowerhouse(int index)
@@ -880,4 +1023,14 @@ cmpEquation *cmpDam::getNsatBackupEqn() const
 void cmpDam::setNsatBackupEqn(cmpEquation *newNsatBackupEqn)
 {
     nsatBackupEqn = newNsatBackupEqn;
+}
+
+float cmpDam::getEntrainFactor() const
+{
+    return entrainFactor;
+}
+
+void cmpDam::setEntrainFactor(float newEntrainFactor)
+{
+    entrainFactor = newEntrainFactor;
 }

@@ -13,6 +13,45 @@ cmpBasin::~cmpBasin()
     volume.clear();
 }
 
+bool cmpBasin::parseDesc(QString text)
+{
+    bool okay = true;
+    QStringList tokens = text.split(' ', QString::SkipEmptyParts);
+    if (tokens.count() == 2)
+    {
+        setVolumeMin(tokens[0].toFloat(&okay));
+        if (okay)
+            setVolumeMax(tokens[1].toFloat(&okay));
+        if (okay)
+            setText(text);
+    }
+    else
+    {
+        setText();
+        okay = false;
+    }
+    return okay;
+}
+
+void cmpBasin::setText(QString text)
+{
+    if (text.isEmpty())
+    {
+        valueStr.clear();
+        valueStr.append(QString("%1 %2")
+                    .arg(QString::number(volumeMin, 'g', 2)
+                    .arg(QString::number(volumeMax, 'g', 2))));
+    }
+    else
+    {
+        valueStr = text;
+    }
+}
+
+QString &cmpBasin::getText()
+{
+    return valueStr;
+}
 
 void cmpBasin::allocate(int numDays)
 {
@@ -26,7 +65,7 @@ void cmpBasin::allocate(int numDays)
 }
 
 
-float cmpBasin::getFlow(int day) const
+float cmpBasin::getFlowOnDay(int day) const
 {
     float value = 0;
     if (day < flow.count())
@@ -34,7 +73,7 @@ float cmpBasin::getFlow(int day) const
     return value;
 }
 
-void cmpBasin::setFlow(int day, const float &value)
+void cmpBasin::setFlowOnDay(int day, const float &value)
 {
     while (flow.count() <= day)
         flow.append(0);
@@ -64,7 +103,7 @@ void cmpBasin::setVolumeMax(float value)
 }
 
 
-float cmpBasin::getVolume(int day) const
+float cmpBasin::getVolumeOnDay(int day) const
 {
     float value = 0;
     if (day < volume.count())
@@ -72,7 +111,7 @@ float cmpBasin::getVolume(int day) const
     return value;
 }
 
-void cmpBasin::setVolume(int day, const float &value)
+void cmpBasin::setVolumeOnDay(int day, const float &value)
 {
     float newValue = value;
     if (newValue < volumeMin)
@@ -82,5 +121,25 @@ void cmpBasin::setVolume(int day, const float &value)
     while (volume.count() <= day)
         volume.append(0);
     volume[day] = newValue;
+}
+
+QList<float> &cmpBasin::getFlow()
+{
+    return flow;
+}
+
+void cmpBasin::setFlow(const QList<float> &newFlow)
+{
+    flow = newFlow;
+}
+
+QList<float> &cmpBasin::getVolume()
+{
+    return volume;
+}
+
+void cmpBasin::setVolume(const QList<float> &newVolume)
+{
+    volume = newVolume;
 }
 

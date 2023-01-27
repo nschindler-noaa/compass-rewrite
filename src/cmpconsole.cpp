@@ -45,13 +45,14 @@ int cmpConsole::run(QStringList args)
     scenario->setPostRivMethods();
 
     // read in data files
+//    scenario->resetData();
     scenario->readDataFiles();
 
     // propagate input dam data into the headwaters
     // this flow init must occur before the dam inits
     system->markRegulationPts();
     system->fillHeadwaters();
-    system->initialize();
+//    system->initialize();
 
     // run the scenario
     scenario->run();

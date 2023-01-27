@@ -110,15 +110,15 @@ bool cmpRiver::parseDesc(cmpFile *descfile)
             descfile->printEOF ("River description");
             okay = false;
         }
-        else if (token.compare ("flow_max") == 0)
-        {
-            okay = descfile->readFloatOrNa(token, tempFloat);
-            setFlowMax(tempFloat);
-        }
         else if (token.compare ("flow_min") == 0)
         {
             okay = descfile->readFloatOrNa(token, tempFloat);
             setFlowMin(tempFloat);
+        }
+        else if (token.compare ("flow_max") == 0)
+        {
+            okay = descfile->readFloatOrNa(token, tempFloat);
+            setFlowMax(tempFloat);
         }
         else if (token.compare ("reach") == 0)
         {
@@ -198,30 +198,49 @@ bool cmpRiver::outputDesc(cmpFile *descfile)
 {
     bool okay = true, end = false;
     QString token, val;
+    QString namestr = name;
+    cmpDam *dam;
+    cmpReach *reach;
+    cmpHeadwater *headwtr;
 
-    if (descfile->open(QIODevice::WriteOnly))
+
+    if (descfile->isOpen())
     {
         // output river values
-        descfile->writeString(0, QString("river"), name);
-        descfile->writeValue(0, QString("flow_max"), flowMax);
-        descfile->writeValue(0, QString("flow_min"), flowMin);
+        descfile->writeString(0, QString("river"), namestr.replace('_', ' '));
+        descfile->writeValue(1, QString("flow_min"), flowMin);
+        descfile->writeValue(1, QString("flow_max"), flowMax);
         descfile->writeNewline();
 
         // output river segments
         for (int i = 0; i < segments.count(); i++)
-            segments.at(i)->outputDesc(descfile);
-        descfile->writeNewline();
+        {
+            switch (segments.at(i)->getType())
+            {
+            case cmpRiverSegment::Dam:
+                dam = static_cast<cmpDam *>(segments.at(i));
+                dam->outputDesc(descfile);
+                break;
+            case cmpRiverSegment::Reach:
+                reach = static_cast<cmpReach *>(segments.at(i));
+                reach->outputDesc(descfile);
+                break;
+            case cmpRiverSegment::Headwater:
+                headwtr = static_cast<cmpHeadwater *>(segments.at(i));
+                headwtr->outputDesc(descfile);
+                break;
+            }
+            descfile->writeNewline();
+        }
 
         // output end statement
-        descfile->writeEnd(0, QString("river"), name);
+        descfile->writeEnd(0, QString("river"), namestr);
         descfile->writeNewline();
     }
     else
     {
-
         okay = false;
     }
-
 
     return okay;
 }

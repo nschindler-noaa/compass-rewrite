@@ -80,10 +80,12 @@ public:
     void writeFloatOrNa (float val, Data::Type dtype = Data::Float);
     void writeFloat (double val, Data::Type dtype = Data::Float);
     void writeInt (int val);
-    void writeFloatArray (int indent, QList<float> *arry, int size, Data::OutputConversion ctype,
+    void writeFloatArray (int indent, QList<float> &arry, Data::OutputConversion ctype,
                           Data::Type dtype, float defaultval);
     void writeFloatArray (int indent, float arry[], int size, Data::OutputConversion ctype,
                           Data::Type dtype, float defaultval);
+    void writeIntArray (int indent, QList<int> &arry, Data::OutputConversion ctype,
+                        int defaultval);
     void writeIntArray (int indent, int arry[], int size, Data::OutputConversion ctype,
                         int defaultval);
     void writeEnd (int indent, QString keyword, QString name = QString());

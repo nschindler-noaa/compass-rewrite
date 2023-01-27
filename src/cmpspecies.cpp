@@ -416,11 +416,11 @@ void cmpSpecies::writeReachClassData(cmpFile *outfile, int indent, bool outputAl
         outfile->writeTitledValue(indent, "reach_survival_coef", rcName, getReachSurvivalCoef(i), (outputAll? 100000: 1.0));
         eqn = reachClasses[i]->getMigrationEqn();   //     migration_eqn Class_0 0
         outfile->writeString(indent, "migration_eqn", rcName, QString::number(eqn->getId()));
-        eqn->writeParameters(outfile, indent, outputAll);
+        eqn->writeParameters(outfile, indent+1, outputAll);
         outfile->writeEnd(indent, "migration_eqn", rcName);
         eqn = reachClasses[i]->getCustomSurvivalEqn(); //        custom_survival_eqn Class_0 57
         outfile->writeString(indent, "custom_survival_eqn", rcName, QString::number(eqn->getId()));
-        eqn->writeParameters(outfile, indent, outputAll);
+        eqn->writeParameters(outfile, indent+1, outputAll);
         outfile->writeEnd(indent, "custom_survival_eqn", rcName);
 
         outfile->writeNewline();
@@ -438,12 +438,12 @@ void cmpSpecies::writeSpeciesData(cmpFile *outfile, int indent, bool outputAll)
     outfile->writeNewline();
     eqn = getFishdensEqn();
     outfile->writeValue(indent, "fish_depth_eqn", eqn->getId());
-    eqn->writeParameters(outfile, indent, outputAll);
+    eqn->writeParameters(outfile, indent+1, outputAll);
     outfile->writeEnd(indent, "fish_depth_eqn");
     outfile->writeNewline();
     eqn = getGasmortEqn();
     outfile->writeValue(indent, "gas_mort_eqn", eqn->getId());
-    eqn->writeParameters(outfile, indent, outputAll);
+    eqn->writeParameters(outfile, indent+1, outputAll);
     outfile->writeEnd(indent, "gas_mort_eqn");
     outfile->writeNewline();
     writeFishReturnEqns(outfile, indent, outputAll);
@@ -453,14 +453,14 @@ void cmpSpecies::writeFishReturnEqns(cmpFile *outfile, int indent, bool outputAl
 {
     cmpEquation *eqn;
     eqn = getInriverReturnEqn();
-    outfile->writeValue(0, "inriver_return_eqn", eqn->getId());
-    eqn->writeParameters(outfile, indent, outputAll);
-    outfile->writeEnd(0, "inriver_return_eqn");
+    outfile->writeValue(indent, "inriver_return_eqn", eqn->getId());
+    eqn->writeParameters(outfile, indent+1, outputAll);
+    outfile->writeEnd(indent, "inriver_return_eqn");
     outfile->writeNewline();
     eqn = getTransportReturnEqn();
-    outfile->writeValue(0, "transport_return_eqn", eqn->getId());
-    eqn->writeParameters(outfile, indent, outputAll);
-    outfile->writeEnd(0, "transport_return_eqn");
+    outfile->writeValue(indent, "transport_return_eqn", eqn->getId());
+    eqn->writeParameters(outfile, indent+1, outputAll);
+    outfile->writeEnd(indent, "transport_return_eqn");
 }
 
 const cmpEquation *cmpSpecies::getMigrationEqn(int rc) const

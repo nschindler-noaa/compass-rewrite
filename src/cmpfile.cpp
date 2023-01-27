@@ -83,8 +83,8 @@ bool cmpFile::readHeader ()
             val = popToken();
             if (!isFloat(val))
                 val.prepend("   ");
+            val.prepend("# ");
             pushToken (val);
-            pushToken (token);
             okay = readString (token);
             header->append (token);
         }
@@ -202,37 +202,43 @@ void cmpFile::writeHeader (cmpSettings *sets, QString type)
     QString os, user, date, line, space;
     int spaces;
 
-    writeString (0, sep);
-    if (header->isEmpty())
+    if (isOpen())
     {
-        os = QString("COMPASS ver %1 #").arg(sets->getAppVersion());
-        line = QString (QString("# COMPASS %1 File").arg(type));
-        spaces = line.count() + os.count();
-        space.fill(' ', 79-spaces);
-        line.append(space);
-        line.append(os);
-        writeString(0, line);
-        space.clear();
-        space.fill(' ', 77);
-        line = QString("#%1#").arg(space);
-        writeString(0, line);
-        user = QString("# Written by %1 on ").arg(sets->getUserSettings()->getUserName());
-        date = QDateTime::currentDateTime().toString("dd mmm yyyy at hh:mm ap ");
-        int spaces = user.count() + date.count();
-        space.clear();
-        space.fill(' ', 78-spaces);
-        line = QString("%1%2%3#").arg(user, date, space);
-        writeString(0, line);
-    }
-    else
-    {
-        for (int i = 0, total = header->count(); i < total; i++)
+        writeString (0, sep);
+        if (header->isEmpty())
         {
-            writeString (0, header->at (i));
+            os = QString("COMPASS ver %1 #").arg(sets->getAppVersion());
+            line = QString (QString("# COMPASS %1 File").arg(type));
+            spaces = line.count() + os.count();
+            space.fill(' ', 78-spaces);
+            line.append(space);
+            line.append(os);
+            writeString(0, line);
+            space.clear();
+            space.fill(' ', 76);
+            line = QString("#%1#").arg(space);
+            writeString(0, line);
+            user = sets->getUserSettings()->getUserName();
+            if (user.isEmpty())
+                user = QString("# Written on ");
+            else
+                user = QString("# Written by %1 on ").arg(user);
+            date = QDate::currentDate().toString("dd MMM yyyy");
+            spaces = user.count() + date.count();
+            space.clear();
+            space.fill(' ', 77-spaces);
+            line = QString("%1%2%3#").arg(user, date, space);
+            writeString(0, line);
         }
+        else
+        {
+            for (int i = 0, total = header->count(); i < total; i++)
+            {
+                writeString (0, header->at (i));
+            }
+        }
+        writeString (0, sep);
     }
-    writeString (0, sep);
-    close();
 }
 
 void cmpFile::writeInfo (QString newnotes)
@@ -290,7 +296,8 @@ bool cmpFile::readString (QString &string)
 QStringList *cmpFile::splitString(QString &string)
 {
     QString newstring(string.replace('\t',' '));
-    QStringList *tokens = new QStringList (newstring.split(' ', QString::SkipEmptyParts));
+    tokens->clear();
+    tokens->append(newstring.split(' ', QString::SkipEmptyParts));
     return tokens;
 }
 
@@ -314,8 +321,7 @@ QString cmpFile::getToken ()
             }
             lineNum++;
         }
-        delete tokens;
-        tokens = splitString(rline); //new QStringList (rline.split ('\t', QString::SkipEmptyParts));
+        splitString(rline);
 //        readString (rline);
 //        delete tokens;
 //        tokens = new QStringList (rline.split(' ', QString::SkipEmptyParts));
@@ -519,21 +525,24 @@ bool cmpFile::readFloatArray(QList<float> farray)
 {
     bool okay = true;
     QString NA("");
-    okay = readFloatOrNa(NA, farray[0]);
+    skipAllNumbers();
+//    okay = readFloatOrNa(NA, farray[0]);
     return okay;
 }
 
 bool cmpFile::readIntArray (int *iarray)
 {
     bool okay = true;
-    okay = readInt(iarray[0]);
+    skipAllNumbers();
+//    okay = readInt(iarray[0]);
     return okay;
 }
 
 bool cmpFile::readIntArray(QList<int> iarray)
 {
     bool okay = true;
-    okay = readInt(iarray[0]);
+    skipAllNumbers();
+//    okay = readInt(iarray[0]);
     return okay;
 }
 
@@ -593,7 +602,7 @@ void cmpFile::writeBorder()
 void cmpFile::writeIndent (int indent)
 {
     for (int i = 0; i < indent; i++)
-        write ("\t", 1);
+        write ("  ", 2);
 }
 
 void cmpFile::writeValue(int indent, QString keyword, double value, double defaultValue)
@@ -609,7 +618,7 @@ void cmpFile::writeValue(int indent, QString keyword, float value, float default
 {
     if (floatIsNotEqual(value, defaultValue))
     {
-        QString valueString(QString::number(value, 'g', 2));
+        QString valueString(QString::number(value, 'f', 2));
         writeString(indent, keyword, valueString);
     }
 }
@@ -788,11 +797,18 @@ float cmpFile::convertFloat(float val, Data::OutputConversion ctype)
     return retval;
 }
 
-void cmpFile::writeFloatArray(int indent, QList<float> *arry, int size,
+void cmpFile::writeFloatArray(int indent, QList<float> &arry,
                       Data::OutputConversion ctype,
                       Data::Type dtype, float defaultval)
 {
-
+    int total = arry.size();
+    if (total > 0)
+    {
+        float *newarry = static_cast<float*>(calloc(total, sizeof(float)));
+        for (int i = 0; i < total; i++)
+            newarry[i] = arry[i];
+        writeFloatArray(indent, newarry, total, ctype, dtype, defaultval);
+    }
 }
 
 void cmpFile::writeFloatArray (int indent, float arry[], int size,
@@ -862,6 +878,19 @@ void cmpFile::writeFloatArray (int indent, float arry[], int size,
         qWarning("Float array is nullptr.");
 //        cmpLog::outlog->add(cmpLog::Error, QString("Integer array is nullptr."));
         writeFloat (0.0, dtype);
+    }
+    writeNewline();
+}
+
+void cmpFile::writeIntArray(int indent, QList<int> &arry, Data::OutputConversion ctype, int defaultval)
+{
+    int total = arry.size();
+    if (total > 0)
+    {
+        int *newarry = static_cast<int*>(calloc(total, sizeof(int)));
+        for (int i = 0; i < total; i++)
+            newarry[i] = arry[i];
+        writeIntArray(indent, newarry, total, ctype, defaultval);
     }
 }
 

@@ -6,7 +6,7 @@
 
 cmpUserSettings::cmpUserSettings()
 {
-
+    setOptions();
 }
 
 void cmpUserSettings::setOptions()

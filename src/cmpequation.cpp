@@ -392,7 +392,7 @@ bool cmpEquation::parseData(cmpFile *cfile, QString type)
             if (type.isEmpty())
                 okay = cfile->checkEnd("equation", name);
             else
-                okay = cfile->checkEnd(type, name);
+                okay = cfile->checkEnd("equation", type);
             end = true;
         }
         else
@@ -405,10 +405,23 @@ bool cmpEquation::parseData(cmpFile *cfile, QString type)
 
 void cmpEquation::writeParameters(cmpFile *outfile, int indent, bool outputAll)
 {
-    int parmindent = indent + 1;
-    for (int i = 0; i < numEqnParams; i++)
-        outfile->writeValue(parmindent, "parameter", parameters.at(i)->getValue());
-    outfile->writeEnd(indent, name);
+    cmpEquation *def = new cmpEquation(id);
+    if (outputAll)
+    {
+        for (int i = 0; i < numEqnParams; i++)
+        {
+            outfile->writeStringNR(indent, "parameter");
+            outfile->writeValue(0, QString::number(i), getParameter(i)->getValue());
+        }
+    }
+    else
+    {
+        for (int i = 0; i < numEqnParams; i++)
+        {
+            outfile->writeStringNR(indent, "parameter");
+            outfile->writeValue(0, QString::number(i), getParameter(i)->getValue(), def->getParameter(i)->getValue());
+        }
+    }
 }
 
 void cmpEquation::setupEquation()

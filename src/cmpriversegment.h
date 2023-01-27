@@ -4,6 +4,7 @@
 //#include "definitions.h"
 #include "cmpfile.h"
 #include "cmptributary.h"
+#include "cmpgasdistribution.h"
 
 #include <QObject>
 
@@ -34,6 +35,7 @@ public:
     virtual bool parseData (cmpFile *infile);
     bool parseToken (QString token, cmpFile *infile);
     void outputData (cmpFile *outfile, bool outputAll);
+    void writeAllData (cmpFile *outfile, int indent, bool outputAll);
     void writeConfigData (cmpFile *outfile, int indent, bool outputAll);
     void writeFlowData (cmpFile *outfile, int indent, bool outputAll);
     void writeGasData (cmpFile *outfile, int indent, bool outputAll);
@@ -66,9 +68,6 @@ public:
 
     QList<cmpRiverPoint *> getCourse() const;
     bool addCoursePoint (cmpRiverPoint *pt);
-
-    bool getRegPoint() const;
-    void setRegPoint(bool value);
 
     bool getReadFlows() const;
     void setReadFlows(bool value);
@@ -149,6 +148,9 @@ public:
 
     const QString &getTypeStr() const;
 
+    float getGasTheta() const;
+    void setGasTheta(float newGasTheta);
+
 protected:
     cmpRiverSegment &copy (const cmpRiverSegment &rhs);
 
@@ -181,8 +183,8 @@ protected:
 
     int outputSettings;
 
-    bool isRegPoint;
-    bool readFlows;
+    bool isRegPoint;         /**< Whether this is regulation point or not */
+    bool readFlows;          /**< Whether flows are read from a data file */
     float flowMax;
     float flowMin;
     QList<float> flow;
@@ -194,13 +196,13 @@ protected:
                           *   false if not. */
 
     bool readGas;            /**< true if values are read from a data file */
-/*    GasDistribution *gas_out; *< Output gas distribution */
-/*    float *initial_gas;       *< Only defined if there is an initial gas
+    float gasTheta;
+    cmpGasDistribution *gas_out; /**< Output gas distribution */
+    QList<float> initial_gas; /**< Only defined if there is an initial gas
                                * vector which supercedes any in-river gas */
 
-    bool readTurbidity;      /**< true if values are read from a data file */
-/*    float turbidity[STEPS_IN_SEASON]; *< Turbidity at each model
-                                                            *time step */
+    bool readTurbidity;     /**< true if values are read from a data file */
+    QList<float> turbidity; /**< Turbidity at each model time step */
 
     cmpRiverSegment *up;  /**< next segment up the same river.*/
     cmpRiverSegment *fork;/**< next segment up for different river. */

@@ -13,6 +13,8 @@ public:
 
     void resetData ();
 
+    void outputDesc (cmpFile *outfile) override;
+
     bool parseData (cmpFile *infile) override;
     bool parseToken (QString token, cmpFile *infile);
     void writeData (cmpFile *outfile, int indent, bool outputAll);
@@ -27,8 +29,11 @@ public:
     void calculateTempInputs ();
     void calculateTemps ();
 
+    float getFlowMean() const;
+    void setFlowMean(float newFlowMean);
+
 protected:
-    bool regulated;          /**< Whether this is a regulated or unregulated headwater */
+//    bool regulated;          /**< Whether this is a regulated or unregulated headwater */
     float flowCoefficient;   /**< For unregulated flow */
 
     float flowMean;          /**< Mean flow at this headwater */

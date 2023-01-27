@@ -2,6 +2,9 @@
 #define CMPREACH_H
 
 #include "cmpriversegment.h"
+#include "cmpequation.h"
+
+#include <QMap>
 
 class cmpRiver;
 
@@ -86,6 +89,12 @@ public:
     float getLossMin() const;
     void setLossMin(float value);
 
+    float getGasDispExp() const;
+    void setGasDispExp(float newGasDispExp);
+
+    float getFreeFlowMax() const;
+    void setFreeFlowMax(float newFreeFlowMax);
+
 private:
     int rclass;            /**< Reach class number which should be on
                             * the interval [0..num_reach_classes-1] */
@@ -109,6 +118,15 @@ private:
     QList<float> tempDelta; /**< Modifies water_temp, if needed [STEPS_IN_SEASON]*/
 
     float waterParticleTT;  /**< particle travel time; computed */
+    float freeFlowMax;
+    cmpEquation *freeFlowEqn;
+
+    float gasDispExp;
+
+    QList<float> fishDensity;
+    QList<float> birdDensity1;
+    QList<float> birdDensity2;
+    QMap<QString, float> predMean; /**< predation mean for each species. */
 
     int stepsPerSeason;
 

@@ -2,6 +2,8 @@
 #define CMPPOWERHOUSE_H
 
 #include "Period.h"
+#include "cmpfile.h"
+#include "cmpdamspecies.h"
 
 #include <QStringList>
 
@@ -17,6 +19,13 @@ public:
     ~cmpPowerhouse ();
 
     void allocate (int days, int slices);
+    void allocateSpecies (int num);
+    void setSpeciesNames (QStringList &spNames);
+    void deleteSpecies();
+
+    void writeData (cmpFile *outfile, int indent, bool outputAll);
+    void writeAllData (cmpFile *outfile, int indent);
+    void writeSecondData(cmpFile *outfile, int indent, bool outputAll);
 
     int getPriority() const;
     void setPriority(int value = 0);
@@ -42,10 +51,13 @@ private:
                       *   0 followed by increasing positive numbers. */
     float threshold; /**< Min flow controls when this powerhouse turns on */
     float capacity;  /**< Capacity in KCFS of this powerhouse. */
+    float rswCapacity;
 
     Bool2TierList schedule; /**< Powerhouse operation schedule
                       * (in case some powerhouses are only available at
                       * certain times). This is a two-tier period list. */
+
+    QList<cmpDamSpecies *> species;
 
     /** The threshold and schedule are used at run time to determine
      * the actual percentage flow through this powerhouse, tracked

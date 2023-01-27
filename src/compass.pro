@@ -17,6 +17,7 @@ HEADERS += \
     cmpequation.h \
     cmpfile.h \
     cmpfishway.h \
+    cmpgasdistribution.h \
     cmpheadwater.h \
     cmplog.h \
     cmpmainwindow.h \
@@ -55,6 +56,7 @@ SOURCES += \
     cmpequation.cpp \
     cmpfile.cpp \
     cmpfishway.cpp \
+    cmpgasdistribution.cpp \
     cmpheadwater.cpp \
     cmplog.cpp \
     cmpmainwindow.cpp \

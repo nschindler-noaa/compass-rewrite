@@ -38,8 +38,8 @@ public:
     cmpBasin *getBasin() const;
     void setBasin(cmpBasin *value);
 
-    cmpDamSpecies *getSpecies() const;
-    void setSpecies(cmpDamSpecies *spec);
+    cmpDamSpecies *getSpecies(int index) const;
+    void setSpecies(int index, cmpDamSpecies *spec);
 
     cmpPowerhouse *getPowerhouse(int index);
     const QList<cmpPowerhouse *> &getPowerhouses() const;
@@ -156,6 +156,9 @@ public:
     cmpEquation *getNsatBackupEqn() const;
     void setNsatBackupEqn(cmpEquation *newNsatBackupEqn);
 
+    float getEntrainFactor() const;
+    void setEntrainFactor(float newEntrainFactor);
+
 private:
     /* Spillway information  */
     cmpSpillway *spillway; /**< Spillway pointer holds information about the spillway. */
@@ -169,7 +172,7 @@ private:
     /** Pointer to the dam species information for each species */
     QList<cmpDamSpecies *> species;
 
-    /** List of pointers to powerhouses. If there are no powerhouses, this pointer is nullptr. */
+    /** List of pointers to powerhouses. If there are no powerhouses, this is empty. */
     QList<cmpPowerhouse *> powerhouses;
     Location phouseSide;
 
@@ -187,7 +190,7 @@ private:
     float depthForebay;  /**< Full pool forebay depth */
     float depthTailrace; /**< Nominal tailrace depth */
 
-    int collector;        /**< Whether or not this dam is a collector dam.
+    int collector;       /**< Whether or not this dam is a collector dam.
                            * (i.e. it has PIT tag detectors and a
                            * different kind of bypass system which can
                            * produce latent effects) */
@@ -244,7 +247,8 @@ private:
                            * the spill fraction drops out of the range
                            * in which the day and night equations
                            * reasonably model behavior */
-    float k_entrain;      /**< Powerhouse side gas entrainment */
+    float entrainK;      /**< Powerhouse side gas entrainment */
+    float entrainFactor;
 
     /* actual depths, calculated from adjacent reaches, with drawdown */
     QList<float> depthForebayDay;/**< Forebay depth at each day [days_per_season]*/
@@ -259,6 +263,7 @@ private:
 
 public slots:
     void allocateDays(int days, int slices);
+    void setSpeciesNames(QStringList spcNames);
     void calculateFlow () override;
     void calculateFlows ();
     void calculateTemp () override;

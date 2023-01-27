@@ -90,7 +90,7 @@ void cmpRelease::writeData(cmpFile *ofile, bool outputAll)
     ofile->writeValue(1, "initial_spill_experience", initialSpillExperience);
     ofile->writeValue(1, "length", fishLength);
     ofile->writeStringNR(1, "number");
-    ofile->writeFloatArray(1, &number, number.count(), Data::None, Data::Float, 0);
+    ofile->writeFloatArray(1, number, Data::None, Data::Float, 0);
 }
 
 void cmpRelease::setSite(cmpReleaseSite *newSite)

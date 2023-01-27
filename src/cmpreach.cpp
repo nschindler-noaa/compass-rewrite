@@ -6,8 +6,8 @@ float Ufree = 0.045;		/* kfs x10-1*/
 
 cmpReach::cmpReach(cmpRiver *parent) : cmpRiverSegment(parent)
 {
-    type = Reach;
-    cmpRiverSegment::setType(cmpRiverSegment::Reach);
+    type = cmpRiverSegment::Reach;
+    typeStr = "reach";
     clear();
     resetData();
 }
@@ -16,8 +16,8 @@ cmpReach::cmpReach (QString rname, cmpRiver *parent) :
     cmpRiverSegment (parent)
 {
     name = QString (rname);
-    type = Reach;
-    cmpRiverSegment::setType(cmpRiverSegment::Reach);
+    type = cmpRiverSegment::Reach;
+    typeStr = "reach";
     clear ();
     resetData();
 }
@@ -26,8 +26,8 @@ cmpReach::cmpReach (cmpReach &rhs) :
     cmpRiverSegment(rhs)
 {
     name = QString (rhs.getName());
-    type = Reach;
-    cmpRiverSegment::setType(cmpRiverSegment::Reach);
+    type = cmpRiverSegment::Reach;
+    typeStr = "reach";
     copy (rhs);
 }
 
@@ -42,16 +42,17 @@ void cmpReach::clear ()
     length = 0.0;
     volume = 0.0;
     surfaceArea = 0.0;
-    depthAve = 0.0;
-    depthUpper = 0.0;
-    depthLower = 0.0;
+    depthAve = 5.0;
+    depthUpper = 5.0;
+    depthLower = 5.0;
     elevLower = 0.0;
-    wallSlope = 0.0;
+    wallSlope = 40.0;
 
     lossMax = 0.0;
     lossMin = 0.0;
 
     waterParticleTT = 0.0;
+    freeFlowEqn = nullptr;
 
     if (!loss.isEmpty())
         loss.clear();
@@ -157,21 +158,23 @@ bool cmpReach::parseDesc(cmpFile *descfile)
 
 void cmpReach::outputDesc(cmpFile *ofile)
 {
+    QString namestr = name;
     if (ofile->isOpen())
     {
-        ofile->writeString(1, QString("reach"), name);
-
-        ofile->writeString(2, QString("width %1").arg(widthAve));
-        ofile->writeString(2, QString("lower_depth %1").arg(depthLower));
-        ofile->writeString(2, QString("upper_depth %1").arg(depthUpper));
-        ofile->writeString(2, QString("slope %1").arg(wallSlope));
-        ofile->writeString(2, QString("lower_elev %1").arg(elevLower));
+        ofile->writeString(1, QString("reach"), namestr.replace('_', ' '));
+        if (!abbrev.isEmpty())
+            ofile->writeString(2, "abbrev", getAbbrev());
+        ofile->writeValue(2, QString("lower_elev"), elevLower);
+        ofile->writeValue(2, QString("lower_depth"), depthLower);
+        ofile->writeValue(2, QString("upper_depth"), depthUpper);
+        ofile->writeValue(2, QString("width"), widthAve);
+        ofile->writeValue(2, QString("slope"), wallSlope);
         for (int i = 0; i < course.count(); i++)
         {
-            ofile->writeString(2, course.at(i)->getLatLon());
+            ofile->writeString(3, QString("latlon"), course.at(i)->getLatLon());
         }
 
-        ofile->writeEnd(1, QString("reach"), name);
+        ofile->writeEnd(1, QString("reach"), namestr);
     }
 }
 
@@ -476,6 +479,26 @@ void cmpReach::setLossMin(float value)
     lossMin = value;
 }
 
+float cmpReach::getGasDispExp() const
+{
+    return gasDispExp;
+}
+
+void cmpReach::setGasDispExp(float newGasDispExp)
+{
+    gasDispExp = newGasDispExp;
+}
+
+float cmpReach::getFreeFlowMax() const
+{
+    return freeFlowMax;
+}
+
+void cmpReach::setFreeFlowMax(float newFreeFlowMax)
+{
+    freeFlowMax = newFreeFlowMax;
+}
+
 bool cmpReach::parseData (cmpFile *cfile)
 {
     bool okay = true, end = false;
@@ -507,6 +530,8 @@ bool cmpReach::parseToken (QString token, cmpFile *cfile)
 {
     bool okay = true;
     QString na("");
+    int tmpint;
+    float tmpfloat;
     QString tmpstr;
 
     if (token.compare ("reach_class", Qt::CaseInsensitive) == 0)
@@ -530,6 +555,45 @@ bool cmpReach::parseToken (QString token, cmpFile *cfile)
     {
         okay = cfile->readFloatArray (loss);
     }
+    else if (token.compare ("gas_dissp_exp", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatOrNa(tmpstr, gasDispExp);
+    }
+    else if (token.compare ("delta_water_temp", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatArray (tempDelta);
+    }
+    else if (token.compare ("fish_density", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatArray (fishDensity);
+    }
+    else if (token.compare ("birdDensity1", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatArray (birdDensity1);
+    }
+    else if (token.compare ("birdDensity2", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatArray (birdDensity2);
+    }
+    else if (token.compare ("pred_mean", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpstr);
+        QStringList tokens(tmpstr.split(' ', QString::SkipEmptyParts));
+        if (tokens.count() == 2)
+        {
+            predMean.insert(tokens[0], tokens[1].toFloat());
+        }
+    }
+    else if (token.compare ("ufree_max", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatOrNa(tmpstr, freeFlowMax);
+    }
+    else if (token.compare ("ufree_eqn", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpstr);
+        freeFlowEqn = new cmpEquation(tmpstr);
+        okay = freeFlowEqn->parseData(cfile, tmpstr);
+    }
     else
     {
         okay = cmpRiverSegment::parseToken (token, cfile);
@@ -548,6 +612,7 @@ void cmpReach::writeData(cmpFile *outfile, int indent, bool outputAll)
 
 void cmpReach::writeConfigData(cmpFile *outfile, int indent, bool outputAll)
 {
+    int intdef = (outputAll)? 100000: 0;
     outfile->writeString(indent, "reach_class", reachClass);
-    outfile->writeValue (indent, "output_settings", outputSettings);
+    outfile->writeValue (indent, "output_settings", outputSettings, intdef);
 }

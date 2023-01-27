@@ -340,9 +340,9 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
             if (okay)
                 dSettings->setFishReturnHyp(name);
         }
-        else if (token.compare ("reach") == 0)
+        else if (token.compare ("reach", Qt::CaseInsensitive) == 0)
         {
-            QString reachName ("");
+            QString reachName;
             okay = cfile->readString (reachName);
             if (okay)
             {
@@ -360,7 +360,7 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
         }
         else if (token.compare ("dam") == 0)
         {
-            QString damName ("");
+            QString damName;
             okay = cfile->readString (damName);
             if (okay)
             {
@@ -378,7 +378,7 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
         }
         else if (token.compare ("headwater") == 0)
         {
-            QString hwName ("");
+            QString hwName;
             okay = cfile->readString (hwName);
             if (okay)
             {
@@ -396,7 +396,7 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
         }
         else if (token.compare ("release") == 0)
         {
-            QString relName ("");
+            QString relName;
             okay = cfile->readString (relName);
             if (okay)
             {
@@ -596,17 +596,29 @@ bool cmpRiverSystem::parseReleaseSite(cmpFile *cfile, cmpReleaseSite *relsite)
 bool cmpRiverSystem::outputDesc(cmpFile *descfile)
 {
     bool okay = true;
-    QString token (""), val ("");
+    QString name, val;
 
-    if (descfile->open(QIODevice::WriteOnly))
+    if (!descfile->isOpen())
+        okay = descfile->open(QIODevice::WriteOnly);
+
+    if (okay)
     {
         // output river system values
+        // species
         for (int i = 0; i < speciesNames.count(); i++)
-            descfile->writeString(0, "species", speciesNames.at(i));
+        {
+            name = speciesNames.at(i);
+            descfile->writeString(0, "species", name.replace('_', ' '));
+        }
         descfile->writeNewline();
+        // stocks
         for (int i = 0; i < stockNames.count(); i++)
-            descfile->writeString(0, "stock", stockNames.at(i));
+        {
+            name = stockNames.at(i);
+            descfile->writeString(0, "stock", name.replace('_', ' '));
+        }
         descfile->writeNewline();
+        // release sites
         for (int i = 0, total = releaseSites.count(); i < total; i++)
         {
             releaseSites.at(i)->outputDesc(descfile);
@@ -687,7 +699,7 @@ bool cmpRiverSystem::outputPostRiverData(cmpFile *outfile, bool outputAll)
         name = species.at(i)->getName();
         outfile->writeString(0, "species", name);
         outfile->writeNewline();
-        species[i]->writeFishReturnEqns(outfile, 0, outputAll);
+        species[i]->writeFishReturnEqns(outfile, 1, outputAll);
         outfile->writeNewline();
         outfile->writeEnd(0, "species", name);
         outfile->writeNewline();
@@ -706,16 +718,16 @@ bool cmpRiverSystem::outputConfigData(cmpFile *outfile, bool outputAll)
         name = segments.at(i)->getName();
         stype = segments.at(i)->getType();
         type = segments.at(i)->getTypeStr();
-        outfile->writeString(0, type, name);
+        outfile->writeString(1, type, name);
         switch (stype)
         {
         case cmpRiverSegment::Reach:
-            static_cast<cmpReach *>(segments.at(i))->writeConfigData(outfile, 1, outputAll);
+            static_cast<cmpReach *>(segments.at(i))->writeConfigData(outfile, 2, outputAll);
             break;
         default:
-            segments.at(i)->writeConfigData(outfile, 1, outputAll);
+            segments.at(i)->writeConfigData(outfile, 2, outputAll);
         }
-        outfile->writeEnd(0, type, name);
+        outfile->writeEnd(1, type, name);
         outfile->writeNewline();
 
         rClass.clear();

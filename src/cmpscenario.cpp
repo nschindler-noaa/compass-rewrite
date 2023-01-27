@@ -4,22 +4,16 @@ cmpScenario::cmpScenario(QObject *parent) : QObject(parent)
 {
     settings = nullptr;
     system = nullptr;
-    postRivMethods = new QStringList();
-    postRivMethodNames = new QStringList();
 }
 
 cmpScenario::cmpScenario(cmpSettings *settings, QObject *parent) : QObject(parent)
 {
     setSettings(settings);
     system = nullptr;
-    postRivMethods = new QStringList();
-    postRivMethodNames = new QStringList();
 }
 
 cmpScenario::~cmpScenario()
 {
-    delete postRivMethods;
-    delete postRivMethodNames;
 }
 
 void cmpScenario::setSettings(cmpSettings *sets)
@@ -130,9 +124,9 @@ void cmpScenario::runRealTime()
 void cmpScenario::outputData(QString filename, bool outputAll)
 {
     cmpFile *outfile;
-    if (fileNames->contains(filename, Qt::CaseInsensitive))
+    if (!fileNames.isEmpty() && fileNames.contains(filename, Qt::CaseInsensitive))
     {
-        int index = fileNames->indexOf(filename);
+        int index = fileNames.indexOf(filename);
         outfile = files.at(index);
     }
     else
@@ -142,6 +136,7 @@ void cmpScenario::outputData(QString filename, bool outputAll)
 
     if (outfile->open(QIODevice::WriteOnly))
     {
+        outfile->seek(0);
         // Select what type of file to write by the filename extension.
 
         // Write a river description file.
@@ -152,9 +147,9 @@ void cmpScenario::outputData(QString filename, bool outputAll)
         //  Also, force writes of all the other file types.
         else if (filename.endsWith(".ctrl", Qt::CaseInsensitive))
         {
-            QStringList *outfiles = writeCtrlData(outfile);
-            for (int i = 0, total = outfiles->count(); i < total; i++)
-                outputData(outfiles->at(i), outputAll);
+            QStringList outfiles = writeCtrlData(outfile);
+            for (int i = 0, total = outfiles.count(); i < total; i++)
+                outputData(outfiles.at(i), outputAll);
         }
         // Write a river environment data file.
         else if (filename.endsWith(".riv", Qt::CaseInsensitive))
@@ -305,20 +300,20 @@ void cmpScenario::writeRunSettings(cmpFile *outfile, bool outputAll)
     outfile->writeString(0, "mortality_class", settings->getDataSettings()->getMortClassString());//custom
 }
 // control file (.ctrl)
-QStringList *cmpScenario::writeCtrlData(cmpFile *outfile)
+QStringList &cmpScenario::writeCtrlData(cmpFile *outfile)
 {
     QString file = outfile->fileName().replace(".ctrl", ".riv", Qt::CaseInsensitive);
-    outputFiles->clear();
-    outputFiles->append(file);
-    outputFiles->append(file.replace(".riv", ".ops", Qt::CaseInsensitive));
-    outputFiles->append(file.replace(".ops", ".clb", Qt::CaseInsensitive));
-    outputFiles->append(file.replace(".clb", ".rls", Qt::CaseInsensitive));
-    outputFiles->append(file.replace(".rls", ".pbn", Qt::CaseInsensitive));
-    outputFiles->append(file.replace(".pbn", ".etc", Qt::CaseInsensitive));
+    outputFiles.clear();
+    outputFiles.append(file);
+    outputFiles.append(file.replace(".riv", ".ops", Qt::CaseInsensitive));
+    outputFiles.append(file.replace(".ops", ".clb", Qt::CaseInsensitive));
+    outputFiles.append(file.replace(".clb", ".rls", Qt::CaseInsensitive));
+    outputFiles.append(file.replace(".rls", ".pbn", Qt::CaseInsensitive));
+    outputFiles.append(file.replace(".pbn", ".etc", Qt::CaseInsensitive));
     outfile->writeHeader(settings, "Control");
     outfile->writeInfo();
     for (int i = 0; i < 6; i++)
-        outfile->writeString(0, QString("include"), outputFiles->at(i));
+        outfile->writeString(0, QString("include"), outputFiles.at(i));
     outfile->writeNewline();
 
     return outputFiles;
@@ -340,16 +335,21 @@ void cmpScenario::writeCalibData(cmpFile *outfile, bool outputAll)
 // release file (.rls)
 void cmpScenario::writeReleaseData(cmpFile *outfile, bool outputAll)
 {
-    for (int i = 0, total = releases.count(); i < total; i++)
+    if (outfile->isOpen())
     {
-        releases.at(i)->writeData(outfile, outputAll);
-        outfile->writeNewline();
+        for (int i = 0, total = releases.count(); i < total; i++)
+        {
+            releases.at(i)->writeData(outfile, outputAll);
+            outfile->writeNewline();
+        }
     }
 }
 // fish return (.pbn)
 void cmpScenario::writePostRivData(cmpFile *outfile, bool outputAll)
 {
+    outfile->writeNewline();
     system->outputPostRiverData(outfile, outputAll);
+    outfile->writeNewline();
 }
 // config file (.etc)
 void cmpScenario::writeConfigData(cmpFile *outfile, bool outputAll)
@@ -380,19 +380,19 @@ void cmpScenario::writeScnData(cmpFile *outfile, bool outputAll)
 }
 
 
-QStringList *cmpScenario::getPostRivMethods() const
+QStringList &cmpScenario::getPostRivMethods()
 {
     return postRivMethods;
 }
 
 void cmpScenario::setPostRivMethods()
 {
-    postRivMethods->append ("sar_vs_date");
-    postRivMethods->append ("latent_mortality");
-    postRivMethods->append ("constant_d");
-    postRivMethods->append ("s3_vs_wtt");
-    postRivMethodNames->append ("SAR vs. Date");
-    postRivMethodNames->append ("Latent Mortality");
-    postRivMethodNames->append ("Constant D");
-    postRivMethodNames->append ("S3 vs Water Travel Time");
+    postRivMethods.append ("sar_vs_date");
+    postRivMethods.append ("latent_mortality");
+    postRivMethods.append ("constant_d");
+    postRivMethods.append ("s3_vs_wtt");
+    postRivMethodNames.append ("SAR vs. Date");
+    postRivMethodNames.append ("Latent Mortality");
+    postRivMethodNames.append ("Constant D");
+    postRivMethodNames.append ("S3 vs Water Travel Time");
 }

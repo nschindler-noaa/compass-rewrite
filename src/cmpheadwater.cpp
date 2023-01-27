@@ -1,12 +1,14 @@
 #include "cmpheadwater.h"
 #include "cmpriver.h"
 
-cmpHeadwater::cmpHeadwater (cmpRiver *parent) : cmpRiverSegment(parent)
+cmpHeadwater::cmpHeadwater (cmpRiver *parent) :
+    cmpRiverSegment(parent)
 {
     if (parent != nullptr)
         riverName = parent->getName();
     name = QString();
     type = cmpRiverSegment::Headwater;
+    typeStr = "headwater";
     resetData();
 }
 
@@ -17,6 +19,7 @@ cmpHeadwater::cmpHeadwater (QString hname, cmpRiver *parent) :
         riverName = parent->getName();
     name = QString(hname);
     type = cmpRiverSegment::Headwater;
+    typeStr = "headwater";
     resetData ();
 }
 
@@ -30,7 +33,7 @@ void cmpHeadwater::allocateDays(int numdays)
 
 void cmpHeadwater::resetData()
 {
-    regulated = true;  // default setting
+    isRegPoint = true;  // default setting
     flowCoefficient = 0.0;
     flowMean = 0.0;
     allocateDays(366);
@@ -49,11 +52,11 @@ void cmpHeadwater::fillRegulated()
 
     if (downseg == nullptr || downseg->getForkSegment() != nullptr)
     {
-        regulated = false;
+        isRegPoint = false;
     }
     else
     {
-        regulated = true;
+        isRegPoint = true;
         msg = QString (QString ("Filling regulated headwater %1, regulated at %2").arg(name, downseg->getName()));
 //        cmpLog::outlog->add(cmpLog::Debug, msg);
 
@@ -67,7 +70,7 @@ void cmpHeadwater::fillUnRegulated()
     cmpRiverSegment *downseg = down;
     QString msg ("");
 
-    if (readFlows || regulated)
+    if (readFlows || isRegPoint)
         return;
 
     msg = QString (QString ("Filling unregulated headwater %1").arg(name));
@@ -94,11 +97,11 @@ void cmpHeadwater::calculateFlows()
 
     if (downseg != nullptr || downseg->getForkSegment())
     {
-        regulated = false;
+        isRegPoint = false;
     }
     else
     {
-        regulated = true;
+        isRegPoint = true;
         flowCoefficient = 0.0;
         if (downseg->getType() == cmpRiverSegment::Dam)
         {
@@ -126,6 +129,31 @@ void cmpHeadwater::calculateTemps()
 {
 
 }
+
+float cmpHeadwater::getFlowMean() const
+{
+    return flowMean;
+}
+
+void cmpHeadwater::setFlowMean(float newFlowMean)
+{
+    flowMean = newFlowMean;
+}
+
+void cmpHeadwater::outputDesc(cmpFile *ofile)
+{
+    int total = course.count();
+    if (total > 1)
+    {
+        QString namestr = name;
+        ofile->writeString(1, "headwater", namestr.replace('_', ' '));
+        for (int i = 0; i < total; i++)
+            ofile->writeString(3, QString("latlon"), course.at(i)->getLatLon());
+        ofile->writeEnd(1, "null", namestr);
+    }
+}
+
+
 
 bool cmpHeadwater::parseData (cmpFile *cfile)
 {
@@ -181,13 +209,15 @@ void cmpHeadwater::writeData(cmpFile *outfile, int indent, bool outputAll)
     float fdef = outputAll? 100000: 0;
     outfile->writeString(indent, "headwater", name);
     writeConfigData(outfile, indent2, outputAll);
+    outfile->writeValue(indent2, "flow_mean", getFlowMean(), fdef);// 0.00
+    outfile->writeValue(indent2, "flow_max", getFlowMax(), fdef);// 26.00
     // output flow
     writeFlowData(outfile, indent2, outputAll);
     // output gas
-    outfile->writeString(indent2, "output_gas", )
+    writeGasData(outfile, indent2, outputAll);
     // output temp
-
+    writeTempData(outfile, indent2, outputAll);
     // output turbidity
-
+    writeTurbidData(outfile, indent2, outputAll);
     outfile->writeEnd(indent, "headwater", name);
 }

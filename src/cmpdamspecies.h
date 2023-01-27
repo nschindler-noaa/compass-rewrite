@@ -11,6 +11,7 @@ class cmpDamSpecies
 {
 public:
     cmpDamSpecies();
+    cmpDamSpecies(QString &newname);
     cmpDamSpecies(cmpDamSpecies &rhs);
 
     void reset();
@@ -95,13 +96,18 @@ public:
     float getRswDayDelay() const;
     void setRswDayDelay(float newRswDayDelay);
 
+    const QString &getName() const;
+    void setName(const QString &newName);
+
 protected:
-    float spillMort;     /**< Mortality in conventional spillways */
-    float bypassMort;    /**< Mortality in the bypass */
+    QString name;
     float sluicewayMort; /**< Mortality in the sluiceway */
+    float bypassMort;    /**< Mortality in the bypass */
     float turbineMort;   /**< Mortality in the turbines */
-    float transportMort; /**< Mortality in transport */
+    float spillMort;     /**< Mortality in conventional spillways */
     float rswMort;       /**< Mortality in the RSWs */
+    float transportMort; /**< Mortality in transport */
+
     float meanForebayTransitTime; /**< In hours, for forebay pred mort */
     float separationProb;/**< Chance of non-collection during a transport
                             * operation */
@@ -110,11 +116,11 @@ protected:
 //	float predPopMean;  /* Predation population in the forebay */
 //	float predPopTailrace;/* Predation population in the tailrace */
 
-    cmpEquation spillEqn;   /**< Spill equation to determine the proportion of
+    cmpEquation spillEqn;/**< Spill equation to determine the proportion of
                             * fish routed to spillways (both conventional and RSW) */
-    cmpEquation fgeEqn;     /**< Fish guidance efficiency for determining the
+    cmpEquation fgeEqn;  /**< Fish guidance efficiency for determining the
                             * proportion of non-spilled fish routed through the bypass system */
-    cmpEquation transEqn;   /**< Transport mortality equation to estimate
+    cmpEquation transEqn;/**< Transport mortality equation to estimate
                             * transport mortality based on water particle travel time */
 
     /** Delay equation that determines delay of fish at a dam depending on
@@ -123,7 +129,7 @@ protected:
      * superseded by the newer dam delay model that allows for simulating diel
      * passage. See \ref new_dam_delay. */
     cmpEquation delayEqn;
-    cmpEquation rswEqn;     /**< RSW efficiency which determines the proportion of
+    cmpEquation rswEqn;  /**< RSW efficiency which determines the proportion of
                             * fish that go through RSW */
 
     /** Proportion of non-spilled fish that pass through SBC or sluicway */
@@ -133,21 +139,21 @@ protected:
     float nightFge;      /**< Night time FGE */
 
     /* Extra delay for passage routes */
-    float spillDelay;    /**< Extra delay for fish entering conventional spillways */
-    float bypassDelay;   /**< Extra delay for fish entering bypass system */
     float sluicewayDelay;/**< Extra delay for fish entering sluiceway */
+    float bypassDelay;   /**< Extra delay for fish entering bypass system */
     float turbineDelay;  /**< Extra delay for fish entering turbines */
+    float spillDelay;    /**< Extra delay for fish entering conventional spillways */
     float rswDelay;      /**< Extra delay for fish entering RSW */
     /* Probability that a fish arriving during the day will pass at night */
-    float spillDayDelay;      /**< Extra delay for fish arriving during the day when
-                            * entering conventional spillways*/
-    float bypassDayDelay;     /**< Extra delay for fish arriving during the day when
-                            * entering bypass system*/
-    float sluicewayDayDelay;  /**< Extra delay for fish arriving during the day
+    float sluicewayDayDelay;/**< Extra delay for fish arriving during the day
                             * when entering sluiceway*/
-    float turbineDayDelay;    /**< Extra delay for fish arriving during the day
+    float bypassDayDelay;/**< Extra delay for fish arriving during the day when
+                            * entering bypass system*/
+    float turbineDayDelay;/**< Extra delay for fish arriving during the day
                             * when entering turbines*/
-    float rswDayDelay;        /**< Extra delay for fish arriving during the day when
+    float spillDayDelay; /**< Extra delay for fish arriving during the day when
+                            * entering conventional spillways*/
+    float rswDayDelay;   /**< Extra delay for fish arriving during the day when
                             * entering RSW */
 };
 

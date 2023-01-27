@@ -5,6 +5,12 @@ cmpDamSpecies::cmpDamSpecies()
     reset();
 }
 
+cmpDamSpecies::cmpDamSpecies(QString &newname)
+{
+    reset();
+    setName(newname);
+}
+
 cmpDamSpecies::cmpDamSpecies(cmpDamSpecies &rhs)
 {
     copy(rhs);
@@ -45,6 +51,7 @@ void cmpDamSpecies::reset()
 
 cmpDamSpecies &cmpDamSpecies::copy(cmpDamSpecies &rhs)
 {
+    name = rhs.getName();
     spillMort = rhs.getSpillMort();
     bypassMort = rhs.getBypassMort();
     sluicewayMort = rhs.getSluicewayMort();
@@ -371,4 +378,14 @@ float cmpDamSpecies::getRswDayDelay() const
 void cmpDamSpecies::setRswDayDelay(float newRswDayDelay)
 {
     rswDayDelay = newRswDayDelay;
+}
+
+const QString &cmpDamSpecies::getName() const
+{
+    return name;
+}
+
+void cmpDamSpecies::setName(const QString &newName)
+{
+    name = newName;
 }

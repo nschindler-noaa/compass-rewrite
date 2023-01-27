@@ -25,7 +25,8 @@ bool cmpReleaseSite::parseDesc(cmpFile *cfile)
         line = cfile->getToken();
         if (line.compare("end") != 0)
             okay = false;
-    //    flag = cfile->checkEnd ("release_site", getName());
+        else
+            okay = cfile->checkEnd ("release_site", getName());
     }
     else
     {
@@ -37,12 +38,12 @@ bool cmpReleaseSite::parseDesc(cmpFile *cfile)
 bool cmpReleaseSite::outputDesc(cmpFile *cfile)
 {
     bool okay = (latlon != nullptr);
+    QString namestr = name;
     if (okay)
     {
-        cfile->writeString(0, QString("release_site"), name);
-        cfile->writeString(1, latlon->getLatLon());
-        cfile->writeEnd (0, QString("release_site"), name);
-        cfile->writeNewline();
+        cfile->writeString(0, QString("release_site"), namestr.replace('_', ' '));
+        cfile->writeString(1, QString("latlon"), latlon->getLatLon());
+        cfile->writeEnd (0, QString("release_site"), namestr);
     }
     return okay;
 }

@@ -72,6 +72,16 @@ cmpRiverSegment &cmpRiverSegment::copy (const cmpRiverSegment &rhs)
     return *this;
 }
 
+float cmpRiverSegment::getGasTheta() const
+{
+    return gasTheta;
+}
+
+void cmpRiverSegment::setGasTheta(float newGasTheta)
+{
+    gasTheta = newGasTheta;
+}
+
 int cmpRiverSegment::getOutputSettings() const
 {
     return outputSettings;
@@ -130,6 +140,7 @@ void cmpRiverSegment::setup ()
     flowMax = 0.0;
     flowMin = 0.0;
     temp.append(0);
+    readFlows = false;
     flow.append(0);
     daysPerYear = 366;
     stepsPerDay = 2;
@@ -140,6 +151,9 @@ void cmpRiverSegment::setup ()
     down = nullptr;
     fork = nullptr;
     temp_1 = -1;
+    readGas = false;
+    gas_out = nullptr;
+    readTurbidity = false;
 }
 
 cmpRiverSegment::~cmpRiverSegment ()
@@ -152,7 +166,6 @@ void cmpRiverSegment::resetData()
     outputFlags = 0;
     outputSettings = 0;
     setDaysPerSeason(366);
-    readTemps = false;
     temp_1 = -1;
 }
 
@@ -213,6 +226,10 @@ bool cmpRiverSegment::parseToken(QString token, cmpFile *cfile)
     {
         okay = cfile->readInt(outputFlags);
     }
+    else if (token.compare ("gas_theta", Qt::CaseInsensitive) == 0)
+    {
+        cfile->readFloatOrNa(na, gasTheta);
+    }
     else if (token.compare ("output_gas", Qt::CaseInsensitive) == 0)
     {
         cfile->obsoleteToken(token);
@@ -229,6 +246,22 @@ bool cmpRiverSegment::parseToken(QString token, cmpFile *cfile)
     return okay;
 }
 
+void cmpRiverSegment::outputData(cmpFile *outfile, bool outputAll)
+{
+    writeAllData(outfile, 0, outputAll);
+}
+
+void cmpRiverSegment::writeAllData(cmpFile *outfile, int indent, bool outputAll)
+{
+    outfile->writeString(indent, "segment", name);
+    writeConfigData(outfile, indent+1, outputAll);
+    writeFlowData(outfile, indent+1, outputAll);
+    writeGasData(outfile, indent+1, outputAll);
+    writeTempData(outfile, indent+1, outputAll);
+    writeTurbidData(outfile, indent+1, outputAll);
+    outfile->writeEnd(indent, "segment", name);
+}
+
 void cmpRiverSegment::writeConfigData(cmpFile *outfile, int indent, bool outputAll)
 {
     outfile->writeValue(indent, "output_settings", outputSettings);
@@ -241,7 +274,7 @@ void cmpRiverSegment::writeFlowData(cmpFile *outfile, int indent, bool outputAll
     if (readFlows)
     {
         outfile->writeStringNR(indent, "flow");
-        outfile->writeFloatArray(indent, &flow, flow.count(), Data::None, Data::Fixed, fdef);
+        outfile->writeFloatArray(indent, flow, Data::None, Data::Fixed, fdef);
     }
 }
 
@@ -273,23 +306,23 @@ void cmpRiverSegment::writeTempData (cmpFile *outfile, int indent, bool outputAl
     {
         float fdef = (outputAll? 100000: 0);
         outfile->writeStringNR(indent, "water_temp");
-        outfile->writeFloatArray(indent, &temp, temp.count(), Data::None, Data::Fixed, fdef);
+        outfile->writeFloatArray(indent, temp, Data::None, Data::Fixed, fdef);
     }
 }
 
 void cmpRiverSegment::writeTurbidData (cmpFile *outfile, int indent, bool outputAll)
 {
-    //    float fdef = (outputAll? 100000: 0);
-        if (readTurbidity)
-        {
-            outfile->writeString(indent, "input_turbidity", "on");
-    //        outfile->writeStringNR(indent, "input_turbidity");
-    //        outfile->writeFloatArray(indent, &turbidity, turbidity.count(), Data::None, Data::Fixed, fdef);
-        }
-        else
-        {
-            outfile->writeString(indent, "input_turbidity", "off");
-        }
+//    float fdef = (outputAll? 100000: 0);
+    if (readTurbidity)
+    {
+        outfile->writeString(indent, "input_turbidity", "on");
+//        outfile->writeStringNR(indent, "input_turbidity");
+//        outfile->writeFloatArray(indent, &turbidity, turbidity.count(), Data::None, Data::Fixed, fdef);
+    }
+    else
+    {
+        outfile->writeString(indent, "input_turbidity", "off");
+    }
 }
 
 bool cmpRiverSegment::parseDesc(cmpFile *descfile)
@@ -357,7 +390,10 @@ bool cmpRiverSegment::parseDescToken(QString token, cmpFile *descfile)
 
 void cmpRiverSegment::outputDesc(cmpFile *ofile)
 {
+    int total = course.count();
     ofile->writeString(1, "null", name);
+    for (int i = 0; i < total; i++)
+        ofile->writeString(3, QString("latlon"), course.at(i)->getLatLon());
     ofile->writeEnd(1, "null", name);
 }
 
@@ -447,16 +483,6 @@ bool cmpRiverSegment::addCoursePoint(cmpRiverPoint *pt)
     if (course.count() == num)
         okay = false;
     return okay;
-}
-
-bool cmpRiverSegment::getRegPoint() const
-{
-    return isRegPoint;
-}
-
-void cmpRiverSegment::setRegPoint(bool value)
-{
-    isRegPoint = value;
 }
 
 bool cmpRiverSegment::getReadFlows() const

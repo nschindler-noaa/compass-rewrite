@@ -38,7 +38,7 @@ public:
     // write any output files
     void outputData(QString filename, bool outputAll);
     void writeDescData(cmpFile *outfile);
-    QStringList *writeCtrlData(cmpFile *outfile);
+    QStringList &writeCtrlData(cmpFile *outfile);
     void writeDataSettings(cmpFile *outfile, bool outputAll);
     void writeReachClassNames(cmpFile *outfile);
     void writeAllSpecies(cmpFile *outfile, bool outputAll);
@@ -53,7 +53,7 @@ public:
     void writeScnData(cmpFile *outfile, bool outputAll);
 
 
-    QStringList *getPostRivMethods() const;
+    QStringList &getPostRivMethods();
     void setPostRivMethods();
 
 signals:
@@ -65,10 +65,10 @@ private:
     QList<cmpFile *> files;
     cmpRiverSystem *system;
     QList<cmpRelease *> releases;
-    QStringList *fileNames;
-    QStringList *postRivMethods;
-    QStringList *postRivMethodNames;
-    QStringList *outputFiles;
+    QStringList fileNames;
+    QStringList postRivMethods;
+    QStringList postRivMethodNames;
+    QStringList outputFiles;
 };
 
 #endif // CMPSCENARIO_H
