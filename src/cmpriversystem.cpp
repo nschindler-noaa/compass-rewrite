@@ -203,18 +203,19 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
             {
                 dSettings->setNumDaysInSeason(tmpInt);
                 numDays = tmpInt;
-                allocate(numDays, timeSteps, damSlices);
             }
         }
         else if (token.compare("time_steps_per_day") == 0)
         {
             okay = cfile->readInt(tmpInt);
             if(okay) dSettings->setTimeStepsPerDay(tmpInt);
+            timeSteps = tmpInt;
         }
         else if (token.compare("dam_slices_per_day") == 0)
         {
             okay = cfile->readInt(tmpInt);
             if(okay) dSettings->setDamSlicesPerDay(tmpInt);
+            damSlices = tmpInt;
         }
         else if (token.compare("day_start") == 0)
         {
@@ -570,6 +571,8 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
             cfile->skipLine ();
         }
     }
+    // before we return
+    allocate(numDays, timeSteps, damSlices);
     return okay;
 }
 
@@ -685,7 +688,7 @@ bool cmpRiverSystem::outputPostRiverData(cmpFile *outfile, bool outputAll)
     int total = species.count();
     QString title = QString("fish_return_hypothesis");
     QString name(cSettings->getDataSettings()->getFishReturnHypStr());
-    cmpEquation *eqn;
+
     if (outfile->getDataVersion() < 20)
     {
         title = QString("post_bonneville_hypothesis");
@@ -738,7 +741,19 @@ bool cmpRiverSystem::outputConfigData(cmpFile *outfile, bool outputAll)
 bool cmpRiverSystem::outputRiverYrData(cmpFile *outfile, bool outputAll)
 {
     bool okay = true;
-
+    int total = segments.count();
+    cmpReach *reach;
+    for (int i = 0; i < total; i++)
+    {
+        if (segments.at(i)->getType() == cmpRiverSegment::Reach)
+        {
+            reach = static_cast<cmpReach *>(segments[i]);
+            outfile->writeString(1, "reach", reach->getName());
+            reach->writeRivData(outfile, 2, outputAll);
+            outfile->writeEnd(1, "reach", reach->getName());
+            outfile->writeNewline();
+        }
+    }
     return okay;
 }
 
@@ -752,7 +767,7 @@ bool cmpRiverSystem::outputDamOpsData(cmpFile *outfile, bool outputAll)
         if (segments.at(i)->getType() == cmpRiverSegment::Dam)
         {
             dam = static_cast<cmpDam *>(segments[i]);
-            dam->writeData(outfile, outputAll);
+            dam->writeData(outfile, 0, outputAll);
             outfile->writeNewline();
         }
     }
@@ -1110,19 +1125,26 @@ void cmpRiverSystem::allocate(int numDays, int timeSteps, int damSlices)
 {
     int totalSegs = segments.count();
     cmpRiverSegment::SegmentType type;
+    cmpReach *reach = nullptr;
+    cmpDam *dam = nullptr;
+    cmpHeadwater *hwater = nullptr;
     for (int i = 0; i < totalSegs; i ++)
     {
         type = segments.at(i)->getType();
         switch (type)
         {
         case cmpRiverSegment::Reach:
-            static_cast<cmpReach*>(segments.at(i))->allocateDays(numDays, damSlices);
+            reach = static_cast<cmpReach*>(segments.at(i));
+            reach->allocateDays(numDays, damSlices);
             break;
         case cmpRiverSegment::Dam:
-            static_cast<cmpDam*>(segments.at(i))->allocateDays(numDays, timeSteps);
+            dam = static_cast<cmpDam*>(segments.at(i));
+            dam->allocateDays(numDays, timeSteps);
+            dam->setSpeciesNames(speciesNames);
             break;
         case cmpRiverSegment::Headwater:
-            static_cast<cmpHeadwater*>(segments.at(i))->allocateDays(numDays);
+            hwater = static_cast<cmpHeadwater*>(segments.at(i));
+            hwater->allocateDays(numDays);
             break;
         }
     }

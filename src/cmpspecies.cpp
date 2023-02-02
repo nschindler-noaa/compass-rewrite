@@ -399,6 +399,7 @@ void cmpSpecies::writeData(cmpFile *outfile, int indent, bool outputAll)
 
 void cmpSpecies::writeReachClassData(cmpFile *outfile, int indent, bool outputAll)
 {
+    int indent2 = indent+1;
     int total = reachClasses.count();
     QString rcName;
     cmpEquation *eqn;
@@ -416,11 +417,11 @@ void cmpSpecies::writeReachClassData(cmpFile *outfile, int indent, bool outputAl
         outfile->writeTitledValue(indent, "reach_survival_coef", rcName, getReachSurvivalCoef(i), (outputAll? 100000: 1.0));
         eqn = reachClasses[i]->getMigrationEqn();   //     migration_eqn Class_0 0
         outfile->writeString(indent, "migration_eqn", rcName, QString::number(eqn->getId()));
-        eqn->writeParameters(outfile, indent+1, outputAll);
+        eqn->writeParameters(outfile, indent2, outputAll);
         outfile->writeEnd(indent, "migration_eqn", rcName);
         eqn = reachClasses[i]->getCustomSurvivalEqn(); //        custom_survival_eqn Class_0 57
         outfile->writeString(indent, "custom_survival_eqn", rcName, QString::number(eqn->getId()));
-        eqn->writeParameters(outfile, indent+1, outputAll);
+        eqn->writeParameters(outfile, indent2, outputAll);
         outfile->writeEnd(indent, "custom_survival_eqn", rcName);
 
         outfile->writeNewline();

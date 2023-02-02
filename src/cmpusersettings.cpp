@@ -26,7 +26,7 @@ void cmpUserSettings::setUserName(const QString &newUserName)
 {
     if (newUserName.isEmpty())
     {
-        userName = qEnvironmentVariable("user");
+        userName = qEnvironmentVariable("username");
     }
     else
     {

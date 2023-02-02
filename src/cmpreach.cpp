@@ -604,9 +604,35 @@ bool cmpReach::parseToken (QString token, cmpFile *cfile)
 
 void cmpReach::writeData(cmpFile *outfile, int indent, bool outputAll)
 {
-    outfile->writeString(indent, "reach", name);
-    writeConfigData(outfile, indent+1, outputAll);
+    int indent2 = indent + 1;
+    float dval = outputAll? 100000: 0;
+    cmpEquation *eqn = nullptr;
 
+    outfile->writeString(indent, "reach", name);
+    writeConfigData(outfile, indent2, outputAll);
+    outfile->writeValue(indent2, "loss_min", lossMin, dval);
+    outfile->writeValue(indent2, "loss_max", lossMax, dval);
+    //outfile->writeFloatArray(indent2, "loss");
+    //outfile->writeFloatArray(indent2, "elevation_change");
+    outfile->writeValue(indent2, "gas_dissp_exp", gasDispExp, dval);
+    //outfile->writeFloatArray(indent2, "water_temp_delta");
+    //outfile->writeFloatArray(indent2, "water_temp_delta");
+    //outfile->writeFloatArray(indent2, "water_temp_delta");
+    //outfile->writeFloatArray(indent2, "water_temp_delta");
+    outfile->writeValue(indent2, "ufree_max", freeFlowMax, dval);
+    eqn = freeFlowEqn;
+    if (eqn != nullptr)
+    {
+        outfile->writeValue(indent2, "ufree_equation", eqn->getId(), 0);
+        eqn->writeParameters(outfile, indent2+1, outputAll);
+        outfile->writeEnd(indent2, "ufree_equation");
+    }
+    QStringList keys = predMean.keys();
+    for (int j = 0; j < keys.count(); j++)
+    {
+        outfile->writeStringNR(indent2, "pred_mean ");
+        outfile->writeValue(0, keys.at(j), predMean[keys.at(j)], dval);
+    }
     outfile->writeEnd(indent, "reach", name);
 }
 
@@ -615,4 +641,20 @@ void cmpReach::writeConfigData(cmpFile *outfile, int indent, bool outputAll)
     int intdef = (outputAll)? 100000: 0;
     outfile->writeString(indent, "reach_class", reachClass);
     outfile->writeValue (indent, "output_settings", outputSettings, intdef);
+}
+
+void cmpReach::writeRivData(cmpFile *outfile, int indent, bool outputAll)
+{
+    float dval = outputAll? 100000: 0;
+
+    outfile->writeValue(indent, "loss_min", lossMin, dval);
+    outfile->writeValue(indent, "loss_max", lossMax, dval);
+    //outfile->writeFloatArray(indent, "loss");
+    //outfile->writeFloatArray(indent, "elevation_change");
+    outfile->writeString(indent, "output_gas", readGas? "On": "Off");
+    //outfile->writeFloatArray(indent, "delta_water_temp", tempDelta);
+    outfile->writeString(indent, "input_turbidity", readTurbidity? "On": "Off");
+    //outfile->writeFloatArray(indent, "fish_density", fishDensity);
+    //outfile->writeFloatArray(indent, "bird_density_1", birdDensity1);
+    //outfile->writeFloatArray(indent, "bird_density_2", birdDensity2);
 }

@@ -38,6 +38,7 @@ public:
     bool parseToken (QString token, cmpFile *infile);
     void writeData (cmpFile *outfile, int indent, bool outputAll);
     void writeConfigData (cmpFile *outfile, int indent, bool outputAll);
+    void writeRivData (cmpFile *outfile, int indent, bool outputAll);
 
 #ifdef PRED_CALC
     /** Species-specific parameters for reaches */

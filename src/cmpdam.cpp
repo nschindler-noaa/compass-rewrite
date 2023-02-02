@@ -136,6 +136,15 @@ void cmpDam::allocateDays(int days, int slices)
     cmpRiverSegment::allocateDays(days);
 }
 
+void cmpDam::setSpeciesNames(QStringList &spNames)
+{
+    int total = powerhouses.count();
+    for (int i = 0; i < total; i++)
+    {
+        powerhouses.at(i)->setSpeciesNames(spNames);
+    }
+}
+
 void cmpDam::calculateFlow()
 {
     calculateFlowInputs();
@@ -185,6 +194,9 @@ bool cmpDam::parseData (cmpFile *cfile)
 {
     bool okay = true, end = false;
     QString token ("");
+    currentPHouse = nullptr;
+    if (!powerhouses.isEmpty())
+        currentPHouse = powerhouses[0];
 
     while (okay && !end)
     {
@@ -211,8 +223,9 @@ bool cmpDam::parseData (cmpFile *cfile)
 bool cmpDam::parseToken (QString token, cmpFile *cfile)
 {
     bool okay = true;
+    int tmpInt;
+    float tmpFloat;
     QString na (""), tmpstr;
-
 
     if (token.compare ("tailrace_length", Qt::CaseInsensitive) == 0)
     {
@@ -245,14 +258,41 @@ bool cmpDam::parseToken (QString token, cmpFile *cfile)
             nsatNightEqn = new cmpEquation(tmpstr);
         nsatNightEqn->parseData(cfile, "nsat_night_equation");
     }
-    else if (token.compare("loss_min", Qt::CaseInsensitive) == 0)
+    else if (token.compare("k_entrain", Qt::CaseInsensitive) == 0)
     {
-//        okay = cfile->readFloatOrNa(na, loss_min);
+        okay = cfile->readFloatOrNa(na, entrainK);
     }
-    else if (token.compare ("loss", Qt::CaseInsensitive) == 0)
+    else if (token.compare("entrain_factor", Qt::CaseInsensitive) == 0)
     {
- //       okay = cfile->readFloatArray (loss);
+        okay = cfile->readFloatOrNa(na, entrainFactor);
     }
+    else if (token.compare("powerhouse_priority", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatOrNa(na, tmpFloat);
+        currentPHouse->setPriority(tmpFloat);
+    }
+    else if (token.compare("powerhouse_capacity", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatOrNa(na, tmpFloat);
+        currentPHouse->setCapacity(tmpFloat);
+    }
+    else if (token.compare("flow_min", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatOrNa(na, tmpFloat);
+        currentPHouse->setThreshold(tmpFloat);
+    }
+    else if (token.compare("rsw_spill_cap", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readTitledValue(tmpstr, tmpFloat);
+        currentPHouse->setSpeciesRswCap(tmpstr, tmpFloat);
+    }
+    else if (token.compare("powerhouse_schedule", Qt::CaseInsensitive) == 0)
+    {
+//        okay = cfile->readFloatArray(na, currentPHouse->getSchedule());
+        cfile->skipAllNumbers();
+    }
+
+//    outfile->writeStringNR(indent, "powerhouse_schedule ");
     else
     {
         okay = cmpRiverSegment::parseToken (token, cfile);
@@ -261,17 +301,18 @@ bool cmpDam::parseToken (QString token, cmpFile *cfile)
     return okay;
 }
 
-void cmpDam::writeData(cmpFile *outfile, bool outputAll)
+void cmpDam::writeData(cmpFile *outfile, int indent, bool outputAll)
 {
     float dval = 0;
     cmpEquation *eqn = nullptr;
     int total = 0;
+    int indent2 = indent + 1;
 
-    outfile->writeString(0, "dam", name);
+    outfile->writeString(indent, "dam", name);
 
     if (outputAll)
     {
-        writeAllData(outfile, 1);
+        writeAllData(outfile, indent2);
     }
     else
     {

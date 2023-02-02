@@ -34,17 +34,18 @@ public:
     cmpDataSettings();
     ~cmpDataSettings();
 
-    int getNumDaysInSeason() ;
+    int getNumDaysInSeason();
     void setNumDaysInSeason(int newNumDays);
-    int getNumDaysInRun() ;
+    int getNumDaysInRun();
     void setNumDaysInRun(int newNumDays);
 
-    int getDamSlicesPerDay() ;
-    int getDamSlicesPerSeason() ;
+    int getDamSlicesPerDay();
+    int getDamSlicesPerSeason();
+    int getDamSliceInDay(int damSlice);
     void setDamSlicesPerDay(int newDamSlicesPerDay);
 
-    int getTimeStepsPerDay() ;
-    int getTimeStepsPerSeason() ;
+    int getTimeStepsPerDay();
+    int getTimeStepsPerSeason();
     void setTimeStepsPerDay(int newTimeStepsPerDay);
 
     bool getRouteTracking() const;
@@ -75,9 +76,11 @@ public:
 
     int getDayStart() const;
     void setDayStart(int newDayStart);
-
     int getNightStart() const;
     void setNightStart(int newNightStart);
+    int getHour(int sliceInDay);
+    bool isNight(int damSlice);
+    bool isDay(int damSlice);
 
     bool getMigration() const;
     void setMigration(QString name);

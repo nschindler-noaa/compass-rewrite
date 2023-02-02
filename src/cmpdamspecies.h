@@ -99,6 +99,9 @@ public:
     const QString &getName() const;
     void setName(const QString &newName);
 
+    float getRswCapacity() const;
+    void setRswCapacity(float newRswCapacity);
+
 protected:
     QString name;
     float sluicewayMort; /**< Mortality in the sluiceway */
@@ -111,29 +114,13 @@ protected:
     float meanForebayTransitTime; /**< In hours, for forebay pred mort */
     float separationProb;/**< Chance of non-collection during a transport
                             * operation */
+    /** Proportion of non-spilled fish that pass through SBC or sluicway */
+    float sluicewayProp;
+    float rswCapacity;
 //	float pred[DAM_TIME_SLC];/* Predation given at each dam time slice */
 
 //	float predPopMean;  /* Predation population in the forebay */
 //	float predPopTailrace;/* Predation population in the tailrace */
-
-    cmpEquation spillEqn;/**< Spill equation to determine the proportion of
-                            * fish routed to spillways (both conventional and RSW) */
-    cmpEquation fgeEqn;  /**< Fish guidance efficiency for determining the
-                            * proportion of non-spilled fish routed through the bypass system */
-    cmpEquation transEqn;/**< Transport mortality equation to estimate
-                            * transport mortality based on water particle travel time */
-
-    /** Delay equation that determines delay of fish at a dam depending on
-     * species, time of day, season, and flow (relative to hydraulic
-     * capacity). Yield a passage probability. Note that this has been mostly
-     * superseded by the newer dam delay model that allows for simulating diel
-     * passage. See \ref new_dam_delay. */
-    cmpEquation delayEqn;
-    cmpEquation rswEqn;  /**< RSW efficiency which determines the proportion of
-                            * fish that go through RSW */
-
-    /** Proportion of non-spilled fish that pass through SBC or sluicway */
-    float sluicewayProp;
 
     float dayFge;        /**< Day time FGE */
     float nightFge;      /**< Night time FGE */
@@ -155,6 +142,23 @@ protected:
                             * entering conventional spillways*/
     float rswDayDelay;   /**< Extra delay for fish arriving during the day when
                             * entering RSW */
+
+    cmpEquation fgeEqn;  /**< Fish guidance efficiency for determining the
+                            * proportion of non-spilled fish routed through the bypass system */
+    cmpEquation spillEqn;/**< Spill equation to determine the proportion of
+                            * fish routed to spillways (both conventional and RSW) */
+    cmpEquation transEqn;/**< Transport mortality equation to estimate
+                            * transport mortality based on water particle travel time */
+
+    /** Delay equation that determines delay of fish at a dam depending on
+     * species, time of day, season, and flow (relative to hydraulic
+     * capacity). Yield a passage probability. Note that this has been mostly
+     * superseded by the newer dam delay model that allows for simulating diel
+     * passage. See \ref new_dam_delay. */
+    cmpEquation delayEqn;
+    cmpEquation rswEqn;  /**< RSW efficiency which determines the proportion of
+                            * fish that go through RSW */
+
 };
 
 #endif // CMPDAMSPECIES_H

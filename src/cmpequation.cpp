@@ -410,7 +410,7 @@ void cmpEquation::writeParameters(cmpFile *outfile, int indent, bool outputAll)
     {
         for (int i = 0; i < numEqnParams; i++)
         {
-            outfile->writeStringNR(indent, "parameter");
+            outfile->writeStringNR(indent, "parameter ");
             outfile->writeValue(0, QString::number(i), getParameter(i)->getValue());
         }
     }
@@ -418,7 +418,7 @@ void cmpEquation::writeParameters(cmpFile *outfile, int indent, bool outputAll)
     {
         for (int i = 0; i < numEqnParams; i++)
         {
-            outfile->writeStringNR(indent, "parameter");
+            outfile->writeStringNR(indent, "parameter ");
             outfile->writeValue(0, QString::number(i), getParameter(i)->getValue(), def->getParameter(i)->getValue());
         }
     }

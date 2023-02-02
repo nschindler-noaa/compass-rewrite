@@ -45,13 +45,16 @@ public:
     int getNumber() const;
     void setNumber(int value);
 
+    float getSpeciesRswCap(QString spec);
+    float getSpeciesRswCap(int index);
+    void setSpeciesRswCap(QString spec, float value);
+
 private:
     int number;
     int priority;    /**< Ranking of each phouse. The best priority is
                       *   0 followed by increasing positive numbers. */
     float threshold; /**< Min flow controls when this powerhouse turns on */
     float capacity;  /**< Capacity in KCFS of this powerhouse. */
-    float rswCapacity;
 
     Bool2TierList schedule; /**< Powerhouse operation schedule
                       * (in case some powerhouses are only available at
@@ -63,6 +66,8 @@ private:
      * the actual percentage flow through this powerhouse, tracked
      * here as flow_fraction */
     QList<float> flowFraction;
+
+    int getSpeciesIndex (QString spec);
 };
 
 #endif // CMPPOWERHOUSE_H

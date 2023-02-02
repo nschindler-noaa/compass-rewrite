@@ -111,6 +111,16 @@ int cmpDataSettings::getDamSlicesPerDay()
     return damSlicesPerDay;
 }
 
+int cmpDataSettings::getDamSlicesPerSeason()
+{
+    return damSlicesPerSeason;
+}
+
+int cmpDataSettings::getDamSliceInDay(int damSlice)
+{
+    return damSlice % damSlicesPerDay;
+}
+
 void cmpDataSettings::setDamSlicesPerDay(int newDamSlicesPerDay)
 {
     damSlicesPerDay = newDamSlicesPerDay;
@@ -227,6 +237,40 @@ int cmpDataSettings::getNightStart() const
 void cmpDataSettings::setNightStart(int newNightStart)
 {
     nightStart = newNightStart;
+}
+
+int cmpDataSettings::getHour(int sliceInDay)
+{
+    return static_cast<int>((24.0 / damSlicesPerDay) * sliceInDay * 100);
+}
+
+bool cmpDataSettings::isNight(int damSlice)
+{
+    bool night = false;
+
+    // convert damStep to step in day;
+    int slice = getDamSliceInDay(damSlice); //damSlice % damSlicesPerDay;
+    // first, the easy case
+    if (damSlicesPerDay == 2)
+    {
+        night = (slice == 0)? true: false;
+    }
+    else
+    {
+        // convert step in day to hour
+        int hour = getHour(slice); //static_cast<int>((24.0 / damSlicesPerDay) * slice) * 100;
+        // is hour during night?
+        if (hour >= nightStart || hour < dayStart)
+            night = true;
+        else
+            night = false;
+    }
+    return night;
+}
+
+bool cmpDataSettings::isDay(int damSlice)
+{
+    return !(isNight(damSlice));
 }
 
 bool cmpDataSettings::getMigration() const

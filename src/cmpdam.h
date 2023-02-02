@@ -26,7 +26,7 @@ public:
     void clear ();
     bool parseData (cmpFile *infile) override;
     bool parseToken (QString token, cmpFile *infile);
-    void writeData (cmpFile *outfile, bool outputAll);
+    void writeData (cmpFile *outfile, int indent, bool outputAll);
     void writeAllData (cmpFile *outfile, int indent);
 
     bool parseDesc (cmpFile *descfile) override;
@@ -175,7 +175,7 @@ private:
     /** List of pointers to powerhouses. If there are no powerhouses, this is empty. */
     QList<cmpPowerhouse *> powerhouses;
     Location phouseSide;
-
+    cmpPowerhouse *currentPHouse;
 
     /* physical characteristics; some may be computed from others,
      * depending on which were found in the river description file.
@@ -263,7 +263,7 @@ private:
 
 public slots:
     void allocateDays(int days, int slices);
-    void setSpeciesNames(QStringList spcNames);
+    void setSpeciesNames(QStringList &spcNames);
     void calculateFlow () override;
     void calculateFlows ();
     void calculateTemp () override;

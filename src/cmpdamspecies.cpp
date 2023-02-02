@@ -389,3 +389,13 @@ void cmpDamSpecies::setName(const QString &newName)
 {
     name = newName;
 }
+
+float cmpDamSpecies::getRswCapacity() const
+{
+    return rswCapacity;
+}
+
+void cmpDamSpecies::setRswCapacity(float newRswCapacity)
+{
+    rswCapacity = newRswCapacity;
+}

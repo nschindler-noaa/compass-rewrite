@@ -476,6 +476,17 @@ bool cmpFile::readFloatOrNa (QString &na, float &val)
     return okay;
 }
 
+bool cmpFile::readTitledValue(QString &string, float &value)
+{
+    bool okay = true;
+    QString na = QString();
+    string.clear();
+    value = -1.0;
+    string.append(popToken());
+    okay = readFloatOrNa(na, value);
+    return okay;
+}
+
 bool cmpFile::readInt (int &val)
 {
     bool okay = true;
@@ -521,7 +532,7 @@ bool cmpFile::readFloatArray (float *farray)
     return okay;
 }
 
-bool cmpFile::readFloatArray(QList<float> farray)
+bool cmpFile::readFloatArray(QList<float> farray, int outSize, Data::DataConversion convert, unsigned mult, QString prompt)
 {
     bool okay = true;
     QString NA("");
@@ -538,7 +549,7 @@ bool cmpFile::readIntArray (int *iarray)
     return okay;
 }
 
-bool cmpFile::readIntArray(QList<int> iarray)
+bool cmpFile::readIntArray(QList<int> iarray, int outSize, Data::DataConversion convert, unsigned mult, QString prompt)
 {
     bool okay = true;
     skipAllNumbers();
@@ -546,19 +557,25 @@ bool cmpFile::readIntArray(QList<int> iarray)
     return okay;
 }
 
-bool cmpFile::readIntList(QList<float> &intlist, int outSize, Data::DataConversion convert, unsigned mult, QString prompt)
+bool cmpFile::readIntList(QList<int> &intlist, int outSize, Data::DataConversion convert, unsigned mult, QString prompt)
 {
     bool okay = true;
+    QString token;
 //    QString NA("");
     int value = 0;
+    int total = intlist.count();
 
-    for (int i = 0, total = intlist.count(); i < total; i++)
+    for (int i = 0; i < total; i++)
+        intlist[i] = 0;
+
+    for (int i = 0; i < total; i++)
     {
         if (!okay)
         {
-            qWarning("error reading int array");
+            qWarning("%s %s", "error reading int array for", prompt.toUtf8().data());
             break;
         }
+        token = popToken();
         okay = readInt(value);
         intlist[i] = value;
     }
@@ -738,27 +755,210 @@ void cmpFile::writeInt (int val)
     write (QString::number(val).toUtf8());
 }
 
-int cmpFile::convertInt(int val, Data::OutputConversion ctype)
+int cmpFile::convertInt(int arry[], int index, Data::OutputConversion ctype, int mult)
 {
     int retval = 0;
+    int end = 0;
+    int total = 0;
+    int count = 0;
 
     switch (ctype)
     {
-    default:
-    case Data::None:
-        retval = val;
-        break;
     case Data::SumValues:
+        end = index + mult;
+        for (int i = index; i < end; i++)
+            retval += arry[i];
         break;
     case Data::AverageValues:
+        end = index + mult;
+        total = 0;
+        count = 0;
+        for (int i = index; i < end; i++)
+        {
+            total += arry[i];
+            count ++;
+        }
+        retval = total / count;
+        break;
+    case Data::AverageNonZero:
+        end = index + mult;
+        total = 0;
+        count = 0;
+        for (int i = index; i < end; i++)
+        {
+            if (arry[i] != 0)
+            {
+                total += arry[i];
+                count ++;
+            }
+        }
+        retval = total / count;
+        break;
+    case Data::AveragePositive:
+        end = index + mult;
+        total = 0;
+        count = 0;
+        for (int i = index; i < end; i++)
+        {
+            if (arry[i] > 0)
+            {
+                total += arry[i];
+                count ++;
+            }
+        }
+        retval = total / count;
         break;
     case Data::DamDayValues:
+        end = index + mult;
+        total = 0;
+        count = 0;
+        for (int i = index; i < end; i++)
+        {
+            if (settings->getDataSettings()->isDay(i))
+            {
+                total += arry[i];
+                count ++;
+            }
+        }
+        retval = total / count;
         break;
     case Data::DamNightValues:
+        end = index + mult;
+        total = 0;
+        count = 0;
+        for (int i = index; i < end; i++)
+        {
+            if (settings->getDataSettings()->isNight(i))
+            {
+                total += arry[i];
+                count ++;
+            }
+        }
+        retval = total / count;
+        break;
+    case Data::None:
+//    default:
+        retval = arry[index];
         break;
    }
 
     return retval;
+}
+
+bool cmpFile::convertIntArray(int arry[], int size, Data::OutputConversion ctype, int mult)
+{
+    bool okay = true;
+    int value = 0;
+    int total = 0;
+    int count = 0;
+
+    switch (ctype)
+    {
+    case Data::SumValues:
+        for (int i = 0; i < size; i += mult)
+        {
+            value = 0;
+            for (int j = 0; j < mult; j++)
+                value += arry[j];
+            for (int j = 0; j < mult; j++)
+                arry[j] = value;
+        }
+        break;
+    case Data::AverageValues:
+        for (int i = 0; i < size; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                total += arry[j];
+                count ++;
+            }
+            value = total / count;
+            for (int j = 0; j < mult; j++)
+                arry[j] = value;
+        }
+        break;
+    case Data::AverageNonZero:
+        for (int i = 0; i < size; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                if (arry[i] != 0)
+                {
+                    total += arry[i];
+                    count ++;
+                }
+            }
+            value = total / count;
+            for (int j = 0; j < mult; j++)
+                arry[j] = value;
+        }
+        break;
+    case Data::AveragePositive:
+        for (int i = 0; i < size; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                if (arry[i] > 0)
+                {
+                    total += arry[i];
+                    count ++;
+                }
+            }
+            value = total / count;
+            for (int j = 0; j < mult; j++)
+                arry[j] = value;
+        }
+        break;
+    case Data::DamDayValues:
+        for (int i = 0; i < size; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                if (settings->getDataSettings()->isDay(i))
+                {
+                    total += arry[i];
+                    count ++;
+                }
+            }
+            value = total / count;
+            for (int j = 0; j < mult; j++)
+                arry[j] = value;
+        }
+        break;
+    case Data::DamNightValues:
+        for (int i = 0; i < size; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                if (settings->getDataSettings()->isNight(i))
+                {
+                    total += arry[i];
+                    count ++;
+                }
+            }
+            value = total / count;
+            for (int j = 0; j < mult; j++)
+                arry[j] = value;
+        }
+        break;
+    case Data::None:
+        break;
+    default:
+        okay = false;
+        break;
+   }
+
+    return okay;
 }
 
 void cmpFile::writeEnd(int indent, QString keyword, QString name)
@@ -772,33 +972,220 @@ void cmpFile::writeEnd(int indent, QString keyword, QString name)
         write (name.toUtf8());
         write (")");
     }
+    else
+    {
+        write(" ()");
+    }
     writeNewline();
 }
 
-float cmpFile::convertFloat(float val, Data::OutputConversion ctype)
+float cmpFile::convertFloat(float arry[], int index, Data::OutputConversion ctype, int mult)
 {
-    float retval = 0.0;
+    float retval = 0;
+    int end = 0;
+    float total = 0;
+    int count = 0;
 
     switch (ctype)
     {
-    case Data::None:
-        retval = val;
-        break;
     case Data::SumValues:
+        end = index + mult;
+        for (int i = index; i < end; i++)
+            retval += arry[i];
         break;
     case Data::AverageValues:
+        end = index + mult;
+        total = 0;
+        count = 0;
+        for (int i = index; i < end; i++)
+        {
+            total += arry[i];
+            count ++;
+        }
+        retval = total / count;
+        break;
+    case Data::AverageNonZero:
+        end = index + mult;
+        total = 0;
+        count = 0;
+        for (int i = index; i < end; i++)
+        {
+            if (floatIsNotEqual(arry[i], 0))
+            {
+                total += arry[i];
+                count ++;
+            }
+        }
+        retval = total / count;
+        break;
+    case Data::AveragePositive:
+        end = index + mult;
+        total = 0;
+        count = 0;
+        for (int i = index; i < end; i++)
+        {
+            if (arry[i] > 0)
+            {
+                total += arry[i];
+                count ++;
+            }
+        }
+        retval = total / count;
         break;
     case Data::DamDayValues:
+        end = index + mult;
+        total = 0;
+        count = 0;
+        for (int i = index; i < end; i++)
+        {
+            if (settings->getDataSettings()->isDay(i))
+            {
+                total += arry[i];
+                count ++;
+            }
+        }
+        retval = total / count;
         break;
     case Data::DamNightValues:
+        end = index + mult;
+        total = 0;
+        count = 0;
+        for (int i = index; i < end; i++)
+        {
+            if (settings->getDataSettings()->isNight(i))
+            {
+                total += arry[i];
+                count ++;
+            }
+        }
+        retval = total / count;
         break;
-    }
+    case Data::None:
+//    default:
+        retval = arry[index];
+        break;
+   }
 
     return retval;
 }
 
-void cmpFile::writeFloatArray(int indent, QList<float> &arry,
-                      Data::OutputConversion ctype,
+bool cmpFile::convertFloatArray(float arry[], int size, Data::OutputConversion ctype, int mult)
+{
+    bool okay = true;
+    float value = 0;
+    float total = 0;
+    int count = 0;
+
+    switch (ctype)
+    {
+    case Data::SumValues:
+        for (int i = 0; i < size; i += mult)
+        {
+            value = 0;
+            for (int j = 0; j < mult; j++)
+                value += arry[j];
+            for (int j = 0; j < mult; j++)
+                arry[j] = value;
+        }
+        break;
+    case Data::AverageValues:
+        for (int i = 0; i < size; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                total += arry[j];
+                count ++;
+            }
+            value = total / count;
+            for (int j = 0; j < mult; j++)
+                arry[j] = value;
+        }
+        break;
+    case Data::AverageNonZero:
+        for (int i = 0; i < size; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                if (arry[i] < 0 || arry[i] > 0)
+                {
+                    total += arry[i];
+                    count ++;
+                }
+            }
+            value = total / count;
+            for (int j = 0; j < mult; j++)
+                arry[j] = value;
+        }
+        break;
+    case Data::AveragePositive:
+        for (int i = 0; i < size; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                if (arry[i] > 0)
+                {
+                    total += arry[i];
+                    count ++;
+                }
+            }
+            value = total / count;
+            for (int j = 0; j < mult; j++)
+                arry[j] = value;
+        }
+        break;
+    case Data::DamDayValues:
+        for (int i = 0; i < size; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                if (settings->getDataSettings()->isDay(i))
+                {
+                    total += arry[i];
+                    count ++;
+                }
+            }
+            value = total / count;
+            for (int j = 0; j < mult; j++)
+                arry[j] = value;
+        }
+        break;
+    case Data::DamNightValues:
+        for (int i = 0; i < size; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                if (settings->getDataSettings()->isNight(i))
+                {
+                    total += arry[i];
+                    count ++;
+                }
+            }
+            value = total / count;
+            for (int j = 0; j < mult; j++)
+                arry[j] = value;
+        }
+        break;
+    case Data::None:
+        break;
+    default:
+        okay = false;
+        break;
+   }
+    return okay;
+}
+
+void cmpFile::writeFloatArray(int indent, QString &prefix, QString &name, QList<float> &arry,
+                      Data::OutputConversion ctype, int mult,
                       Data::Type dtype, float defaultval)
 {
     int total = arry.size();
@@ -807,82 +1194,96 @@ void cmpFile::writeFloatArray(int indent, QList<float> &arry,
         float *newarry = static_cast<float*>(calloc(total, sizeof(float)));
         for (int i = 0; i < total; i++)
             newarry[i] = arry[i];
-        writeFloatArray(indent, newarry, total, ctype, dtype, defaultval);
+        writeFloatArray(indent, prefix, name, newarry, total, ctype, mult, dtype, defaultval);
     }
 }
 
-void cmpFile::writeFloatArray (int indent, float arry[], int size,
-                       Data::OutputConversion ctype,
+void cmpFile::writeFloatArray (int indent, QString &prefix, QString &name, float arry[], int size,
+                       Data::OutputConversion ctype, int mult,
                        Data::Type dtype, float defaultval)
 {
     int num_on_line = 0;
+    int indent2 = indent + 2;
 
-    if (arry != nullptr)
+    if (arry == nullptr) {
+        qWarning("Float array is nullptr.");
+        cmpLog::outlog->add(cmpLog::Error, QString("Float array is nullptr."));
+        return;
+    }
+    else {
+        // check for all default
+        bool alldef = true;
+        for (int i = 0; i < size; i++) {
+            if (floatIsNotEqual(arry[i], defaultval)) {
+                alldef = false;
+            }
+        }
+        if (alldef) return;
+    }
+    convertFloatArray(arry, size, ctype, mult);
+
+    writeStringNR(indent, prefix, name);
+    writeSpace();
+    num_on_line = 1;
+
+    int first = 0, last = 1, l;
+    float firstval = 0, lastval = 0;
+
+    for (int i = 0; i < size; i++)
     {
-        int first = 0, last = 1, l;
-        int firstval = 0, lastval = 0;
-
-        for (int i = 0; i < size; i++)
+        first = i;
+        last = i + 1;
+        firstval = arry[first];
+        lastval = arry[last];
+        if (floatIsEqual(lastval, firstval))
         {
-            first = i;
-            last = i + 1;
-            firstval = convertFloat (arry[first], ctype);
-            lastval = convertFloat (arry[last], ctype);
-            if (lastval == firstval)
+            if (num_on_line >= 2)
             {
-                if (num_on_line >= 2)
-                {
-                    writeNewline();
-                    writeIndent(indent);
-                    num_on_line = 0;
-                }
-                l = last + 1;
-                while (l < size && (lastval = convertFloat (arry[l], ctype)) == firstval)
-                    l++;
-                last = l - 1;
-                if (first == 0 && last == (size - 1))
-                {
-                    write (QString ("[*] ").toUtf8());
-                    writeFloat (firstval, dtype);
-                }
-                else if (last - first > 2)
-                {
-                    QString range (QString ("[%1:%2] ")
-                               .arg (QString::number(first), QString::number(last)));
-                    write (range.toUtf8());
-                    writeFloat (firstval, dtype);
-                }
-                else
-                {
-                    writeFloat (firstval, dtype);
-                    writeFloat (convertFloat (arry[last], ctype), dtype);
-                }
-                i = last + 1;
-                num_on_line += 2;
+                writeNewline();
+                writeIndent(indent2);
+                num_on_line = 0;
+            }
+            l = last + 1;
+            while (l < size && floatIsEqual((lastval = arry[l]), firstval))
+                l++;
+            last = l - 1;
+            if (first == 0 && l == size)
+            {
+                write (QString ("[*] ").toUtf8());
+                writeFloat (firstval, dtype);
+            }
+            else if (last - first > 2)
+            {
+                QString range (QString ("[%1:%2] ")
+                           .arg (QString::number(first), QString::number(last)));
+                write (range.toUtf8());
+                writeFloat (firstval, dtype);
             }
             else
             {
-                if (num_on_line >= 4)
-                {
-                    writeNewline();
-                    writeIndent(indent);
-                    num_on_line = 0;
-                }
                 writeFloat (firstval, dtype);
-                num_on_line++;
+                writeFloat (arry[last], dtype);
             }
+            num_on_line += 2;
+            i = last;
         }
-    }
-    else
-    {
-        qWarning("Float array is nullptr.");
-//        cmpLog::outlog->add(cmpLog::Error, QString("Integer array is nullptr."));
-        writeFloat (0.0, dtype);
+        else
+        {
+            if (num_on_line == 4)
+            {
+                writeNewline();
+                writeIndent(indent2);
+                num_on_line = 0;
+            }
+            writeFloat (firstval, dtype);
+            num_on_line++;
+        }
     }
     writeNewline();
 }
 
-void cmpFile::writeIntArray(int indent, QList<int> &arry, Data::OutputConversion ctype, int defaultval)
+void cmpFile::writeIntArray(int indent, QString &prefix, QString &name, QList<int> &arry,
+                            Data::OutputConversion ctype, int mult, int defaultval)
 {
     int total = arry.size();
     if (total > 0)
@@ -890,77 +1291,91 @@ void cmpFile::writeIntArray(int indent, QList<int> &arry, Data::OutputConversion
         int *newarry = static_cast<int*>(calloc(total, sizeof(int)));
         for (int i = 0; i < total; i++)
             newarry[i] = arry[i];
-        writeIntArray(indent, newarry, total, ctype, defaultval);
+        writeIntArray(indent, prefix, name, newarry, total, ctype, mult, defaultval);
     }
 }
 
-void cmpFile::writeIntArray (int indent, int arry[], int size, Data::OutputConversion ctype,
-                                 int defaultval)
+void cmpFile::writeIntArray (int indent, QString &prefix, QString &name, int arry[], int size,
+                             Data::OutputConversion ctype, int mult, int defaultval)
 {
     int num_on_line = 0;
+    int indent2 = indent + 2;
 
-    if (arry != nullptr)
+    if (arry == nullptr) {
+        qWarning("Float array is nullptr.");
+        cmpLog::outlog->add(cmpLog::Error, QString("Float array is nullptr."));
+        return;
+    }
+    else {
+        // check for all default
+        bool alldef = true;
+        for (int i = 0; i < size; i++) {
+            if (arry[i] != defaultval) {
+                alldef = false;
+            }
+        }
+        if (alldef) return;
+    }
+    convertIntArray(arry, size, ctype, mult);
+
+    writeStringNR(indent, prefix, name);
+    writeSpace();
+    num_on_line = 1;
+
+    int first = 0, last = 1, l;
+    int firstval = 0, lastval = 0;
+
+    for (int i = 0; i < size; i++)
     {
-        int first = 0, last = 1, l;
-        int firstval = 0, lastval = 0;
-
-        for (int i = 0; i < size; i++)
+        first = i;
+        last = i + 1;
+        firstval = arry[first];
+        lastval = arry[last];
+        if (lastval == firstval)
         {
-            first = i;
-            last = i + 1;
-            firstval = convertInt (arry[first], ctype);
-            lastval = convertInt (arry[last], ctype);
-            if (lastval == firstval)
+            if (num_on_line >= 2)
             {
-                if (num_on_line >= 2)
-                {
-                    writeNewline();
-                    writeIndent(indent);
-                    num_on_line = 0;
-                }
-                l = last + 1;
-                while (l < size && (lastval = convertInt (arry[l], ctype)) == firstval)
-                    l++;
-                last = l - 1;
-                if (first == 0 && last == (size - 1))
-                {
-                    write (QString ("[*] ").toUtf8());
-                    writeInt (firstval);
-                }
-                else if (last - first > 2)
-                {
-                    QString range (QString ("[%1:%2] ")
-                               .arg (QString::number(first), QString::number(last)));
-                    write (range.toUtf8());
-                    writeInt (firstval);
-                }
-                else
-                {
-                    writeInt (firstval);
-                    writeInt (convertInt (arry[last], ctype));
-                }
-                i = last + 1;
-                num_on_line += 2;
+                writeNewline();
+                writeIndent(indent2);
+                num_on_line = 0;
+            }
+            l = last + 1;
+            while (l < size && (lastval = arry[l]) == firstval)
+                l++;
+            last = l - 1;
+            if (first == 0 && l == size)
+            {
+                write (QString ("[*] ").toUtf8());
+                writeInt (firstval);
+            }
+            else if (last - first > 2)
+            {
+                QString range (QString ("[%1:%2] ")
+                           .arg (QString::number(first), QString::number(last)));
+                write (range.toUtf8());
+                writeInt (firstval);
             }
             else
             {
-                if (num_on_line == 4)
-                {
-                    writeNewline();
-                    writeIndent(indent);
-                    num_on_line = 0;
-                }
                 writeInt (firstval);
-                num_on_line++;
+                writeInt (arry[last]);
             }
+            num_on_line += 2;
+            i = last + 1;
+        }
+        else
+        {
+            if (num_on_line == 4)
+            {
+                writeNewline();
+                writeIndent(indent2);
+                num_on_line = 0;
+            }
+            writeInt (firstval);
+            num_on_line++;
         }
     }
-    else
-    {
-        qWarning("Float array is nullptr.");
-        cmpLog::outlog->add(cmpLog::Error, QString("Float array is nullptr."));
-        writeInt (0);
-    }
+    writeNewline();
 }
 
 void cmpFile::printEOF (QString data)
@@ -1001,6 +1416,11 @@ QString cmpFile::getFileLine ()
 {
    return QString((QString("File: %1, Line: %2").arg
                    (fileName(), QString::number(lineNum))));
+}
+
+void cmpFile::setSettings(cmpSettings *newSettings)
+{
+    settings = newSettings;
 }
 
 int cmpFile::getDataVersion() const
