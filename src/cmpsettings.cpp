@@ -20,7 +20,6 @@ void cmpSettings::initial()
     command = new cmpCommandSettings();
 
     user = new cmpUserSettings();
-    user->setOptions();
 
     data = new cmpDataSettings();
 }

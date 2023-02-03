@@ -742,16 +742,32 @@ bool cmpRiverSystem::outputRiverYrData(cmpFile *outfile, bool outputAll)
 {
     bool okay = true;
     int total = segments.count();
+    cmpDam *dam;
     cmpReach *reach;
+    cmpHeadwater *hwater;
     for (int i = 0; i < total; i++)
     {
-        if (segments.at(i)->getType() == cmpRiverSegment::Reach)
+        switch (segments.at(i)->getType())
         {
+        case cmpRiverSegment::Dam:
+            dam = static_cast<cmpDam *>(segments.at(i));
+            outfile->writeString(1, "dam", dam->getName());
+//            dam->writeRivData(outfile, 2, outputAll);
+            outfile->writeEnd(1, "dam", dam->getName());
+            break;
+        case cmpRiverSegment::Reach:
             reach = static_cast<cmpReach *>(segments[i]);
             outfile->writeString(1, "reach", reach->getName());
             reach->writeRivData(outfile, 2, outputAll);
             outfile->writeEnd(1, "reach", reach->getName());
             outfile->writeNewline();
+            break;
+        case cmpRiverSegment::Headwater:
+            hwater = static_cast<cmpHeadwater *>(segments.at(i));
+            outfile->writeString(1, "headwater", hwater->getName());
+//            hwater->writeRivData(outfile, 2, outputAll);
+            outfile->writeEnd(1, "headwater", hwater->getName());
+            break;
         }
     }
     return okay;

@@ -264,7 +264,8 @@ void cmpRiverSegment::writeAllData(cmpFile *outfile, int indent, bool outputAll)
 
 void cmpRiverSegment::writeConfigData(cmpFile *outfile, int indent, bool outputAll)
 {
-    outfile->writeValue(indent, "output_settings", outputSettings);
+    int dval = outputAll? 1000000: 0;
+    outfile->writeValue(indent, "output_settings", outputSettings, dval);
 }
 
 void cmpRiverSegment::writeFlowData(cmpFile *outfile, int indent, bool outputAll)
@@ -273,13 +274,13 @@ void cmpRiverSegment::writeFlowData(cmpFile *outfile, int indent, bool outputAll
     outfile->writeValue(indent, "flow_max", getFlowMax(), fdef);
     if (readFlows)
     {
-        outfile->writeStringNR(indent, "flow");
-        outfile->writeFloatArray(indent, flow, Data::None, Data::Fixed, fdef);
+        outfile->writeFloatArray(indent, "flow", "", flow, Data::None, stepsPerDay, Data::Fixed, fdef);
     }
 }
 
 void cmpRiverSegment::writeGasData (cmpFile *outfile, int indent, bool outputAll)
 {
+    float dval = outputAll? 1000000: 0;
     if (readGas)
     {
 //        float fdef = (outputAll? 100000: 0);
@@ -306,12 +307,13 @@ void cmpRiverSegment::writeTempData (cmpFile *outfile, int indent, bool outputAl
     {
         float fdef = (outputAll? 100000: 0);
         outfile->writeStringNR(indent, "water_temp");
-        outfile->writeFloatArray(indent, temp, Data::None, Data::Fixed, fdef);
+        outfile->writeFloatArray(indent, "water_temp", "", temp, Data::None, stepsPerDay, Data::Fixed, fdef);
     }
 }
 
 void cmpRiverSegment::writeTurbidData (cmpFile *outfile, int indent, bool outputAll)
 {
+    float dval = outputAll? 1000000: 0;
 //    float fdef = (outputAll? 100000: 0);
     if (readTurbidity)
     {

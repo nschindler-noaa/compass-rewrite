@@ -43,7 +43,7 @@ HEADERS += \
     cmptransport.h \
     cmptributary.h \
     cmpusersettings.h \
-    parseUtil.h \
+    dataConversion.h \
     version.h
 
 SOURCES += \
@@ -82,8 +82,8 @@ SOURCES += \
     cmptransport.cpp \
     cmptributary.cpp \
     cmpusersettings.cpp \
-    main.cpp \
-    parseUtil.cpp
+    dataconversion.cpp \
+    main.cpp
 
 FORMS += \
     cmpmainwindow.ui

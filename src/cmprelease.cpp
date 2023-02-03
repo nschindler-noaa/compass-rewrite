@@ -84,13 +84,13 @@ bool cmpRelease::parseToken(QString token, cmpFile *cfile)
 
 void cmpRelease::writeData(cmpFile *ofile, bool outputAll)
 {
+    float dval = outputAll? 1000000: 0.0;
     ofile->writeStringNR(0, "release ", species->getName());
     ofile->writeValue(0, site->getName(), startDay);
     ofile->writeString(1, "stock", stock->getName());
-    ofile->writeValue(1, "initial_spill_experience", initialSpillExperience);
-    ofile->writeValue(1, "length", fishLength);
-    ofile->writeStringNR(1, "number ");
-    ofile->writeFloatArray(0, number, Data::None, Data::Float, 0);
+    ofile->writeValue(1, "initial_spill_experience", initialSpillExperience, dval);
+    ofile->writeValue(1, "length", fishLength, dval);
+    ofile->writeFloatArray(1, QString("number"), QString(), number,  Data::None, 1, Data::Float, dval);
 }
 
 void cmpRelease::setSite(cmpReleaseSite *newSite)

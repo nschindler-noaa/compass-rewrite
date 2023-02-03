@@ -48,10 +48,10 @@ public:
     bool readUnsigned (unsigned &val);    /**< read an unsigned integer value */
     bool readFloatOrNa (QString &na, float &val); /**< read float or 'na' */
     bool readTitledValue(QString &string, float &value);
-    bool readFloatArray (float *farray); /**< read values to end or next token */
-    bool readFloatArray (QList<float> farray, int outSize, Data::DataConversion convert, unsigned mult, QString prompt);
-    bool readIntArray (int *iarray);  /**< read values to end or next token */
-    bool readIntArray (QList<int> iarray, int outSize, Data::DataConversion convert, unsigned mult, QString prompt);
+    bool readFloatArray (float *farray, int size, Data::DataConversion convert, unsigned mult, QString prompt); /**< read values to end or next token */
+    bool readFloatArray (QList<float> &farray, int outSize, Data::DataConversion convert, unsigned mult, QString prompt);
+    bool readIntArray (int *iarray, int size, Data::DataConversion convert, unsigned mult, QString prompt);  /**< read values to end or next token */
+    bool readIntArray (QList<int> &iarray, int outSize, Data::DataConversion convert, unsigned mult, QString prompt);
     bool readString (QString &string); /**< read to end of current line */
     QStringList * splitString (QString &string); /**< divide string into component words/tokens */
 
@@ -83,21 +83,21 @@ public:
     void writeFloatOrNa (float val, Data::Type dtype = Data::Float);
     void writeFloat (double val, Data::Type dtype = Data::Float);
     void writeInt (int val);
-    void writeFloatArray (int indent, QString &prefix, QString &name, QList<float> &arry,
-                          Data::OutputConversion ctype, int mult,
+    void writeFloatArray (int indent, QString prefix, QString name, QList<float> &arry,
+                          Data::DataConversion ctype, int mult,
                           Data::Type dtype, float defaultval);
-    void writeFloatArray (int indent, QString &prefix, QString &name, float arry[], int size,
-                          Data::OutputConversion ctype, int mult,
+    void writeFloatArray (int indent, QString prefix, QString name, float arry[], int size,
+                          Data::DataConversion ctype, int mult,
                           Data::Type dtype, float defaultval);
-    void writeIntArray (int indent, QString &prefix, QString &name, QList<int> &arry,
-                        Data::OutputConversion ctype, int mult, int defaultval);
-    void writeIntArray (int indent, QString &prefix, QString &name, int arry[], int size,
-                        Data::OutputConversion ctype, int mult, int defaultval);
+    void writeIntArray (int indent, QString prefix, QString name, QList<int> &arry,
+                        Data::DataConversion ctype, int mult, int defaultval);
+    void writeIntArray (int indent, QString prefix, QString name, int arry[], int size,
+                        Data::DataConversion ctype, int mult, int defaultval);
     void writeEnd (int indent, QString keyword, QString name = QString());
-    int convertInt (int arry[], int index, Data::OutputConversion ctype, int mult);
-    bool convertIntArray (int arry[], int size, Data::OutputConversion ctype, int mult);
-    float convertFloat (float arry[], int index, Data::OutputConversion ctype, int mult);
-    bool convertFloatArray (float arry[], int size, Data::OutputConversion ctype, int mult);
+    int convertInt (QList<int> arry, int index, Data::DataConversion ctype, int mult);
+    bool convertIntArray (int arry[], int size, Data::DataConversion ctype, int mult);
+    float convertFloat (QList<float> arry, int index, Data::DataConversion ctype, int mult);
+    bool convertFloatArray (float arry[], int size, Data::DataConversion ctype, int mult);
 //    int output_float_array (QFile *outfile, const QString prefix, const QString name,
 //                                     int size, float *array,
 //                                     oconv conversion, unsigned mult,

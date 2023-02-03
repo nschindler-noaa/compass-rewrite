@@ -1,6 +1,7 @@
 #ifndef C_DATACONVERSION_H
 #define C_DATACONVERSION_H
 
+#include "cmpsettings.h"
 //#include "CompassFile.h"
 #include <QStringList>
 
@@ -22,36 +23,37 @@
 class Data
 {
 public:
-    typedef enum InputDataConversionType {
+    typedef enum DataConversionType {
         // from small to large
-        Proportion = 101, /**< Divide value by multiple and assign to array. */
+        None = 100,       /**< Keep values as-is. */
+        Proportion,       /**< Divide value by multiple and assign to array. */
         Duplicate,        /**< Duplicate value and assign to array. */
         Space,            /**< Assign to every multiple value in array. */
         Half,             /**< Divide by 2 and assign to array. */
         // from large to small
+        Sum,              /**< Sum multiple values and assign to one */
         Average,          /**< Average input and assign to smaller array. */
-        AveragePos,       /**< Output average of positive values only. */
-        AverageNonZ,      /**< Output average of non-zero values only. */
+        AveragePositive,  /**< Output average of positive values only. */
+        AverageNonZero,   /**< Output average of non-zero values only. */
         DamDay,           /**< Output as Dam day values. */
-        DamNight,         /**< Output as Dam night values. */
-        Sum               /**< Sum multiple values and assign to one */
+        DamNight          /**< Output as Dam night values. */
     }DataConversion;
 
     typedef enum OutputOptions {
-        OutputAll = 211,  /**< Output all values even if default. */
-        OutputNonDefault, /**< Output values that are not defaults. */
+        OutputNonDefault = 210, /**< Output values that are not defaults (default). */
+        OutputAll,        /**< Output all values even if default. */
         OutputNonZero     /**< Output values that are not zero. */
     }Output;
 
-    typedef enum OutputDataConversionType {
-        None = 200,       /**< Output values as-is. */
-        SumValues,        /**< Output sum of multiple values. */
-        AverageValues,    /**< Output average of multiple values. */
-        AveragePositive,  /**< Output average of positive values only. */
-        AverageNonZero,   /**< Output average of non-zero values only. */
-        DamDayValues,     /**< Output as Dam day values. */
-        DamNightValues    /**< Output as Dam night values. */
-    }OutputConversion;
+//    typedef enum DataConversionType {
+//        None = 200,       /**< Output values as-is. */
+//        SumValues,        /**< Output sum of multiple values. */
+//        AverageValues,    /**< Output average of multiple values. */
+//        AveragePositive,  /**< Output average of positive values only. */
+//        AverageNonZero,   /**< Output average of non-zero values only. */
+//        DamDayValues,     /**< Output as Dam day values. */
+//        DamNightValues    /**< Output as Dam night values. */
+//    }OutputConversion;
 
     typedef enum OutputDataType {
         Integer = 220,    /**< Output as an integer. */
@@ -69,13 +71,13 @@ public:
  *  Values are either not converted - saved to the array as read, or
  *  spread over a number of array items by various means.
  */
-typedef enum array_conversion_type {
-        None, /**< Save each number as-is. */
-        Duplicate,     /**< Duplicates each number over a number of array items */
-        Space,   /**< Spaces each number by a number of 0.0 array items */
-        Half,    /**< Divide the number by 2 and assign to a number of array items */
-        Proportion     /**< Divide by the number of array items and assign to each array item */
-} DataConversion;
+//typedef enum array_conversion_type {
+//        None, /**< Save each number as-is. */
+//        Duplicate,     /**< Duplicates each number over a number of array items */
+//        Space,   /**< Spaces each number by a number of 0.0 array items */
+//        Half,    /**< Divide the number by 2 and assign to a number of array items */
+//        Proportion     /**< Divide by the number of array items and assign to each array item */
+//} DataConversion;
 
 /** Assign a float value to an array, applying a data conversion in the process */
 //void assign_float_array (float farray[], int index,
@@ -93,12 +95,11 @@ typedef enum array_conversion_type {
 //            int max_elem, DataConversion conversion,
 //            unsigned mult, QString prompt);
 
-bool assignInputFloatList (QList<float> &array1, QList<float> &array2, Data::DataConversion convert, int mult);
-bool convertInputFloatList (QList<float> &smList, QList<float> &lgList, Data::DataConversion convert, int mult);
-bool convertOutputFloatList (QList<float> &smList, QList<float> &lgList, Data::DataConversion convert, int mult);
-
+bool assignFloatList (QList<float> &inlist, QList<float> &outlist, Data::DataConversion convert, int mult);
+bool convertInputFloatList (QList<float> &list1, QList<float> &list2, Data::DataConversion convert, int mult);
+bool convertOutputFloatList (QList<float> &list1, QList<float> &list2, Data::DataConversion convert, int mult);
 bool assignInputIntList (QList<int> &list1, QList<int> &list2, Data::DataConversion convert, int mult);
-bool convertInputIntList (QList<int> &smList, QList<int> &lgList, Data::DataConversion convert, int mult);
-bool convertOutputIntList (QList<int> &smList, QList<int> &lgList, Data::DataConversion convert, int mult);
+bool convertInputIntList(QList<int> &list1, QList<int> &list2, Data::DataConversion convert, int mult);
+bool convertOutputIntList (QList<int> &list1, QList<int> &list2, Data::DataConversion convert, int mult);
 
 #endif // C_DATACONVERSION_H

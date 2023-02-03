@@ -301,19 +301,26 @@ int cmpPowerhouse::getSpeciesIndex(QString spec)
 
 float cmpPowerhouse::getSpeciesRswCap(QString spec)
 {
+    float val = 0;
     int index = getSpeciesIndex(spec);
-    return getSpeciesRswCap(index);
+    if (index > -1)
+        val =  getSpeciesRswCap(index);
+    return val;
 }
 
 float cmpPowerhouse::getSpeciesRswCap(int index)
 {
-    return species[index]->getRswCapacity();
+    float val = 0;
+    if (index > -1)
+        val = species[index]->getRswCapacity();
+    return val;
 }
 
 void cmpPowerhouse::setSpeciesRswCap(QString spec, float value)
 {
     int index = getSpeciesIndex(spec);
-    species[index]->setRswCapacity(value);
+    if (index > -1)
+        species[index]->setRswCapacity(value);
 }
 
 

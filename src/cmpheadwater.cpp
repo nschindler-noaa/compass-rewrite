@@ -189,7 +189,7 @@ bool cmpHeadwater::parseToken (QString token, cmpFile *cfile)
 
     if (token.compare ("elevation_change", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatArray (elevChange);
+        okay = cfile->readFloatArray (elevChange, daysPerSeason, Data::None, stepsPerDay, "elevation_change");
     }
     else if (token.compare("flow_coefficient", Qt::CaseInsensitive) == 0)
     {

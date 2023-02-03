@@ -319,8 +319,7 @@ void cmpDam::writeData(cmpFile *outfile, int indent, bool outputAll)
         outfile->writeValue(1, "output_settings", outputSettings, 0);
         outfile->writeValue(1, "tailrace_length", lengthTailrace, dval);
         outfile->writeValue(1, "spill_cap", spillMax);
-        outfile->writeStringNR(1, "actual_spill");
-        outfile->writeFloatArray(1, spill, Data::None, Data::Float, dval);
+        outfile->writeFloatArray(1, "actual_spill", QString(), spill, Data::None, stepsPerDay, Data::Float, dval);
         outfile->writeValue(1, "gas_theta", gasTheta, dval);
         outfile->writeValue(1, "k_entrain", entrainK, dval);
         outfile->writeValue(1, "entrain_factor", entrainFactor, dval);
@@ -344,8 +343,7 @@ void cmpDam::writeData(cmpFile *outfile, int indent, bool outputAll)
         }
         if (basin != nullptr)
         {
-            outfile->writeStringNR(1, "storage_volume");
-            outfile->writeFloatArray(1, basin->getVolume(), Data::None, Data::Float, dval);
+            outfile->writeFloatArray(1, "storage_volume", QString(), basin->getVolume(), Data::None, stepsPerDay, Data::Float, dval);
         }
         outfile->writeNewline();
         eqn = getNsatEqn();
@@ -389,8 +387,7 @@ void cmpDam::writeAllData(cmpFile *outfile, int indent)
     outfile->writeValue(1, "output_settings", outputSettings);
     outfile->writeValue(1, "tailrace_length", lengthTailrace);
     outfile->writeValue(1, "spill_cap", spillMax);
-    outfile->writeStringNR(1, "actual_spill");
-    outfile->writeFloatArray(1, spill, Data::None, Data::Float, 100000.0);
+    outfile->writeFloatArray(1, "actual_spill", QString(), spill, Data::None, stepsPerDay, Data::Float, 100000.0);
     outfile->writeValue(1, "gas_theta", gasTheta);
     outfile->writeValue(1, "k_entrain", entrainK);
     outfile->writeValue(1, "entrain_factor", entrainFactor);
@@ -414,8 +411,7 @@ void cmpDam::writeAllData(cmpFile *outfile, int indent)
     }
     if (basin != nullptr)
     {
-        outfile->writeStringNR(1, "storage_volume");
-        outfile->writeFloatArray(1, basin->getVolume(), Data::None, Data::Float, 100000.0);
+        outfile->writeFloatArray(1, "storage_volume", QString(), basin->getVolume(), Data::None, stepsPerDay, Data::Float, 100000.0);
     }
     outfile->writeNewline();
     eqn = getNsatEqn();

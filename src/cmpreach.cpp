@@ -541,7 +541,7 @@ bool cmpReach::parseToken (QString token, cmpFile *cfile)
     }
     else if (token.compare ("elevation_change", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatArray (elevChange);
+        okay = cfile->readFloatArray (elevChange, daysPerSeason, Data::None, stepsPerDay, "elevation_change");
     }
     else if (token.compare("loss_max", Qt::CaseInsensitive) == 0)
     {
@@ -553,7 +553,7 @@ bool cmpReach::parseToken (QString token, cmpFile *cfile)
     }
     else if (token.compare ("loss", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatArray (loss);
+        okay = cfile->readFloatArray (loss, daysPerSeason, Data::None, stepsPerDay, "loss");
     }
     else if (token.compare ("gas_dissp_exp", Qt::CaseInsensitive) == 0)
     {
@@ -561,19 +561,19 @@ bool cmpReach::parseToken (QString token, cmpFile *cfile)
     }
     else if (token.compare ("delta_water_temp", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatArray (tempDelta);
+        okay = cfile->readFloatArray (tempDelta, daysPerSeason, Data::None, stepsPerDay, "temp_delta");
     }
     else if (token.compare ("fish_density", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatArray (fishDensity);
+        okay = cfile->readFloatArray (fishDensity, daysPerSeason, Data::None, stepsPerDay, "fish_density");
     }
-    else if (token.compare ("birdDensity1", Qt::CaseInsensitive) == 0)
+    else if (token.compare ("bird_density_1", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatArray (birdDensity1);
+        okay = cfile->readFloatArray (birdDensity1, daysPerSeason, Data::None, stepsPerDay, "bird_density1");
     }
-    else if (token.compare ("birdDensity2", Qt::CaseInsensitive) == 0)
+    else if (token.compare ("bird_density_2", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatArray (birdDensity2);
+        okay = cfile->readFloatArray (birdDensity2, daysPerSeason, Data::None, stepsPerDay, "bird_density2");
     }
     else if (token.compare ("pred_mean", Qt::CaseInsensitive) == 0)
     {
@@ -649,12 +649,12 @@ void cmpReach::writeRivData(cmpFile *outfile, int indent, bool outputAll)
 
     outfile->writeValue(indent, "loss_min", lossMin, dval);
     outfile->writeValue(indent, "loss_max", lossMax, dval);
-    //outfile->writeFloatArray(indent, "loss");
-    //outfile->writeFloatArray(indent, "elevation_change");
+    outfile->writeFloatArray(indent, "loss", "", loss, Data::None, stepsPerDay, Data::Float, dval);
+    outfile->writeFloatArray(indent, "elevation_change", "", elevChange, Data::None, stepsPerDay, Data::Float, dval);
     outfile->writeString(indent, "output_gas", readGas? "On": "Off");
-    //outfile->writeFloatArray(indent, "delta_water_temp", tempDelta);
+    outfile->writeFloatArray(indent, "delta_water_temp", "", tempDelta, Data::None, stepsPerDay, Data::Float, dval);
     outfile->writeString(indent, "input_turbidity", readTurbidity? "On": "Off");
-    //outfile->writeFloatArray(indent, "fish_density", fishDensity);
-    //outfile->writeFloatArray(indent, "bird_density_1", birdDensity1);
-    //outfile->writeFloatArray(indent, "bird_density_2", birdDensity2);
+    outfile->writeFloatArray(indent, "fish_density", "", fishDensity, Data::None, stepsPerDay, Data::Float, dval);
+    outfile->writeFloatArray(indent, "bird_density_1", "", birdDensity1, Data::None, stepsPerDay, Data::Float, dval);
+    outfile->writeFloatArray(indent, "bird_density_2", "", birdDensity2, Data::None, stepsPerDay, Data::Float, dval);
 }

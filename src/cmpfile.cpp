@@ -524,40 +524,347 @@ bool cmpFile::readUnsigned (unsigned &val)
     return okay;
 }
 
-bool cmpFile::readFloatArray (float *farray)
+bool cmpFile::readFloatArray (float *farray, int size, Data::DataConversion convert, unsigned mult, QString prompt)
 {
-    bool okay = true;
-    QString NA("");
-    okay = readFloatOrNa(NA, farray[0]);
-    return okay;
+    bool okay = true, end = false, error = false;
+    QString token;
+    QStringList tokens;
+    int cur_elem = 0;
+    float value = 0;
+    int start_elem = 0, end_elem = 0;
+    short flag = 1;
+
+    // initialize array
+    for (int i = 0; i < size * mult; i++)
+        farray[i] = 0;
+
+    while (!end && okay)
+    {
+        token = popToken ();
+
+        if (token.contains ('['))
+        {
+            token = token.section ('[', -1);
+            token = token.section (']', 0, 0);
+            tokens = token.split(':');
+            if (token.count() == 2)
+            {
+                start_elem = tokens.at(0).toInt(&okay);
+                if (okay)
+                    end_elem = tokens.at(1).toInt(&okay);
+                else
+                    end_elem = start_elem;
+            }
+            else if (token.contains ('*'))
+            {
+                start_elem = 0;
+                end_elem = size - 1;
+            }
+            else
+            {
+                start_elem = token.toInt(&okay);
+                end_elem = start_elem;
+            }
+            if (okay)
+            {
+                token = popToken ();
+                if (isInt (token))
+                {
+                    value = token.toFloat(&okay);
+                    for (cur_elem = start_elem; cur_elem <= end_elem; cur_elem++)
+                    {
+                        farray[cur_elem] = value; //convertFloat(farray, cur_elem, convert, mult);
+//						assign_int_array (iarray, cur_elem, number, convert, mult);
+                    }
+                }
+                else
+                {
+                    pushToken (token);
+                }
+            }
+            else
+            {
+                printError ("parsing integer array");
+            }
+            if (cur_elem >= size)
+                end = true;
+        }
+        else
+        {
+            if (isInt (token))
+            {
+                value = token.toFloat(&okay);
+                farray[cur_elem] = value;
+            }
+            else
+            {
+                pushToken (token);
+                end = true;
+            }
+        }
+    }
+    return end;
 }
 
-bool cmpFile::readFloatArray(QList<float> farray, int outSize, Data::DataConversion convert, unsigned mult, QString prompt)
+bool cmpFile::readFloatArray(QList<float> &farray, int size, Data::DataConversion convert, unsigned mult, QString prompt)
 {
-    bool okay = true;
-    QString NA("");
-    skipAllNumbers();
-//    okay = readFloatOrNa(NA, farray[0]);
-    return okay;
+    bool okay = true, end = false, error = false;
+    QString token;
+    QStringList tokens;
+    int cur_elem = 0;
+    float value = 0;
+    int start_elem = 0, end_elem = 0;
+    short flag = 1;
+
+    // initialize array
+    int count = farray.count();
+    for (int i = 0; i < count; i++)
+        farray[i] = 0;
+    while (count < size)
+    {
+        farray.append(0);
+        count++;
+    }
+    while (count > size)
+    {
+        farray.takeLast();
+        count--;
+    }
+
+    while (!end && okay)
+    {
+        token = popToken ();
+
+        if (token.contains ('['))
+        {
+            token = token.section ('[', -1);
+            token = token.section (']', 0, 0);
+            tokens = token.split(':');
+            if (token.count() == 2)
+            {
+                start_elem = tokens.at(0).toInt(&okay);
+                if (okay)
+                    end_elem = tokens.at(1).toInt(&okay);
+                else
+                    end_elem = start_elem;
+            }
+            else if (token.contains ('*'))
+            {
+                start_elem = 0;
+                end_elem = size - 1;
+            }
+            else
+            {
+                start_elem = token.toInt(&okay);
+                end_elem = start_elem;
+            }
+            if (okay)
+            {
+                token = popToken ();
+                if (isFloat (token))
+                {
+                    value = token.toFloat(&okay);
+                    for (cur_elem = start_elem; cur_elem <= end_elem; cur_elem++)
+                    {
+                        farray[cur_elem] = convertFloat(farray, cur_elem, convert, mult);
+//						assign_int_array (iarray, cur_elem, number, convert, mult);
+                    }
+                }
+                else
+                {
+                    pushToken (token);
+                }
+            }
+            else
+            {
+                printError ("parsing integer array");
+            }
+            if (cur_elem >= size)
+                end = true;
+        }
+        else
+        {
+            if (isFloat (token))
+            {
+                value = token.toFloat(&okay);
+                farray[cur_elem] = value;
+            }
+            else
+            {
+                pushToken (token);
+                end = true;
+            }
+        }
+    }
+    return end;
 }
 
-bool cmpFile::readIntArray (int *iarray)
+bool cmpFile::readIntArray (int *iarray, int size, Data::DataConversion convert, unsigned mult, QString prompt)
 {
-    bool okay = true;
-    skipAllNumbers();
-//    okay = readInt(iarray[0]);
-    return okay;
+    bool okay = true, end = false, error = false;
+    QString token;
+    QStringList tokens;
+    int cur_elem = 0;
+    int number = 0;
+    int start_elem = 0, end_elem = 0;
+    short flag = 1;
+
+    // initialize array
+    for (int i = 0; i < size * mult; i++)
+        iarray[i] = 0;
+
+    while (!end && okay)
+    {
+        token = popToken ();
+
+        if (token.contains ('['))
+        {
+            token = token.section ('[', -1);
+            token = token.section (']', 0, 0);
+            tokens = token.split(':');
+            if (token.count() == 2)
+            {
+                start_elem = tokens.at(0).toInt(&okay);
+                if (okay)
+                    end_elem = tokens.at(1).toInt(&okay);
+                else
+                    end_elem = start_elem;
+            }
+            else if (token.contains ('*'))
+            {
+                start_elem = 0;
+                end_elem = size - 1;
+            }
+            else
+            {
+                start_elem = token.toInt(&okay);
+                end_elem = start_elem;
+            }
+            if (okay)
+            {
+                token = popToken ();
+                if (isInt (token))
+                {
+                    number = token.toInt(&okay);
+                    for (cur_elem = start_elem; cur_elem <= end_elem; cur_elem++)
+                    {
+                        iarray[cur_elem] = number; //convertInt(iarray, cur_elem, convert, mult);
+//						assign_int_array (iarray, cur_elem, number, convert, mult);
+                    }
+                }
+                else
+                {
+                    pushToken (token);
+                }
+            }
+            else
+            {
+                printError ("parsing integer array");
+            }
+            if (cur_elem >= size)
+                end = true;
+        }
+        else
+        {
+            if (isInt (token))
+            {
+                number = token.toInt(&okay);
+                iarray[cur_elem] = number;
+            }
+            else
+            {
+                pushToken (token);
+                end = true;
+            }
+        }
+    }
+
+    return end;
 }
 
-bool cmpFile::readIntArray(QList<int> iarray, int outSize, Data::DataConversion convert, unsigned mult, QString prompt)
+bool cmpFile::readIntArray(QList<int> &iarray, int size, Data::DataConversion convert, unsigned mult, QString prompt)
 {
-    bool okay = true;
-    skipAllNumbers();
-//    okay = readInt(iarray[0]);
-    return okay;
+    bool okay = true, end = false, error = false;
+    QString token;
+    QStringList tokens;
+    int cur_elem = 0;
+    int number = 0;
+    int start_elem = 0, end_elem = 0;
+    short flag = 1;
+
+    // initialize array
+    for (int i = 0; i < size * mult; i++)
+        iarray[i] = 0;
+
+    while (!end && okay)
+    {
+        token = popToken ();
+
+        if (token.contains ('['))
+        {
+            token = token.section ('[', -1);
+            token = token.section (']', 0, 0);
+            tokens = token.split(':');
+            if (token.count() == 2)
+            {
+                start_elem = tokens.at(0).toInt(&okay);
+                if (okay)
+                    end_elem = tokens.at(1).toInt(&okay);
+                else
+                    end_elem = start_elem;
+            }
+            else if (token.contains ('*'))
+            {
+                start_elem = 0;
+                end_elem = size - 1;
+            }
+            else
+            {
+                start_elem = token.toInt(&okay);
+                end_elem = start_elem;
+            }
+            if (okay)
+            {
+                token = popToken ();
+                if (isInt (token))
+                {
+                    number = token.toInt(&okay);
+                    for (cur_elem = start_elem; cur_elem <= end_elem; cur_elem++)
+                    {
+                        iarray[cur_elem] = convertInt(iarray, cur_elem, convert, mult);
+//						assign_int_array (iarray, cur_elem, number, convert, mult);
+                    }
+                }
+                else
+                {
+                    pushToken (token);
+                }
+            }
+            else
+            {
+                printError ("parsing integer array");
+            }
+            if (cur_elem >= size)
+                end = true;
+        }
+        else
+        {
+            if (isInt (token))
+            {
+                number = token.toInt(&okay);
+                iarray[cur_elem] = number;
+            }
+            else
+            {
+                pushToken (token);
+                end = true;
+            }
+        }
+    }
+    return end;
 }
 
-bool cmpFile::readIntList(QList<int> &intlist, int outSize, Data::DataConversion convert, unsigned mult, QString prompt)
+bool cmpFile::readIntList(QList<int> &intlist, int size, Data::DataConversion convert, unsigned mult, QString prompt)
 {
     bool okay = true;
     QString token;
@@ -728,24 +1035,25 @@ void cmpFile::writeFloat (double val, Data::Type dtype)
 {
     switch (dtype)
     {
-    case Data::Float:
-        write (QString::number(val, 'g', 2).toUtf8());
+    case Data::Integer:
+        write (QString::number(val, 'f', 0).toUtf8());
+//        writeInt(static_cast<int>(val+.5));
         break;
 
-    case Data::Integer:
-        writeInt(static_cast<int>(val+.5));
+    case Data::Float:
+        write (QString::number(val, 'f', 2).toUtf8());
         break;
 
     case Data::Fixed:
-        write (QString::number(val, 'g', 6).toUtf8());
-        break;
-
-    case Data::Precise:
-        write (QString::number(val, 'g', 12).toUtf8());
+        write (QString::number(val, 'f', 6).toUtf8());
         break;
 
     case Data::Scientific:
-        write (QString::number(val, 'g', 6).toUtf8());
+        write (QString::number(val, 'f', 6).toUtf8());
+        break;
+
+    case Data::Precise:
+        write (QString::number(val, 'f', 12).toUtf8());
         break;
     }
 }
@@ -755,7 +1063,7 @@ void cmpFile::writeInt (int val)
     write (QString::number(val).toUtf8());
 }
 
-int cmpFile::convertInt(int arry[], int index, Data::OutputConversion ctype, int mult)
+int cmpFile::convertInt(QList<int> arry, int index, Data::DataConversion ctype, int mult)
 {
     int retval = 0;
     int end = 0;
@@ -764,12 +1072,12 @@ int cmpFile::convertInt(int arry[], int index, Data::OutputConversion ctype, int
 
     switch (ctype)
     {
-    case Data::SumValues:
+    case Data::Sum:
         end = index + mult;
         for (int i = index; i < end; i++)
             retval += arry[i];
         break;
-    case Data::AverageValues:
+    case Data::Average:
         end = index + mult;
         total = 0;
         count = 0;
@@ -808,7 +1116,7 @@ int cmpFile::convertInt(int arry[], int index, Data::OutputConversion ctype, int
         }
         retval = total / count;
         break;
-    case Data::DamDayValues:
+    case Data::DamDay:
         end = index + mult;
         total = 0;
         count = 0;
@@ -822,7 +1130,7 @@ int cmpFile::convertInt(int arry[], int index, Data::OutputConversion ctype, int
         }
         retval = total / count;
         break;
-    case Data::DamNightValues:
+    case Data::DamNight:
         end = index + mult;
         total = 0;
         count = 0;
@@ -845,7 +1153,7 @@ int cmpFile::convertInt(int arry[], int index, Data::OutputConversion ctype, int
     return retval;
 }
 
-bool cmpFile::convertIntArray(int arry[], int size, Data::OutputConversion ctype, int mult)
+bool cmpFile::convertIntArray(int arry[], int size, Data::DataConversion ctype, int mult)
 {
     bool okay = true;
     int value = 0;
@@ -854,7 +1162,7 @@ bool cmpFile::convertIntArray(int arry[], int size, Data::OutputConversion ctype
 
     switch (ctype)
     {
-    case Data::SumValues:
+    case Data::Sum:
         for (int i = 0; i < size; i += mult)
         {
             value = 0;
@@ -864,7 +1172,7 @@ bool cmpFile::convertIntArray(int arry[], int size, Data::OutputConversion ctype
                 arry[j] = value;
         }
         break;
-    case Data::AverageValues:
+    case Data::Average:
         for (int i = 0; i < size; i += mult)
         {
             total = 0;
@@ -915,7 +1223,7 @@ bool cmpFile::convertIntArray(int arry[], int size, Data::OutputConversion ctype
                 arry[j] = value;
         }
         break;
-    case Data::DamDayValues:
+    case Data::DamDay:
         for (int i = 0; i < size; i += mult)
         {
             total = 0;
@@ -933,7 +1241,7 @@ bool cmpFile::convertIntArray(int arry[], int size, Data::OutputConversion ctype
                 arry[j] = value;
         }
         break;
-    case Data::DamNightValues:
+    case Data::DamNight:
         for (int i = 0; i < size; i += mult)
         {
             total = 0;
@@ -979,7 +1287,7 @@ void cmpFile::writeEnd(int indent, QString keyword, QString name)
     writeNewline();
 }
 
-float cmpFile::convertFloat(float arry[], int index, Data::OutputConversion ctype, int mult)
+float cmpFile::convertFloat(QList<float> arry, int index, Data::DataConversion ctype, int mult)
 {
     float retval = 0;
     int end = 0;
@@ -988,12 +1296,12 @@ float cmpFile::convertFloat(float arry[], int index, Data::OutputConversion ctyp
 
     switch (ctype)
     {
-    case Data::SumValues:
+    case Data::Sum:
         end = index + mult;
         for (int i = index; i < end; i++)
             retval += arry[i];
         break;
-    case Data::AverageValues:
+    case Data::Average:
         end = index + mult;
         total = 0;
         count = 0;
@@ -1032,7 +1340,7 @@ float cmpFile::convertFloat(float arry[], int index, Data::OutputConversion ctyp
         }
         retval = total / count;
         break;
-    case Data::DamDayValues:
+    case Data::DamDay:
         end = index + mult;
         total = 0;
         count = 0;
@@ -1046,7 +1354,7 @@ float cmpFile::convertFloat(float arry[], int index, Data::OutputConversion ctyp
         }
         retval = total / count;
         break;
-    case Data::DamNightValues:
+    case Data::DamNight:
         end = index + mult;
         total = 0;
         count = 0;
@@ -1069,7 +1377,7 @@ float cmpFile::convertFloat(float arry[], int index, Data::OutputConversion ctyp
     return retval;
 }
 
-bool cmpFile::convertFloatArray(float arry[], int size, Data::OutputConversion ctype, int mult)
+bool cmpFile::convertFloatArray(float arry[], int size, Data::DataConversion ctype, int mult)
 {
     bool okay = true;
     float value = 0;
@@ -1078,7 +1386,7 @@ bool cmpFile::convertFloatArray(float arry[], int size, Data::OutputConversion c
 
     switch (ctype)
     {
-    case Data::SumValues:
+    case Data::Sum:
         for (int i = 0; i < size; i += mult)
         {
             value = 0;
@@ -1088,7 +1396,7 @@ bool cmpFile::convertFloatArray(float arry[], int size, Data::OutputConversion c
                 arry[j] = value;
         }
         break;
-    case Data::AverageValues:
+    case Data::Average:
         for (int i = 0; i < size; i += mult)
         {
             total = 0;
@@ -1139,7 +1447,7 @@ bool cmpFile::convertFloatArray(float arry[], int size, Data::OutputConversion c
                 arry[j] = value;
         }
         break;
-    case Data::DamDayValues:
+    case Data::DamDay:
         for (int i = 0; i < size; i += mult)
         {
             total = 0;
@@ -1157,7 +1465,7 @@ bool cmpFile::convertFloatArray(float arry[], int size, Data::OutputConversion c
                 arry[j] = value;
         }
         break;
-    case Data::DamNightValues:
+    case Data::DamNight:
         for (int i = 0; i < size; i += mult)
         {
             total = 0;
@@ -1184,8 +1492,8 @@ bool cmpFile::convertFloatArray(float arry[], int size, Data::OutputConversion c
     return okay;
 }
 
-void cmpFile::writeFloatArray(int indent, QString &prefix, QString &name, QList<float> &arry,
-                      Data::OutputConversion ctype, int mult,
+void cmpFile::writeFloatArray(int indent, QString prefix, QString name, QList<float> &arry,
+                      Data::DataConversion ctype, int mult,
                       Data::Type dtype, float defaultval)
 {
     int total = arry.size();
@@ -1198,8 +1506,8 @@ void cmpFile::writeFloatArray(int indent, QString &prefix, QString &name, QList<
     }
 }
 
-void cmpFile::writeFloatArray (int indent, QString &prefix, QString &name, float arry[], int size,
-                       Data::OutputConversion ctype, int mult,
+void cmpFile::writeFloatArray (int indent, QString prefix, QString name, float arry[], int size,
+                       Data::DataConversion ctype, int mult,
                        Data::Type dtype, float defaultval)
 {
     int num_on_line = 0;
@@ -1224,7 +1532,7 @@ void cmpFile::writeFloatArray (int indent, QString &prefix, QString &name, float
 
     writeStringNR(indent, prefix, name);
     writeSpace();
-    num_on_line = 1;
+    num_on_line = 0;
 
     int first = 0, last = 1, l;
     float firstval = 0, lastval = 0;
@@ -1282,8 +1590,8 @@ void cmpFile::writeFloatArray (int indent, QString &prefix, QString &name, float
     writeNewline();
 }
 
-void cmpFile::writeIntArray(int indent, QString &prefix, QString &name, QList<int> &arry,
-                            Data::OutputConversion ctype, int mult, int defaultval)
+void cmpFile::writeIntArray(int indent, QString prefix, QString name, QList<int> &arry,
+                            Data::DataConversion ctype, int mult, int defaultval)
 {
     int total = arry.size();
     if (total > 0)
@@ -1295,8 +1603,8 @@ void cmpFile::writeIntArray(int indent, QString &prefix, QString &name, QList<in
     }
 }
 
-void cmpFile::writeIntArray (int indent, QString &prefix, QString &name, int arry[], int size,
-                             Data::OutputConversion ctype, int mult, int defaultval)
+void cmpFile::writeIntArray (int indent, QString prefix, QString name, int arry[], int size,
+                             Data::DataConversion ctype, int mult, int defaultval)
 {
     int num_on_line = 0;
     int indent2 = indent + 2;
@@ -1445,6 +1753,7 @@ void cmpFile::obsoleteToken (QString obsToken, QString newToken)
         {
                 message.append (QString("Replaced with {%1}.\n").arg(newToken));
         }
+        skipLine();
         printError(message);
 }
 
