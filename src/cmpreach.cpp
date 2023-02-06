@@ -610,16 +610,16 @@ void cmpReach::writeData(cmpFile *outfile, int indent, bool outputAll)
 
     outfile->writeString(indent, "reach", name);
     writeConfigData(outfile, indent2, outputAll);
-    outfile->writeValue(indent2, "loss_min", lossMin, dval);
-    outfile->writeValue(indent2, "loss_max", lossMax, dval);
+    outfile->writeValue(indent2, "loss_min", lossMin, Data::Fixed, dval);
+    outfile->writeValue(indent2, "loss_max", lossMax, Data::Fixed, dval);
     //outfile->writeFloatArray(indent2, "loss");
     //outfile->writeFloatArray(indent2, "elevation_change");
-    outfile->writeValue(indent2, "gas_dissp_exp", gasDispExp, dval);
+    outfile->writeValue(indent2, "gas_dissp_exp", gasDispExp, Data::Fixed, dval);
     //outfile->writeFloatArray(indent2, "water_temp_delta");
     //outfile->writeFloatArray(indent2, "water_temp_delta");
     //outfile->writeFloatArray(indent2, "water_temp_delta");
     //outfile->writeFloatArray(indent2, "water_temp_delta");
-    outfile->writeValue(indent2, "ufree_max", freeFlowMax, dval);
+    outfile->writeValue(indent2, "ufree_max", freeFlowMax, Data::Fixed, dval);
     eqn = freeFlowEqn;
     if (eqn != nullptr)
     {
@@ -631,7 +631,7 @@ void cmpReach::writeData(cmpFile *outfile, int indent, bool outputAll)
     for (int j = 0; j < keys.count(); j++)
     {
         outfile->writeStringNR(indent2, "pred_mean ");
-        outfile->writeValue(0, keys.at(j), predMean[keys.at(j)], dval);
+        outfile->writeValue(0, keys.at(j), predMean[keys.at(j)], Data::Fixed, dval);
     }
     outfile->writeEnd(indent, "reach", name);
 }
@@ -645,16 +645,17 @@ void cmpReach::writeConfigData(cmpFile *outfile, int indent, bool outputAll)
 
 void cmpReach::writeRivData(cmpFile *outfile, int indent, bool outputAll)
 {
-    float dval = outputAll? 100000: 0;
+    float fdefault = outputAll? 100000: 0;
 
-    outfile->writeValue(indent, "loss_min", lossMin, dval);
-    outfile->writeValue(indent, "loss_max", lossMax, dval);
-    outfile->writeFloatArray(indent, "loss", "", loss, Data::None, stepsPerDay, Data::Float, dval);
-    outfile->writeFloatArray(indent, "elevation_change", "", elevChange, Data::None, stepsPerDay, Data::Float, dval);
-    outfile->writeString(indent, "output_gas", readGas? "On": "Off");
-    outfile->writeFloatArray(indent, "delta_water_temp", "", tempDelta, Data::None, stepsPerDay, Data::Float, dval);
-    outfile->writeString(indent, "input_turbidity", readTurbidity? "On": "Off");
-    outfile->writeFloatArray(indent, "fish_density", "", fishDensity, Data::None, stepsPerDay, Data::Float, dval);
-    outfile->writeFloatArray(indent, "bird_density_1", "", birdDensity1, Data::None, stepsPerDay, Data::Float, dval);
-    outfile->writeFloatArray(indent, "bird_density_2", "", birdDensity2, Data::None, stepsPerDay, Data::Float, dval);
+    writeFlowData(outfile, indent, outputAll);
+//    outfile->writeValue(indent, "loss_min", lossMin, Data::Float, fdefault);
+//    outfile->writeValue(indent, "loss_max", lossMax, Data::Float, fdefault);
+//    outfile->writeFloatArray(indent, "loss", "", loss, Data::None, stepsPerDay, Data::Float, fdefault);
+    outfile->writeFloatArray(indent, "elevation_change", "", elevChange, Data::None, stepsPerDay, Data::Float, fdefault);
+    outfile->writeFloatArray(indent, "delta_water_temp", "", tempDelta, Data::None, stepsPerDay, Data::Float, fdefault);
+    outfile->writeFloatArray(indent, "fish_density", "", fishDensity, Data::None, stepsPerDay, Data::Float, fdefault);
+    outfile->writeFloatArray(indent, "bird_density_1", "", birdDensity1, Data::None, stepsPerDay, Data::Float, fdefault);
+    outfile->writeFloatArray(indent, "bird_density_2", "", birdDensity2, Data::None, stepsPerDay, Data::Float, fdefault);
+    writeGasData(outfile, indent, outputAll);
+    writeTurbidData(outfile, indent, outputAll);
 }

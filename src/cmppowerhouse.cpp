@@ -70,81 +70,116 @@ void cmpPowerhouse::deleteSpecies()
     }
 }
 
+cmpDamSpecies *cmpPowerhouse::getSpecies(QString name)
+{
+    int index = getSpeciesIndex(name);
+    return getSpecies(index);
+}
+
+cmpDamSpecies *cmpPowerhouse::getSpecies(int index)
+{
+    if (index < 0 || index >= species.count())
+        return nullptr;
+    return species[index];
+}
+
 void cmpPowerhouse::writeData (cmpFile *outfile, int indent, bool outputAll)
 {
-    float dval = outputAll? 100000: 0;
+    float fdefault = outputAll? 1000000: 0;
+    int idefault = outputAll? 100000: 0;
     int total = species.count();
     cmpEquation eqn;
     QString name;
 
     outfile->writeValue(indent, "powerhouse_priority", priority, 0);
-    outfile->writeValue(indent, "powerhouse_capacity", capacity, dval);
-    outfile->writeValue(indent, "flow_min", threshold, dval);
+    outfile->writeValue(indent, "powerhouse_capacity", capacity, fdefault);
+    outfile->writeValue(indent, "flow_min", threshold, fdefault);
 //    outfile->writeStringNR(indent, "powerhouse_schedule ");
 //    outfile->writeBoolArray(0, schedule, false);
     for (int i = 0; i < total; i++)
     {
         name = species[i]->getName();
-        outfile->writeTitledValue(indent, "mean_forebay_transit_time", name, species[i]->getMeanForebayTransitTime(), dval);
-        outfile->writeTitledValue(indent, "separation_prob", name, species[i]->getSeparationProb(), dval);
-        outfile->writeTitledValue(indent, "sluideway_proportion", name, species[i]->getSluicewayProp(), dval);
-        outfile->writeTitledValue(indent, "rsw_spill_cap", name, species[i]->getRswCapacity(), dval);
-        outfile->writeTitledValue(indent, "sluiceway_mort", name, species[i]->getSluicewayMort(), dval);
-        outfile->writeTitledValue(indent, "bypass_mort", name, species[i]->getBypassMort(), dval);
-        outfile->writeTitledValue(indent, "turbine_mort", name, species[i]->getTurbineMort(), dval);
-        outfile->writeTitledValue(indent, "spill_mort", name, species[i]->getSpillMort(), dval);
-        outfile->writeTitledValue(indent, "transport_mort", name, species[i]->getTransportMort(), dval);
-        outfile->writeTitledValue(indent, "rsw_mort", name, species[i]->getRswMort(), dval);
+        outfile->writeTitledValue(indent, "mean_forebay_transit_time", name, species[i]->getMeanForebayTransitTime(), fdefault);
+        outfile->writeTitledValue(indent, "separation_prob", name, species[i]->getSeparationProb(), fdefault);
+        outfile->writeTitledValue(indent, "sluideway_proportion", name, species[i]->getSluicewayProp(), fdefault);
+        outfile->writeTitledValue(indent, "rsw_spill_cap", name, species[i]->getRswCapacity(), fdefault);
+        outfile->writeTitledValue(indent, "sluiceway_mort", name, species[i]->getSluicewayMort(), fdefault);
+        outfile->writeTitledValue(indent, "bypass_mort", name, species[i]->getBypassMort(), fdefault);
+        outfile->writeTitledValue(indent, "turbine_mort", name, species[i]->getTurbineMort(), fdefault);
+        outfile->writeTitledValue(indent, "spill_mort", name, species[i]->getSpillMort(), fdefault);
+        outfile->writeTitledValue(indent, "transport_mort", name, species[i]->getTransportMort(), fdefault);
+        outfile->writeTitledValue(indent, "rsw_mort", name, species[i]->getRswMort(), fdefault);
         outfile->writeNewline();
-        outfile->writeTitledValue(indent, "sluiceway_delay", name, species[i]->getSluicewayDelay(), dval);
-        outfile->writeTitledValue(indent, "bypass_delay", name, species[i]->getBypassDelay(), dval);
-        outfile->writeTitledValue(indent, "turbine_delay", name, species[i]->getTurbineDelay(), dval);
-        outfile->writeTitledValue(indent, "spill_delay", name, species[i]->getSpillDelay(), dval);
-        outfile->writeTitledValue(indent, "rsw_delay", name, species[i]->getRswDelay(), dval);
+        outfile->writeTitledValue(indent, "sluiceway_delay", name, species[i]->getSluicewayDelay(), fdefault);
+        outfile->writeTitledValue(indent, "bypass_delay", name, species[i]->getBypassDelay(), fdefault);
+        outfile->writeTitledValue(indent, "turbine_delay", name, species[i]->getTurbineDelay(), fdefault);
+        outfile->writeTitledValue(indent, "spill_delay", name, species[i]->getSpillDelay(), fdefault);
+        outfile->writeTitledValue(indent, "rsw_delay", name, species[i]->getRswDelay(), fdefault);
         outfile->writeNewline();
-        outfile->writeTitledValue(indent, "sluiceway_day_delay", name, species[i]->getSluicewayDayDelay(), dval);
-        outfile->writeTitledValue(indent, "bypass_day_delay", name, species[i]->getBypassDayDelay(), dval);
-        outfile->writeTitledValue(indent, "turbine_day_delay", name, species[i]->getTurbineDayDelay(), dval);
-        outfile->writeTitledValue(indent, "spill_day_delay", name, species[i]->getSpillDayDelay(), dval);
-        outfile->writeTitledValue(indent, "rsw_day_delay", name, species[i]->getRswDayDelay(), dval);
+        outfile->writeTitledValue(indent, "sluiceway_day_delay", name, species[i]->getSluicewayDayDelay(), fdefault);
+        outfile->writeTitledValue(indent, "bypass_day_delay", name, species[i]->getBypassDayDelay(), fdefault);
+        outfile->writeTitledValue(indent, "turbine_day_delay", name, species[i]->getTurbineDayDelay(), fdefault);
+        outfile->writeTitledValue(indent, "spill_day_delay", name, species[i]->getSpillDayDelay(), fdefault);
+        outfile->writeTitledValue(indent, "rsw_day_delay", name, species[i]->getRswDayDelay(), fdefault);
         outfile->writeNewline();
         eqn = species[i]->getFgeEqn();
-        outfile->writeTitledValue(indent, "fge_equation", name, eqn.getId(), 0);
-        eqn.writeParameters(outfile, indent+1, outputAll);
-        outfile->writeEnd(indent, "fge_equation", name);
-        outfile->writeNewline();
+        if (eqn.getId() != idefault)
+        {
+            outfile->writeTitledValue(indent, "fge_equation", name, eqn.getId());
+            eqn.writeParameters(outfile, indent+1, outputAll);
+            outfile->writeEnd(indent, "fge_equation", name);
+            outfile->writeNewline();
+        }
         eqn = species[i]->getRswEqn();
-        outfile->writeTitledValue(indent, "rsw_equation", name, eqn.getId(), 0);
-        eqn.writeParameters(outfile, indent+1, outputAll);
-        outfile->writeEnd(indent, "rsw_equation", name);
-        outfile->writeNewline();
+        if (eqn.getId() != idefault)
+        {
+            outfile->writeTitledValue(indent, "rsw_equation", name, eqn.getId());
+            eqn.writeParameters(outfile, indent+1, outputAll);
+            outfile->writeEnd(indent, "rsw_equation", name);
+            outfile->writeNewline();
+        }
         eqn = species[i]->getSpillEqn();
-        outfile->writeTitledValue(indent, "spill_equation", name, eqn.getId(), 0);
-        eqn.writeParameters(outfile, indent+1, outputAll);
-        outfile->writeEnd(indent, "spill_equation", name);
-        outfile->writeNewline();
+        if (eqn.getId() != idefault)
+        {
+            outfile->writeTitledValue(indent, "spill_equation", name, eqn.getId());
+            eqn.writeParameters(outfile, indent+1, outputAll);
+            outfile->writeEnd(indent, "spill_equation", name);
+            outfile->writeNewline();
+        }
         eqn = species[i]->getTransEqn();
-        outfile->writeTitledValue(indent, "trans_mort_equation", name, eqn.getId(), 0);
-        eqn.writeParameters(outfile, indent+1, outputAll);
-        outfile->writeEnd(indent, "trans_mort_equation", name);
-        outfile->writeNewline();
+        if (eqn.getId() != idefault)
+        {
+            outfile->writeTitledValue(indent, "trans_mort_equation", name, eqn.getId());
+            eqn.writeParameters(outfile, indent+1, outputAll);
+            outfile->writeEnd(indent, "trans_mort_equation", name);
+            outfile->writeNewline();
+        }
         eqn = species[i]->getDelayEqn();
-        outfile->writeTitledValue(indent, "delay_equation", name, eqn.getId(), 0);
-        eqn.writeParameters(outfile, indent+1, outputAll);
-        outfile->writeEnd(indent, "delay_equation", name);
-        outfile->writeNewline();
+        if (eqn.getId() != idefault)
+        {
+            outfile->writeTitledValue(indent, "delay_equation", name, eqn.getId());
+            eqn.writeParameters(outfile, indent+1, outputAll);
+            outfile->writeEnd(indent, "delay_equation", name);
+            outfile->writeNewline();
+        }
 /*        outfile->writeTitledValue(indent, "fishway_mort", name, species[i]->getFishwayMort(), dval);
         outfile->writeNewline();
         eqn = species[i]->getFishwayMigrEqu();
-        outfile->writeTitledValue(indent, "fishway_migr_equation", name, eqn.getId(), 0);
-        eqn.writeParameters(outfile, indent+1, outputAll);
-        outfile->writeEnd(indent, "fishway_migr_equation", name);
-        outfile->writeNewline();
+        if (eqn.getId() != idefault)
+        {
+            outfile->writeTitledValue(indent, "fishway_migr_equation", name, eqn.getId());
+            eqn.writeParameters(outfile, indent+1, outputAll);
+            outfile->writeEnd(indent, "fishway_migr_equation", name);
+            outfile->writeNewline();
+        }
         eqn = species[i]->getFishwaySurvEqn();
-        outfile->writeTitledValue(indent, "fishway_surv_equation", name, eqn.getId(), 0);
-        eqn.writeParameters(outfile, indent+1, outputAll);
-        outfile->writeEnd(indent, "fishway_surv_equation", name);
-        outfile->writeNewline();*/
+        if (eqn.getId() != idefault)
+        {
+            outfile->writeTitledValue(indent, "fishway_surv_equation", name, eqn.getId());
+            eqn.writeParameters(outfile, indent+1, outputAll);
+            outfile->writeEnd(indent, "fishway_surv_equation", name);
+            outfile->writeNewline();
+        }*/
     }
 }
 
@@ -299,28 +334,15 @@ int cmpPowerhouse::getSpeciesIndex(QString spec)
     return index;
 }
 
-float cmpPowerhouse::getSpeciesRswCap(QString spec)
+
+float cmpPowerhouse::getRswCapacity() const
 {
-    float val = 0;
-    int index = getSpeciesIndex(spec);
-    if (index > -1)
-        val =  getSpeciesRswCap(index);
-    return val;
+    return rswCapacity;
 }
 
-float cmpPowerhouse::getSpeciesRswCap(int index)
+void cmpPowerhouse::setRswCapacity(float newRswCapacity)
 {
-    float val = 0;
-    if (index > -1)
-        val = species[index]->getRswCapacity();
-    return val;
-}
-
-void cmpPowerhouse::setSpeciesRswCap(QString spec, float value)
-{
-    int index = getSpeciesIndex(spec);
-    if (index > -1)
-        species[index]->setRswCapacity(value);
+    rswCapacity = newRswCapacity;
 }
 
 

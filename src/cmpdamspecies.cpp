@@ -399,3 +399,33 @@ void cmpDamSpecies::setRswCapacity(float newRswCapacity)
 {
     rswCapacity = newRswCapacity;
 }
+
+float cmpDamSpecies::getFishwayMort() const
+{
+    return fishwayMort;
+}
+
+void cmpDamSpecies::setFishwayMort(float newFishwayMort)
+{
+    fishwayMort = newFishwayMort;
+}
+
+const cmpEquation &cmpDamSpecies::getFishwaySurvEqn() const
+{
+    return fishwaySurvEqn;
+}
+
+void cmpDamSpecies::setFishwaySurvEqn(const cmpEquation &newFishwaySurvEqn)
+{
+    fishwaySurvEqn = newFishwaySurvEqn;
+}
+
+const cmpEquation &cmpDamSpecies::getFishwayMigrEqn() const
+{
+    return fishwayMigrEqn;
+}
+
+void cmpDamSpecies::setFishwayMigrEqn(const cmpEquation &newFishwayMigrEqn)
+{
+    fishwayMigrEqn = newFishwayMigrEqn;
+}

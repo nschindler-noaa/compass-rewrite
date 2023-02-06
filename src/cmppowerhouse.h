@@ -22,6 +22,8 @@ public:
     void allocateSpecies (int num);
     void setSpeciesNames (QStringList &spNames);
     void deleteSpecies();
+    cmpDamSpecies *getSpecies(QString name);
+    cmpDamSpecies *getSpecies(int index);
 
     void writeData (cmpFile *outfile, int indent, bool outputAll);
     void writeAllData (cmpFile *outfile, int indent);
@@ -45,9 +47,8 @@ public:
     int getNumber() const;
     void setNumber(int value);
 
-    float getSpeciesRswCap(QString spec);
-    float getSpeciesRswCap(int index);
-    void setSpeciesRswCap(QString spec, float value);
+    float getRswCapacity() const;
+    void setRswCapacity(float newRswCapacity);
 
 private:
     int number;
@@ -55,6 +56,7 @@ private:
                       *   0 followed by increasing positive numbers. */
     float threshold; /**< Min flow controls when this powerhouse turns on */
     float capacity;  /**< Capacity in KCFS of this powerhouse. */
+    float rswCapacity;
 
     Bool2TierList schedule; /**< Powerhouse operation schedule
                       * (in case some powerhouses are only available at

@@ -203,21 +203,26 @@ bool cmpHeadwater::parseToken (QString token, cmpFile *cfile)
     return okay;
 }
 
+void cmpHeadwater::writeRivData (cmpFile *outfile, int indent, bool outputAll)
+{
+    float fdef = outputAll? 1000000: 0.0;
+    outfile->writeValue(indent, "flow_mean", getFlowMean(), fdef);// 0.00
+    // output flow array
+    writeFlowData(outfile, indent, outputAll);
+    // output gas
+    writeGasData(outfile, indent, outputAll);
+    // output temp
+    writeTempData(outfile, indent, outputAll);
+    // output turbidity
+    writeTurbidData(outfile, indent, outputAll);
+}
+
 void cmpHeadwater::writeData(cmpFile *outfile, int indent, bool outputAll)
 {
     int indent2 = indent + 1;
-    float fdef = outputAll? 100000: 0;
+    float fdef = outputAll? 1000000: 0;
     outfile->writeString(indent, "headwater", name);
     writeConfigData(outfile, indent2, outputAll);
-    outfile->writeValue(indent2, "flow_mean", getFlowMean(), fdef);// 0.00
-    outfile->writeValue(indent2, "flow_max", getFlowMax(), fdef);// 26.00
-    // output flow
-    writeFlowData(outfile, indent2, outputAll);
-    // output gas
-    writeGasData(outfile, indent2, outputAll);
-    // output temp
-    writeTempData(outfile, indent2, outputAll);
-    // output turbidity
-    writeTurbidData(outfile, indent2, outputAll);
+    writeRivData(outfile, indent2, outputAll);
     outfile->writeEnd(indent, "headwater", name);
 }

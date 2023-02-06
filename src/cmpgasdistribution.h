@@ -1,6 +1,8 @@
 #ifndef CMPGASDISTRIBUTION_H
 #define CMPGASDISTRIBUTION_H
 
+#include "cmpfile.h"
+
 #include <QStringList>
 
 enum FlowLocation {
@@ -13,6 +15,8 @@ class cmpGasDistribution
 {
 public:
     cmpGasDistribution();
+
+    void writeData(cmpFile *outfile, int indent, bool outputAll);
 
     const QList<float> &getGasRight() const;
     void setGasRight(const QList<float> &newGasRight);

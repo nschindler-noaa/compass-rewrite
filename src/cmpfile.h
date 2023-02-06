@@ -67,17 +67,19 @@ public:
 //                                    float *out_array, int out_size,
 //                                    int mult, aconv conversion);
 
+    QString formatValue(float value, Data::Type dtype);
+    QString formatValue(double value, Data::Type dtype);
     void writeNewline ();
     void writeSpace ();
     void writeBorder ();
     void writeIndent (int indent);
-    void writeValue (int indent, QString keyword, double value, double defaultValue = 100000);
-    void writeValue (int indent, QString keyword, float value, float defaultValue = 100000);
+    void writeValue (int indent, QString keyword, double value, Data::Type dtype, double defaultValue = 100000);
+    void writeValue (int indent, QString keyword, float value, Data::Type dtype, float defaultValue = 100000);
     void writeValue (int indent, QString keyword, int value, int defaultValue = 100000);
     void writeNumberedValue(int indent, QString keyword, int index, int value, int defaultVal = 100000);
-    void writeNumberedValue(int indent, QString keyword, int index, float value, float defaultVal = 100000);
+    void writeNumberedValue(int indent, QString keyword, int index, float value, Data::Type dtype, float defaultVal = 100000);
     void writeTitledValue(int indent, QString keyword, QString title, int value, int defaultVal = 100000);
-    void writeTitledValue(int indent, QString keyword, QString title, float value, float defaultVal = 100000);
+    void writeTitledValue(int indent, QString keyword, QString title, float value, Data::Type dtype, float defaultVal = 100000);
     void writeString (int indent, QString keyword, QString option1 = QString(), QString option2 = QString ());
     void writeStringNR (int indent, QString keyword, QString option1 = QString ());
     void writeFloatOrNa (float val, Data::Type dtype = Data::Float);
@@ -140,7 +142,7 @@ protected:
     // Current line
     int      lineNum;     /**< Current line number of input */
     QStringList *tokens;  /**< Current line elements (tokens) */
-
+    QString returnString;
 };
 
 

@@ -14,7 +14,6 @@ bool floatIsEqual(float val1, float val2)
 bool floatIsNotEqual(float val1, float val2)
 {
     bool equal = floatIsEqual(val1, val2);
-
     return !equal;
 }
 

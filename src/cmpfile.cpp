@@ -908,6 +908,36 @@ bool cmpFile::readFloatList(QList<float> &fltlist, int inSize, Data::DataConvers
     return okay;
 }
 
+QString cmpFile::formatValue(float value, Data::Type dtype)
+{
+    double val = static_cast<double>(value);
+    return formatValue(val, dtype);
+}
+
+QString cmpFile::formatValue(double value, Data::Type dtype)
+{
+    int precision = 0;
+    switch (dtype)
+    {
+    case Data::Float:
+        precision = 2;
+        break;
+    case Data::Fixed:
+        precision = 4;
+        break;
+    case Data::Scientific:
+        precision = 6;
+        break;
+    case Data::Precise:
+        precision = 12;
+        break;
+    default:
+        precision = 0;
+    }
+    returnString = QString::number(value, 'f', precision);
+    return returnString;
+}
+
 void cmpFile::writeNewline ()
 {
     write ("\n", 1);
@@ -929,20 +959,20 @@ void cmpFile::writeIndent (int indent)
         write ("  ", 2);
 }
 
-void cmpFile::writeValue(int indent, QString keyword, double value, double defaultValue)
+void cmpFile::writeValue(int indent, QString keyword, double value, Data::Type dtype, double defaultValue)
 {
     if (floatIsNotEqual(value, defaultValue))
     {
-        QString valueString(QString::number(value));
+        QString valueString = formatValue(value, dtype);//(QString::number(value));
         writeString(indent, keyword, valueString);
     }
 }
 
-void cmpFile::writeValue(int indent, QString keyword, float value, float defaultValue)
+void cmpFile::writeValue(int indent, QString keyword, float value, Data::Type dtype, float defaultValue)
 {
     if (floatIsNotEqual(value, defaultValue))
     {
-        QString valueString(QString::number(value, 'f', 2));
+        QString valueString = formatValue(value, dtype);//(QString::number(value, 'f', 2));
         writeString(indent, keyword, valueString);
     }
 }
@@ -966,12 +996,12 @@ void cmpFile::writeNumberedValue(int indent, QString keyword, int index, int val
     }
 }
 
-void cmpFile::writeNumberedValue(int indent, QString keyword, int index, float value, float defaultVal)
+void cmpFile::writeNumberedValue(int indent, QString keyword, int index, float value, Data::Type dtype, float defaultVal)
 {
     if (floatIsNotEqual(value, defaultVal))
     {
         QString num(QString::number(index));
-        QString val(QString::number(value));
+        QString val = formatValue(value, dtype);//QString::number(value));
         writeString(indent, keyword, num, val);
     }
 }
@@ -980,16 +1010,15 @@ void cmpFile::writeTitledValue(int indent, QString keyword, QString title, int v
 {
     if (value != defaultVal)
     {
-        QString val(QString::number(value));
-        writeString(indent, keyword, title, val);
+        writeString(indent, keyword, title, QString::number(value));
     }
 }
 
-void cmpFile::writeTitledValue(int indent, QString keyword, QString title, float value, float defaultVal)
+void cmpFile::writeTitledValue(int indent, QString keyword, QString title, float value, Data::Type dtype, float defaultVal)
 {
     if (floatIsNotEqual(value, defaultVal))
     {
-        QString val(QString::number(value));
+        QString val = formatValue(value, dtype);//(QString::number(value));
         writeString(indent, keyword, title, val);
     }
 }

@@ -152,7 +152,7 @@ void cmpRiverSegment::setup ()
     fork = nullptr;
     temp_1 = -1;
     readGas = false;
-    gas_out = nullptr;
+    gasDist = nullptr;
     readTurbidity = false;
 }
 
@@ -271,7 +271,8 @@ void cmpRiverSegment::writeConfigData(cmpFile *outfile, int indent, bool outputA
 void cmpRiverSegment::writeFlowData(cmpFile *outfile, int indent, bool outputAll)
 {
     float fdef = (outputAll? 100000: 0);
-    outfile->writeValue(indent, "flow_max", getFlowMax(), fdef);
+    outfile->writeValue(indent, "flow_min", getFlowMin(), Data::Fixed, fdef);
+    outfile->writeValue(indent, "flow_max", getFlowMax(), Data::Fixed, fdef);
     if (readFlows)
     {
         outfile->writeFloatArray(indent, "flow", "", flow, Data::None, stepsPerDay, Data::Fixed, fdef);
@@ -280,24 +281,22 @@ void cmpRiverSegment::writeFlowData(cmpFile *outfile, int indent, bool outputAll
 
 void cmpRiverSegment::writeGasData (cmpFile *outfile, int indent, bool outputAll)
 {
-    float dval = outputAll? 1000000: 0;
+    float fdef = outputAll? 1000000: 0;
     if (readGas)
     {
-//        float fdef = (outputAll? 100000: 0);
-        outfile->writeString(indent, "output_gas", "on");
-//        if (initialGas.isEmpty())
-//        {
-//            gas_out->writeData(outfile, indent, outputAll);
-//        }
-//        else
-//        {
-//            outfile->writeStringNR(indent, "initial_gas");
-//            outfile->writeFloatArray(indent, &gas_out, gas_out.count(), Data::None, Data::Fixed, fdef);
-//        }
+        outfile->writeString(indent, "output_gas", "On");
+        if (gasInitial.isEmpty())
+        {
+            gasDist->writeData(outfile, indent, outputAll);
+        }
+        else
+        {
+            outfile->writeFloatArray(indent, "initial_gas","",  gasInitial, Data::None, stepsPerDay, Data::Fixed, fdef);
+        }
     }
     else
     {
-        outfile->writeString(indent, "output_gas", "off");
+        outfile->writeString(indent, "output_gas", "Off");
     }
 }
 
@@ -313,17 +312,15 @@ void cmpRiverSegment::writeTempData (cmpFile *outfile, int indent, bool outputAl
 
 void cmpRiverSegment::writeTurbidData (cmpFile *outfile, int indent, bool outputAll)
 {
-    float dval = outputAll? 1000000: 0;
-//    float fdef = (outputAll? 100000: 0);
+    float fdef = (outputAll? 1000000: 0);
     if (readTurbidity)
     {
-        outfile->writeString(indent, "input_turbidity", "on");
-//        outfile->writeStringNR(indent, "input_turbidity");
-//        outfile->writeFloatArray(indent, &turbidity, turbidity.count(), Data::None, Data::Fixed, fdef);
+        outfile->writeString(indent, "input_turbidity", "On");
+        outfile->writeFloatArray(indent, "input_turbidity", "", turbidity, Data::None, turbidity.count(), Data::Fixed, fdef);
     }
     else
     {
-        outfile->writeString(indent, "input_turbidity", "off");
+        outfile->writeString(indent, "input_turbidity", "Off");
     }
 }
 

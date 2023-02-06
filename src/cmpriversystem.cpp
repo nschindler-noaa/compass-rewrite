@@ -713,7 +713,6 @@ bool cmpRiverSystem::outputPostRiverData(cmpFile *outfile, bool outputAll)
 bool cmpRiverSystem::outputConfigData(cmpFile *outfile, bool outputAll)
 {
     int total = segments.count();
-    int rclass = 0, outSetting = 0;
     cmpRiverSegment::SegmentType stype;
     QString type, name, rClass = QString();
     for (int i = 0; i < total; i++)
@@ -752,7 +751,7 @@ bool cmpRiverSystem::outputRiverYrData(cmpFile *outfile, bool outputAll)
         case cmpRiverSegment::Dam:
             dam = static_cast<cmpDam *>(segments.at(i));
             outfile->writeString(1, "dam", dam->getName());
-//            dam->writeRivData(outfile, 2, outputAll);
+            dam->writeRivData(outfile, 2, outputAll);
             outfile->writeEnd(1, "dam", dam->getName());
             break;
         case cmpRiverSegment::Reach:
@@ -765,7 +764,7 @@ bool cmpRiverSystem::outputRiverYrData(cmpFile *outfile, bool outputAll)
         case cmpRiverSegment::Headwater:
             hwater = static_cast<cmpHeadwater *>(segments.at(i));
             outfile->writeString(1, "headwater", hwater->getName());
-//            hwater->writeRivData(outfile, 2, outputAll);
+            hwater->writeRivData(outfile, 2, outputAll);
             outfile->writeEnd(1, "headwater", hwater->getName());
             break;
         }
@@ -782,8 +781,10 @@ bool cmpRiverSystem::outputDamOpsData(cmpFile *outfile, bool outputAll)
     {
         if (segments.at(i)->getType() == cmpRiverSegment::Dam)
         {
-            dam = static_cast<cmpDam *>(segments[i]);
-            dam->writeData(outfile, 0, outputAll);
+            dam = static_cast<cmpDam *>(segments.at(i));
+            outfile->writeString(1, "dam", dam->getName());
+            dam->writeOpsData(outfile, 2, outputAll);
+            outfile->writeEnd(1, "dam", dam->getName());
             outfile->writeNewline();
         }
     }

@@ -5,6 +5,11 @@ cmpGasDistribution::cmpGasDistribution()
 
 }
 
+void cmpGasDistribution::writeData(cmpFile *outfile, int indent, bool outputAll)
+{
+
+}
+
 const QList<float> &cmpGasDistribution::getGasRight() const
 {
     return gasRight;

@@ -197,8 +197,8 @@ protected:
 
     bool readGas;            /**< true if values are read from a data file */
     float gasTheta;
-    cmpGasDistribution *gas_out; /**< Output gas distribution */
-    QList<float> initial_gas; /**< Only defined if there is an initial gas
+    cmpGasDistribution *gasDist; /**< Output gas distribution */
+    QList<float> gasInitial; /**< Only defined if there is an initial gas
                                * vector which supercedes any in-river gas */
 
     bool readTurbidity;     /**< true if values are read from a data file */

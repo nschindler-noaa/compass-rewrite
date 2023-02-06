@@ -112,8 +112,8 @@ private:
     QList<float> volumeCurr; /**< Current water volume [STEPS_IN_SEASON]*/
     QList<float> velocity;  /**< Current water velocity [STEPS_IN_SEASON]*/
 
-    float lossMax;          /**< Maximum loss at this reach */
     float lossMin;          /**< Minimum loss at this reach */
+    float lossMax;          /**< Maximum loss at this reach */
     QList<float> loss;      /**< Loss given at each day [days_per_season]*/
 
     QList<float> tempDelta; /**< Modifies water_temp, if needed [STEPS_IN_SEASON]*/

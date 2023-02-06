@@ -1,4 +1,5 @@
 #include "cmpequation.h"
+#include "cmpmath.h"
 
 static void setEquationNames();
 static QStringList equationNames;
@@ -406,20 +407,25 @@ bool cmpEquation::parseData(cmpFile *cfile, QString type)
 void cmpEquation::writeParameters(cmpFile *outfile, int indent, bool outputAll)
 {
     cmpEquation *def = new cmpEquation(id);
+    QString line;
     if (outputAll)
     {
         for (int i = 0; i < numEqnParams; i++)
         {
-            outfile->writeStringNR(indent, "parameter ");
-            outfile->writeValue(0, QString::number(i), getParameter(i)->getValue());
+            outfile->writeNumberedValue(indent, "parameter", i, getParameter(i)->getValue(), Data::Float);
         }
     }
     else
     {
-        for (int i = 0; i < numEqnParams; i++)
+        if (this != def)
         {
-            outfile->writeStringNR(indent, "parameter ");
-            outfile->writeValue(0, QString::number(i), getParameter(i)->getValue(), def->getParameter(i)->getValue());
+            for (int i = 0; i < numEqnParams; i++)
+            {
+                if (floatIsNotEqual(getParameter(i)->getValue(), def->getParameter(i)->getValue()))
+                {
+                    outfile->writeNumberedValue(indent, "parameter", i, getParameter(i)->getValue(), Data::Float);
+                }
+            }
         }
     }
 }

@@ -102,6 +102,15 @@ public:
     float getRswCapacity() const;
     void setRswCapacity(float newRswCapacity);
 
+    float getFishwayMort() const;
+    void setFishwayMort(float newFishwayMort);
+
+    const cmpEquation &getFishwaySurvEqn() const;
+    void setFishwaySurvEqn(const cmpEquation &newFishwaySurvEqn);
+
+    const cmpEquation &getFishwayMigrEqn() const;
+    void setFishwayMigrEqn(const cmpEquation &newFishwayMigrEqn);
+
 protected:
     QString name;
     float sluicewayMort; /**< Mortality in the sluiceway */
@@ -159,6 +168,9 @@ protected:
     cmpEquation rswEqn;  /**< RSW efficiency which determines the proportion of
                             * fish that go through RSW */
 
+    float fishwayMort;
+    cmpEquation fishwaySurvEqn;
+    cmpEquation fishwayMigrEqn;
 };
 
 #endif // CMPDAMSPECIES_H
