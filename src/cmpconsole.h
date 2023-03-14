@@ -18,6 +18,9 @@ public:
 public slots:
     int run(QStringList args);
 
+    void canceled();
+    void complete();
+
 signals:
     void done(int retval= 0);
 

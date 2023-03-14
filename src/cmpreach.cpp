@@ -70,14 +70,12 @@ void cmpReach::clear ()
 
 void cmpReach::resetData()
 {
-    allocateDays(366, 2);
+    allocateDays(daysPerSeason, stepsPerDay, gasStepsPerDay);
 }
 
-void cmpReach::allocateDays(int days, int steps)
+void cmpReach::allocateDays(int days, int steps, int gasSteps)
 {
     int daysteps = days * steps;
-
-    cmpRiverSegment::allocateDays(days);
 
     if (!loss.isEmpty())
         loss.clear();
@@ -99,7 +97,7 @@ void cmpReach::allocateDays(int days, int steps)
         velocity.append(0.0);
         tempDelta.append(0.0);
     }
-    cmpRiverSegment::allocateDays(days);
+    cmpRiverSegment::allocateDays(days, steps, gasSteps);
 }
 
 bool cmpReach::parseDesc(cmpFile *descfile)
@@ -539,21 +537,21 @@ bool cmpReach::parseToken (QString token, cmpFile *cfile)
         okay = cfile->readString(tmpstr);
         reachClass = tmpstr;
     }
-    else if (token.compare ("elevation_change", Qt::CaseInsensitive) == 0)
+    else if (token.compare("loss_min", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatArray (elevChange, daysPerSeason, Data::None, stepsPerDay, "elevation_change");
+        okay = cfile->readFloatOrNa(na, lossMin);
     }
     else if (token.compare("loss_max", Qt::CaseInsensitive) == 0)
     {
         okay = cfile->readFloatOrNa(na, lossMax);
     }
-    else if (token.compare("loss_min", Qt::CaseInsensitive) == 0)
-    {
-        okay = cfile->readFloatOrNa(na, lossMin);
-    }
     else if (token.compare ("loss", Qt::CaseInsensitive) == 0)
     {
         okay = cfile->readFloatArray (loss, daysPerSeason, Data::None, stepsPerDay, "loss");
+    }
+    else if (token.compare ("elevation_change", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatArray (elevChange, daysPerSeason, Data::None, stepsPerDay, "elevation_change");
     }
     else if (token.compare ("gas_dissp_exp", Qt::CaseInsensitive) == 0)
     {
@@ -592,7 +590,7 @@ bool cmpReach::parseToken (QString token, cmpFile *cfile)
     {
         okay = cfile->readString(tmpstr);
         freeFlowEqn = new cmpEquation(tmpstr);
-        okay = freeFlowEqn->parseData(cfile, tmpstr);
+        okay = freeFlowEqn->parseData(cfile, "ufree_eqn");
     }
     else
     {
@@ -607,27 +605,32 @@ void cmpReach::writeData(cmpFile *outfile, int indent, bool outputAll)
     int indent2 = indent + 1;
     float dval = outputAll? 100000: 0;
     cmpEquation *eqn = nullptr;
+    QStringList keys = predMean.keys();
 
     outfile->writeString(indent, "reach", name);
     writeConfigData(outfile, indent2, outputAll);
-    outfile->writeValue(indent2, "loss_min", lossMin, Data::Fixed, dval);
-    outfile->writeValue(indent2, "loss_max", lossMax, Data::Fixed, dval);
-    //outfile->writeFloatArray(indent2, "loss");
-    //outfile->writeFloatArray(indent2, "elevation_change");
-    outfile->writeValue(indent2, "gas_dissp_exp", gasDispExp, Data::Fixed, dval);
-    //outfile->writeFloatArray(indent2, "water_temp_delta");
-    //outfile->writeFloatArray(indent2, "water_temp_delta");
-    //outfile->writeFloatArray(indent2, "water_temp_delta");
-    //outfile->writeFloatArray(indent2, "water_temp_delta");
+    outfile->writeNewline();
     outfile->writeValue(indent2, "ufree_max", freeFlowMax, Data::Fixed, dval);
     eqn = freeFlowEqn;
     if (eqn != nullptr)
     {
-        outfile->writeValue(indent2, "ufree_equation", eqn->getId(), 0);
+        outfile->writeValue(indent2, "ufree_eqn", eqn->getId(), 0);
         eqn->writeParameters(outfile, indent2+1, outputAll);
-        outfile->writeEnd(indent2, "ufree_equation");
+        outfile->writeEnd(indent2, "ufree_eqn");
     }
-    QStringList keys = predMean.keys();
+    outfile->writeNewline();
+    outfile->writeValue(indent2, "loss_min", lossMin, Data::Fixed, dval);
+    outfile->writeValue(indent2, "loss_max", lossMax, Data::Fixed, dval);
+    outfile->writeFloatArray(indent2, "loss", "", loss, Data::DataConversion::None, 2, Data::Float, dval);
+    outfile->writeFloatArray(indent2, "elevation_change", "", elevChange, Data::DataConversion::None, 2, Data::Float, dval);
+    outfile->writeValue(indent2, "gas_theta", gasTheta, Data::Scientific, dval);
+    outfile->writeValue(indent2, "gas_dissp_exp", gasDispExp, Data::Fixed, dval);
+    writeGasData(outfile, indent2, outputAll);
+    outfile->writeFloatArray(indent2, "delta_water_temp", "", tempDelta, Data::DataConversion::None, 2, Data::Float, dval);
+    writeTurbidData(outfile, indent2, outputAll);
+    outfile->writeFloatArray(indent2, "fish_density", "", fishDensity, Data::DataConversion::None, 2, Data::Float, dval);
+    outfile->writeFloatArray(indent2, "bird_density_1", "", birdDensity1, Data::DataConversion::None, 2, Data::Float, dval);
+    outfile->writeFloatArray(indent2, "bird_density_2", "", birdDensity2, Data::DataConversion::None, 2, Data::Float, dval);
     for (int j = 0; j < keys.count(); j++)
     {
         outfile->writeStringNR(indent2, "pred_mean ");
@@ -643,14 +646,20 @@ void cmpReach::writeConfigData(cmpFile *outfile, int indent, bool outputAll)
     outfile->writeValue (indent, "output_settings", outputSettings, intdef);
 }
 
+void cmpReach::writeLossData(cmpFile *outfile, int indent, bool outputAll)
+{
+    float fdef = (outputAll? 100000: 0);
+    outfile->writeValue(indent, "loss_min", lossMin, Data::Float, fdef);
+    outfile->writeValue(indent, "loss_max", lossMax, Data::Float, fdef);
+    {
+        outfile->writeFloatArray(indent, "loss", "", loss, Data::None, stepsPerDay, Data::Float, fdef);
+    }
+}
+
 void cmpReach::writeRivData(cmpFile *outfile, int indent, bool outputAll)
 {
     float fdefault = outputAll? 100000: 0;
-
-    writeFlowData(outfile, indent, outputAll);
-//    outfile->writeValue(indent, "loss_min", lossMin, Data::Float, fdefault);
-//    outfile->writeValue(indent, "loss_max", lossMax, Data::Float, fdefault);
-//    outfile->writeFloatArray(indent, "loss", "", loss, Data::None, stepsPerDay, Data::Float, fdefault);
+    writeLossData(outfile, indent, outputAll);
     outfile->writeFloatArray(indent, "elevation_change", "", elevChange, Data::None, stepsPerDay, Data::Float, fdefault);
     outfile->writeFloatArray(indent, "delta_water_temp", "", tempDelta, Data::None, stepsPerDay, Data::Float, fdefault);
     outfile->writeFloatArray(indent, "fish_density", "", fishDensity, Data::None, stepsPerDay, Data::Float, fdefault);

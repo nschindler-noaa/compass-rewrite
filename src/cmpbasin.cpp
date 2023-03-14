@@ -1,4 +1,5 @@
 #include "cmpbasin.h"
+#include "cmpfile.h"
 
 cmpBasin::cmpBasin()
 {
@@ -62,6 +63,21 @@ void cmpBasin::allocate(int numDays)
         flow.append(0);
         volume.append(0);
     }
+}
+
+
+bool cmpBasin::parseData(cmpFile *infile, QString name)
+{
+    bool okay = true;
+    QString token;
+    okay = infile->readFloatArray(volume, volume.count(), Data::None, 1, QString("storage_volume for %1").arg(name));
+    return okay;
+}
+
+void cmpBasin::writeData(cmpFile *outfile, int indent, bool outputAll)
+{
+    float dval = outputAll? 1000000: 0;
+    outfile->writeFloatArray(indent, QString("storage_volume"), QString(), volume, Data::None, 1, Data::Float, dval);
 }
 
 

@@ -23,6 +23,7 @@ HEADERS += \
     cmpmainwindow.h \
     cmpmath.h \
     cmpmontecarlomulti.h \
+    cmpperiodlist.h \
     cmppowerhouse.h \
     cmpreach.h \
     cmpreachclass.h \
@@ -36,8 +37,10 @@ HEADERS += \
     cmpriversystem.h \
     cmprsw.h \
     cmpscenario.h \
+    cmpschedule.h \
     cmpsettings.h \
     cmpspecies.h \
+    cmpspillschedule.h \
     cmpspillway.h \
     cmpstock.h \
     cmptransport.h \
@@ -62,6 +65,7 @@ SOURCES += \
     cmpmainwindow.cpp \
     cmpmath.cpp \
     cmpmontecarlomulti.cpp \
+    cmpperiodlist.cpp \
     cmppowerhouse.cpp \
     cmpreach.cpp \
     cmpreachclass.cpp \
@@ -75,8 +79,10 @@ SOURCES += \
     cmpriversystem.cpp \
     cmprsw.cpp \
     cmpscenario.cpp \
+    cmpschedule.cpp \
     cmpsettings.cpp \
     cmpspecies.cpp \
+    cmpspillschedule.cpp \
     cmpspillway.cpp \
     cmpstock.cpp \
     cmptransport.cpp \

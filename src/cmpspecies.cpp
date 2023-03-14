@@ -144,8 +144,6 @@ void cmpSpecies::setReachClass(int rc, cmpReachClass *newReachClass)
 bool cmpSpecies::parseData(cmpFile *cfile)
 {
     bool okay = true, end = false;
-    int tmpInt = 0, rc = 0;
-    float tmpFloat = 0;
     QString tmpStr;
     QString token ("");
     QStringList tokens;
@@ -158,202 +156,6 @@ bool cmpSpecies::parseData(cmpFile *cfile)
             cfile->printEOF("Species data.");
             okay = false;
         }
-        // migration
-        else if (token.compare("v_var", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            okay |= readReachClassValue(tmpStr, rc, tmpFloat);
-            if (okay)
-                reachClasses[rc]->setVvar(tmpFloat);
-            else
-                cfile->skipLine();
-        }
-        else if (token.compare("migr_var_coef", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            okay |= readReachClassValue(tmpStr, rc, tmpFloat);
-            if (okay)
-                reachClasses[rc]->setMigrVarCoef(tmpFloat);
-            else
-                cfile->skipLine();
-        }
-        else if (token.compare("distance_coef", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            okay |= readReachClassValue(tmpStr, rc, tmpFloat);
-            if (okay)
-                reachClasses[rc]->setDistCoeff(tmpFloat);
-            else
-                cfile->skipLine();
-        }
-        else if (token.compare("time_coef", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            okay |= readReachClassValue(tmpStr, rc, tmpFloat);
-            if (okay)
-                reachClasses[rc]->setTimeCoeff(tmpFloat);
-            else
-                cfile->skipLine();
-        }
-        else if (token.compare("migration_eqn", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            tokens = tmpStr.split(' ', QString::SkipEmptyParts);
-            rc = reachClassNames.indexOf(tokens[0]);
-            if (rc > -1)
-            {
-                cmpEquation *neweqn = new cmpEquation(tokens[1]);
-                okay = neweqn->parseData(cfile, "migration_eqn");
-                reachClasses[rc]->setMigrationEqn(neweqn);
-            }
-            else
-            {
-                cfile->printError("problem with migration eqn for reach class");
-                reachClasses[rc]->setMigrationEqn(nullptr);
-                cfile->skipToEnd();
-            }
-        }
-        else if (token.compare("reach_survival_coef", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            okay |= readReachClassValue(tmpStr, rc, tmpFloat);
-            if (okay)
-                reachClasses[rc]->setReachSurvivalCoef(tmpFloat);
-            else
-                cfile->skipLine();
-        }
-        else if (token.compare("reach_pred_coef", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            okay |= readReachClassValue(tmpStr, rc, tmpFloat);
-            if (okay)
-                reachClasses[rc]->setReachPredCoef(tmpFloat);
-            else
-                cfile->skipLine();
-        }
-        else if (token.compare("sigma_d", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            okay |= readReachClassValue(tmpStr, rc, tmpFloat);
-            if (okay)
-                reachClasses[rc]->setSigmaD(tmpFloat);
-            else
-                cfile->skipLine();
-        }
-        else if (token.compare("reach_pred_coef", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            okay |= readReachClassValue(tmpStr, rc, tmpFloat);
-            if (okay)
-                reachClasses[rc]->setReachPredCoef(tmpFloat);
-            else
-                cfile->skipLine();
-        }
-        else if (token.compare("custom_survival_eqn", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            tokens = tmpStr.split(' ', QString::SkipEmptyParts);
-            rc = reachClassNames.indexOf(tokens[0]);
-            if (rc > -1)
-            {
-                cmpEquation *neweqn = new cmpEquation(tokens[1]);
-                okay = neweqn->parseData(cfile, "custom_survival_eqn");
-                reachClasses[rc]->setCustomSurvivalEqn(neweqn);
-            }
-            else
-            {
-                cfile->printError("problem with custom survival eqn for reach class");
-                reachClasses[rc]->setCustomSurvivalEqn(nullptr);
-                cfile->skipToEnd();
-            }
-        }
-        else if (token.compare("pprime_a", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            okay |= readReachClassValue(tmpStr, rc, tmpFloat);
-            if (okay)
-                reachClasses[rc]->setPprimeA(tmpFloat);
-            else
-                cfile->skipLine();
-        }
-        else if (token.compare("pprime_b", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            okay |= readReachClassValue(tmpStr, rc, tmpFloat);
-            if (okay)
-                reachClasses[rc]->setPprimeB(tmpFloat);
-            else
-                cfile->skipLine();
-        }
-        else if (token.compare("forebay_pred_coef", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readFloatOrNa(tmpStr, tmpFloat);
-            if (okay)
-                setForebayPredCoef(tmpFloat);
-            else
-                cfile->skipLine();
-        }
-        else if (token.compare("tailrace_pred_coef", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readFloatOrNa(tmpStr, tmpFloat);
-            if (okay)
-                setTailracePredCoef(tmpFloat);
-            else
-                cfile->skipLine();
-        }
-        else if (token.compare("gas_mort_eqn", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            if (okay)
-            {
-                cmpEquation *neweqn = new cmpEquation(tmpStr);
-                okay = neweqn->parseData(cfile, "gas_mort_eqn");
-                if (okay)
-                    setGasmortEqn(neweqn);
-                else
-                    delete neweqn;
-            }
-        }
-        else if (token.compare("fish_depth_eqn", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            if (okay)
-            {
-                cmpEquation *neweqn = new cmpEquation(tmpStr);
-                okay = neweqn->parseData(cfile, "fish_depth_eqn");
-                if (okay)
-                    setFishdensEqn(neweqn);
-                else
-                    delete neweqn;
-            }
-        }
-        else if (token.compare("inriver_return_eqn", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            if (okay)
-            {
-                cmpEquation *neweqn = new cmpEquation(tmpStr);
-                okay = neweqn->parseData(cfile, "inriver_return_eqn");
-                if (okay)
-                    setInriverReturnEqn(neweqn);
-                else
-                    delete neweqn;
-            }
-        }
-        else if (token.compare("transport_return_eqn", Qt::CaseInsensitive) == 0)
-        {
-            okay = cfile->readString(tmpStr);
-            if (okay)
-            {
-                cmpEquation *neweqn = new cmpEquation(tmpStr);
-                okay = neweqn->parseData(cfile, "transport_return_eqn");
-                if (okay)
-                    setTransportReturnEqn(neweqn);
-                else
-                    delete neweqn;
-            }
-        }
-
         else if (token.compare("end", Qt::CaseInsensitive) == 0)
         {
             okay = cfile->checkEnd("species", name);
@@ -361,8 +163,219 @@ bool cmpSpecies::parseData(cmpFile *cfile)
         }
         else
         {
-            cfile->unknownToken(token, name);
+            okay = parseToken(token, cfile);
         }
+    }
+    return okay;
+}
+
+bool cmpSpecies::parseToken(QString token, cmpFile *cfile)
+{
+    bool okay = true, end = false;
+    int tmpInt = 0, rc = 0;
+    float tmpFloat = 0;
+    QString tmpStr;
+    QStringList tokens;
+
+    // migration
+    if (token.compare("v_var", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        okay |= readReachClassValue(tmpStr, rc, tmpFloat);
+        if (okay)
+            reachClasses[rc]->setVvar(tmpFloat);
+        else
+            cfile->skipLine();
+    }
+    else if (token.compare("migr_var_coef", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        okay |= readReachClassValue(tmpStr, rc, tmpFloat);
+        if (okay)
+            reachClasses[rc]->setMigrVarCoef(tmpFloat);
+        else
+            cfile->skipLine();
+    }
+    else if (token.compare("distance_coef", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        okay |= readReachClassValue(tmpStr, rc, tmpFloat);
+        if (okay)
+            reachClasses[rc]->setDistCoeff(tmpFloat);
+        else
+            cfile->skipLine();
+    }
+    else if (token.compare("time_coef", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        okay |= readReachClassValue(tmpStr, rc, tmpFloat);
+        if (okay)
+            reachClasses[rc]->setTimeCoeff(tmpFloat);
+        else
+            cfile->skipLine();
+    }
+    else if (token.compare("migration_eqn", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        tokens = tmpStr.split(' ', QString::SkipEmptyParts);
+        rc = reachClassNames.indexOf(tokens[0]);
+        if (rc > -1)
+        {
+            cmpEquation *neweqn = new cmpEquation(tokens[1]);
+            okay = neweqn->parseData(cfile, "migration_eqn", reachClassNames[rc]);
+            reachClasses[rc]->setMigrationEqn(neweqn);
+        }
+        else
+        {
+            cfile->printError("problem with migration eqn for reach class");
+            reachClasses[rc]->setMigrationEqn(nullptr);
+            cfile->skipToEnd();
+        }
+    }
+    else if (token.compare("reach_survival_coef", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        okay |= readReachClassValue(tmpStr, rc, tmpFloat);
+        if (okay)
+            reachClasses[rc]->setReachSurvivalCoef(tmpFloat);
+        else
+            cfile->skipLine();
+    }
+    else if (token.compare("reach_pred_coef", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        okay |= readReachClassValue(tmpStr, rc, tmpFloat);
+        if (okay)
+            reachClasses[rc]->setReachPredCoef(tmpFloat);
+        else
+            cfile->skipLine();
+    }
+    else if (token.compare("sigma_d", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        okay |= readReachClassValue(tmpStr, rc, tmpFloat);
+        if (okay)
+            reachClasses[rc]->setSigmaD(tmpFloat);
+        else
+            cfile->skipLine();
+    }
+    else if (token.compare("reach_pred_coef", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        okay |= readReachClassValue(tmpStr, rc, tmpFloat);
+        if (okay)
+            reachClasses[rc]->setReachPredCoef(tmpFloat);
+        else
+            cfile->skipLine();
+    }
+    else if (token.compare("custom_survival_eqn", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        tokens = tmpStr.split(' ', QString::SkipEmptyParts);
+        rc = reachClassNames.indexOf(tokens[0]);
+        if (rc > -1)
+        {
+            cmpEquation *neweqn = new cmpEquation(tokens[1]);
+            okay = neweqn->parseData(cfile, "custom_survival_eqn", reachClassNames[rc]);
+            reachClasses[rc]->setCustomSurvivalEqn(neweqn);
+        }
+        else
+        {
+            cfile->printError("problem with custom survival eqn for reach class");
+            reachClasses[rc]->setCustomSurvivalEqn(nullptr);
+            cfile->skipToEnd();
+        }
+    }
+    else if (token.compare("pprime_a", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        okay |= readReachClassValue(tmpStr, rc, tmpFloat);
+        if (okay)
+            reachClasses[rc]->setPprimeA(tmpFloat);
+        else
+            cfile->skipLine();
+    }
+    else if (token.compare("pprime_b", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        okay |= readReachClassValue(tmpStr, rc, tmpFloat);
+        if (okay)
+            reachClasses[rc]->setPprimeB(tmpFloat);
+        else
+            cfile->skipLine();
+    }
+    else if (token.compare("forebay_pred_coef", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatOrNa(tmpStr, tmpFloat);
+        if (okay)
+            setForebayPredCoef(tmpFloat);
+        else
+            cfile->skipLine();
+    }
+    else if (token.compare("tailrace_pred_coef", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatOrNa(tmpStr, tmpFloat);
+        if (okay)
+            setTailracePredCoef(tmpFloat);
+        else
+            cfile->skipLine();
+    }
+    else if (token.compare("gas_mort_eqn", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        if (okay)
+        {
+            cmpEquation *neweqn = new cmpEquation(tmpStr);
+            okay = neweqn->parseData(cfile, "gas_mort_eqn");
+            if (okay)
+                setGasmortEqn(neweqn);
+            else
+                delete neweqn;
+        }
+    }
+    else if (token.compare("fish_depth_eqn", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        if (okay)
+        {
+            cmpEquation *neweqn = new cmpEquation(tmpStr);
+            okay = neweqn->parseData(cfile, "fish_depth_eqn");
+            if (okay)
+                setFishdensEqn(neweqn);
+            else
+                delete neweqn;
+        }
+    }
+    else if (token.compare("inriver_return_eqn", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        if (okay)
+        {
+            cmpEquation *neweqn = new cmpEquation(tmpStr);
+            okay = neweqn->parseData(cfile, "inriver_return_eqn");
+            if (okay)
+                setInriverReturnEqn(neweqn);
+            else
+                delete neweqn;
+        }
+    }
+    else if (token.compare("transport_return_eqn", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(tmpStr);
+        if (okay)
+        {
+            cmpEquation *neweqn = new cmpEquation(tmpStr);
+            okay = neweqn->parseData(cfile, "transport_return_eqn");
+            if (okay)
+                setTransportReturnEqn(neweqn);
+            else
+                delete neweqn;
+        }
+    }
+
+    else
+    {
+        cfile->unknownToken(token, name);
     }
 
     return okay;
@@ -391,8 +404,8 @@ bool cmpSpecies::readReachClassValue(QString &newString, int &rc, float &value)
 void cmpSpecies::writeData(cmpFile *outfile, int indent, bool outputAll)
 {
     outfile->writeString(indent, "species", name);
-    writeReachClassData(outfile, indent+1, outputAll);
     writeSpeciesData(outfile, indent+1, outputAll);
+    writeReachClassData(outfile, indent+1, outputAll);
     outfile->writeNewline();
     outfile->writeEnd(indent, "species", name);
 }
@@ -405,49 +418,49 @@ void cmpSpecies::writeReachClassData(cmpFile *outfile, int indent, bool outputAl
     cmpEquation *eqn;
     for (int i = 0; i < total; i++)
     {
-        rcName = reachClassNames.at(i);
-        outfile->writeTitledValue(indent, "reach_pred_coef", rcName, getReachPredCoef(i), (outputAll? 100000: 0.0));
-        outfile->writeTitledValue(indent, "pprime_a", rcName, getPprimeA(i), (outputAll? 100000: 0.0));
-        outfile->writeTitledValue(indent, "pprime_b", rcName, getPprimeB(i), (outputAll? 100000: 0.0));
-        outfile->writeTitledValue(indent, "v_var", rcName, getVvar(i), (outputAll? 100000: 100.0));
-        outfile->writeTitledValue(indent, "migr_var_coef", rcName,getMigrVarCoef(i), (outputAll? 100000: 1.0));
-        outfile->writeTitledValue(indent, "time_coef", rcName, getTimeCoeff(i), (outputAll? 100000: 1.0));
-        outfile->writeTitledValue(indent, "distance_coef", rcName, getDistCoeff(i), (outputAll? 100000: 0.0));
-        outfile->writeTitledValue(indent, "sigma_d", rcName, getSigmaD(i), (outputAll? 100000: 0.0));
-        outfile->writeTitledValue(indent, "reach_survival_coef", rcName, getReachSurvivalCoef(i), (outputAll? 100000: 1.0));
+        rcName = reachClasses.at(i)->getName();
+        outfile->writeTitledValue(indent, "reach_pred_coef", rcName, getReachPredCoef(i), Data::Scientific, (outputAll? 100000: 0.0));
+        outfile->writeTitledValue(indent, "pprime_a", rcName, getPprimeA(i), Data::Scientific, (outputAll? 100000: 0.0));
+        outfile->writeTitledValue(indent, "pprime_b", rcName, getPprimeB(i), Data::Scientific, (outputAll? 100000: 0.0));
+        outfile->writeTitledValue(indent, "v_var", rcName, getVvar(i), Data::Scientific, (outputAll? 100000: 100.0));
+        outfile->writeTitledValue(indent, "migr_var_coef", rcName,getMigrVarCoef(i), Data::Scientific, (outputAll? 100000: 1.0));
+        outfile->writeTitledValue(indent, "time_coef", rcName, getTimeCoeff(i), Data::Scientific, (outputAll? 100000: 1.0));
+        outfile->writeTitledValue(indent, "distance_coef", rcName, getDistCoeff(i), Data::Scientific, (outputAll? 100000: 0.0));
+        outfile->writeTitledValue(indent, "sigma_d", rcName, getSigmaD(i), Data::Scientific, (outputAll? 100000: 0.0));
+        outfile->writeTitledValue(indent, "reach_survival_coef", rcName, getReachSurvivalCoef(i), Data::Scientific, (outputAll? 100000: 1.0));
         eqn = reachClasses[i]->getMigrationEqn();   //     migration_eqn Class_0 0
         outfile->writeString(indent, "migration_eqn", rcName, QString::number(eqn->getId()));
         eqn->writeParameters(outfile, indent2, outputAll);
         outfile->writeEnd(indent, "migration_eqn", rcName);
+        outfile->writeNewline();
         eqn = reachClasses[i]->getCustomSurvivalEqn(); //        custom_survival_eqn Class_0 57
         outfile->writeString(indent, "custom_survival_eqn", rcName, QString::number(eqn->getId()));
         eqn->writeParameters(outfile, indent2, outputAll);
         outfile->writeEnd(indent, "custom_survival_eqn", rcName);
-
         outfile->writeNewline();
     }
 }
 
 void cmpSpecies::writeSpeciesData(cmpFile *outfile, int indent, bool outputAll)
 {
-    float dval = 0;
+    float dval = outputAll? 1000000: 0;
     cmpEquation *eqn;
-    if (outputAll)
-        dval = 1000000;
-    outfile->writeValue(indent, "forebay_pred_coef", getForebayPredCoef(), dval);
-    outfile->writeValue(indent, "tailrace_pred_coef", getTailracePredCoef(), dval);
+
+    outfile->writeValue(indent, "forebay_pred_coef", getForebayPredCoef(), Data::Scientific, dval);
+    outfile->writeValue(indent, "tailrace_pred_coef", getTailracePredCoef(), Data::Scientific, dval);
+
+    eqn = getGasmortEqn();
+    outfile->writeValue(indent, "gas_mort_eqn", eqn->getId());
+    eqn->writeParameters(outfile, indent+1, outputAll);
+    outfile->writeEnd(indent, "gas_mort_eqn");
     outfile->writeNewline();
     eqn = getFishdensEqn();
     outfile->writeValue(indent, "fish_depth_eqn", eqn->getId());
     eqn->writeParameters(outfile, indent+1, outputAll);
     outfile->writeEnd(indent, "fish_depth_eqn");
     outfile->writeNewline();
-    eqn = getGasmortEqn();
-    outfile->writeValue(indent, "gas_mort_eqn", eqn->getId());
-    eqn->writeParameters(outfile, indent+1, outputAll);
-    outfile->writeEnd(indent, "gas_mort_eqn");
-    outfile->writeNewline();
     writeFishReturnEqns(outfile, indent, outputAll);
+    outfile->writeNewline();
 }
 
 void cmpSpecies::writeFishReturnEqns(cmpFile *outfile, int indent, bool outputAll)

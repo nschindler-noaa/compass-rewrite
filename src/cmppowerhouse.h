@@ -1,7 +1,7 @@
 #ifndef CMPPOWERHOUSE_H
 #define CMPPOWERHOUSE_H
 
-#include "Period.h"
+#include "cmpschedule.h"
 #include "cmpfile.h"
 #include "cmpdamspecies.h"
 
@@ -28,6 +28,8 @@ public:
     void writeData (cmpFile *outfile, int indent, bool outputAll);
     void writeAllData (cmpFile *outfile, int indent);
     void writeSecondData(cmpFile *outfile, int indent, bool outputAll);
+    void writeSpeciesData(cmpFile *outfile, int indent, bool outputAll, int index);
+    void writeSecondSpeciesData(cmpFile *outfile, int indent, bool outputAll, int index);
 
     int getPriority() const;
     void setPriority(int value = 0);
@@ -50,6 +52,9 @@ public:
     float getRswCapacity() const;
     void setRswCapacity(float newRswCapacity);
 
+    cmpSchedule &getSchedule();
+    void setSchedule(const cmpSchedule &newSchedule);
+
 private:
     int number;
     int priority;    /**< Ranking of each phouse. The best priority is
@@ -58,7 +63,7 @@ private:
     float capacity;  /**< Capacity in KCFS of this powerhouse. */
     float rswCapacity;
 
-    Bool2TierList schedule; /**< Powerhouse operation schedule
+    cmpSchedule schedule; /**< Powerhouse operation schedule
                       * (in case some powerhouses are only available at
                       * certain times). This is a two-tier period list. */
 

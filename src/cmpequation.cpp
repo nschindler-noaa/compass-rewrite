@@ -253,8 +253,8 @@ cmpEqnParameter::cmpEqnParameter(int id_, double value_, QString name_)
     name = name_;
     id = id_;
     value = value_;
-    min = 0;
-    max = 100;
+    min = value_-10;
+    max = value_+10;
 }
 
 cmpEqnParameter::cmpEqnParameter(int id_, double value_, double min_, double max_, QString name_)
@@ -276,7 +276,7 @@ void cmpEqnParameter::clear()
     name = QString();
     id = 0;
     value = 0;
-    min = 0;
+    min = -1;
     max = 100;
 }
 
@@ -344,7 +344,7 @@ void cmpEqnParameter::setId(int newId)
     id = newId;
 }
 
-bool cmpEquation::parseData(cmpFile *cfile, QString type)
+bool cmpEquation::parseData(cmpFile *cfile, QString type, QString owner)
 {
     bool okay = true, end = false;
     QString token;
@@ -377,28 +377,30 @@ bool cmpEquation::parseData(cmpFile *cfile, QString type)
                     }
                     else
                     {
-                        cfile->incorrectValue(tmpVal, name);
+                        cfile->incorrectValue(tmpVal, type);
                     }
                 }
             }
             else
             {
-                cfile->incorrectValue(tmpInt, name);
+                cfile->incorrectValue(tmpInt, type);
             }
             if (!okay)
                 cfile->skipToEnd();
         }
         else if (token.compare("end", Qt::CaseInsensitive) == 0)
         {
-            if (type.isEmpty())
-                okay = cfile->checkEnd("equation", name);
+            if (owner.isEmpty())
+                okay = cfile->checkEnd(type);
             else
-                okay = cfile->checkEnd("equation", type);
+                okay = cfile->checkEnd(type, owner);
             end = true;
         }
         else
         {
-            cfile->unknownToken(token, name);
+            end = true;
+            cfile->unknownToken(token, type);
+            cfile->pushToken(token);
         }
     }
     return okay;
@@ -412,7 +414,7 @@ void cmpEquation::writeParameters(cmpFile *outfile, int indent, bool outputAll)
     {
         for (int i = 0; i < numEqnParams; i++)
         {
-            outfile->writeNumberedValue(indent, "parameter", i, getParameter(i)->getValue(), Data::Float);
+            outfile->writeNumberedValue(indent, "parameter", i, getParameter(i)->getValue(), Data::Precise);
         }
     }
     else
@@ -423,7 +425,7 @@ void cmpEquation::writeParameters(cmpFile *outfile, int indent, bool outputAll)
             {
                 if (floatIsNotEqual(getParameter(i)->getValue(), def->getParameter(i)->getValue()))
                 {
-                    outfile->writeNumberedValue(indent, "parameter", i, getParameter(i)->getValue(), Data::Float);
+                    outfile->writeNumberedValue(indent, "parameter", i, getParameter(i)->getValue(), Data::Fixed);
                 }
             }
         }

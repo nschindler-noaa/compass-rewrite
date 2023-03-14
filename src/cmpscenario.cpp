@@ -65,6 +65,10 @@ void cmpScenario::readDataFiles()
         {
             datafile.readHeader();
             datafile.readInfo();
+            system->allocate(settings->getDataSettings()->getNumDaysInRun(),
+                             settings->getDataSettings()->getTimeStepsPerDay(),
+                             settings->getDataSettings()->getDamSlicesPerDay(),
+                             settings->getDataSettings()->getGasStepsPerDay());
             system->parseData(&datafile);
         }
     }
@@ -201,8 +205,13 @@ void cmpScenario::outputData(QString filename, bool outputAll)
         // scenario file (.scn or .dat, usually).
         else if (filename.endsWith(".scn", Qt::CaseInsensitive) || filename.endsWith("dat", Qt::CaseInsensitive))
         {
-            outfile->writeHeader(settings, "Scenario");
+            QString title("Data");
+            if (filename.endsWith(".scn", Qt::CaseInsensitive))
+                title = QString("Scenario");
+            outfile->writeHeader(settings, title);
+            outfile->writeNewline();
             outfile->writeInfo();
+            outfile->writeNewline();
             writeScnData(outfile, outputAll);
         }
         outfile->close();
@@ -220,11 +229,13 @@ void cmpScenario::writeDataSettings(cmpFile *outfile, bool outputAll)
     if (outputAll)
     {
     outfile->writeString(0, "migration", settings->getDataSettings()->getMigration()? "juvenile": "adult");
+    outfile->writeNewline();
     outfile->writeValue(0, "days_in_season", settings->getDataSettings()->getNumDaysInSeason());
-    outfile->writeValue(0, "night_start", settings->getDataSettings()->getNightStart());
-    outfile->writeValue(0, "day_start", settings->getDataSettings()->getDayStart());
     outfile->writeValue(0, "time_steps_per_day", settings->getDataSettings()->getTimeStepsPerDay());
     outfile->writeValue(0, "dam_slices_per_day", settings->getDataSettings()->getDamSlicesPerDay());
+    outfile->writeValue(0, "night_start", settings->getDataSettings()->getNightStart());
+    outfile->writeValue(0, "day_start", settings->getDataSettings()->getDayStart());
+    outfile->writeNewline();
     outfile->writeString(0, "compute_gas", settings->getDataSettings()->getCalcGas()? "On": "Off");
     outfile->writeString(0, "compute_growth", settings->getDataSettings()->getCalcGas()? "On": "Off");
     outfile->writeString(0, "compute_turbidity", settings->getDataSettings()->getCalcGas()? "On": "Off");
@@ -238,6 +249,7 @@ void cmpScenario::writeDataSettings(cmpFile *outfile, bool outputAll)
         outfile->writeValue(0, "day_start", settings->getDataSettings()->getDayStart(), 600);
         outfile->writeValue(0, "time_steps_per_day", settings->getDataSettings()->getTimeStepsPerDay(), 2);
         outfile->writeValue(0, "dam_slices_per_day", settings->getDataSettings()->getDamSlicesPerDay(), 2);
+        outfile->writeNewline();
         if (settings->getDataSettings()->getCalcGas())
             outfile->writeString(0, "compute_gas", "On");
         if (settings->getDataSettings()->getCalcGas())
@@ -270,25 +282,28 @@ void cmpScenario::writeAllStocks(cmpFile *outfile, bool outputAll)
 void cmpScenario::writeRunSettings(cmpFile *outfile, bool outputAll)
 {
     cmpEquation *eqn = settings->getDataSettings()->getFreeFlowEqn();
-    outfile->writeValue(0, "gas_dissp_exp", settings->getDataSettings()->getGasDisspExp());
-    outfile->writeValue(0, "hw_flow_prop", settings->getDataSettings()->getHwFlowProp());
+
+    outfile->writeValue(0, "gas_dissp_exp", settings->getDataSettings()->getGasDisspExp(), Data::Float);
+    outfile->writeValue(0, "hw_flow_prop", settings->getDataSettings()->getHwFlowProp(), Data::Float);
 
     outfile->writeNewline();
+    outfile->writeValue(0, "ufree_max", settings->getDataSettings()->getFreeFlowMax(), Data::Float); // 8.0);
     outfile->writeValue(0, "ufree_eqn", eqn->getId());
     eqn->writeParameters(outfile, 1, outputAll);
     outfile->writeEnd(0, "ufree_eqn");
     outfile->writeNewline();
 
-    outfile->writeValue(0, "ufree_max", settings->getDataSettings()->getFreeFlowMax()); // 8.0);
-    outfile->writeValue(0, "prey_energy_density", settings->getDataSettings()->getPreyEnergyDensity());// 5400.000000
-    outfile->writeValue(0, "length_weight_b0", settings->getDataSettings()->getLengthWeightB0());// -11.580000
-    outfile->writeValue(0, "length_weight_b1", settings->getDataSettings()->getLengthWeightB1()); // 3.033000
-    outfile->writeValue(0, "fork_threshold", settings->getDataSettings()->getForkThreshold());// 0.100000
-    outfile->writeString(0, "water_travel_upper_segment",  settings->getDataSettings()->getWaterTravelUpperSegment(), "Little_Goose_Pool");
-    outfile->writeString(0, "water_travel_lower_segment", settings->getDataSettings()->getWaterTravelUpperSegment(),  "Estuary");
+    outfile->writeValue(0, "prey_energy_density", settings->getDataSettings()->getPreyEnergyDensity(), Data::Scientific);// 5400.000000
+    outfile->writeValue(0, "length_weight_b0", settings->getDataSettings()->getLengthWeightB0(), Data::Scientific);// -11.580000
+    outfile->writeValue(0, "length_weight_b1", settings->getDataSettings()->getLengthWeightB1(), Data::Scientific); // 3.033000
+
+    outfile->writeValue(0, "fork_threshold", settings->getDataSettings()->getForkThreshold(), Data::Scientific);// 0.100000
+    outfile->writeString(0, "water_travel_upper_segment",  settings->getDataSettings()->getWaterTravelUpperSegment());//, "Little_Goose_Pool");
+    outfile->writeString(0, "water_travel_lower_segment", settings->getDataSettings()->getWaterTravelLowerSegment());//,  "Estuary");
     outfile->writeValue(0, "water_travel_first_day", settings->getDataSettings()->getWaterTravelFirstDay());// 1
     outfile->writeValue(0, "water_travel_last_day", settings->getDataSettings()->getWaterTravelLastDay());// 365
-    outfile->writeValue(0, "min_migration_rate", settings->getDataSettings()->getMigrationRateMin());// 1.000000
+
+    outfile->writeValue(0, "min_migration_rate", settings->getDataSettings()->getMigrationRateMin(), Data::Scientific);// 1.000000
     outfile->writeString(0, "suppress_variation", settings->getDataSettings()->getSuppressVariation()? "On": "Off");
     outfile->writeString(0, "pred_vol_interaction", settings->getDataSettings()->getPredVolInteraction()? "On": "Off");
     outfile->writeString(0, "age_dependent_fge", settings->getDataSettings()->getAgeDependentFge()? "On": "Off");
@@ -310,8 +325,10 @@ QStringList &cmpScenario::writeCtrlData(cmpFile *outfile)
     outputFiles.append(file.replace(".clb", ".rls", Qt::CaseInsensitive));
     outputFiles.append(file.replace(".rls", ".pbn", Qt::CaseInsensitive));
     outputFiles.append(file.replace(".pbn", ".etc", Qt::CaseInsensitive));
+
     outfile->writeHeader(settings, "Control");
     outfile->writeInfo();
+    outfile->writeNewline();
     for (int i = 0; i < 6; i++)
         outfile->writeString(0, QString("include"), outputFiles.at(i));
     outfile->writeNewline();
@@ -331,6 +348,12 @@ void cmpScenario::writeDamOpsData(cmpFile *outfile, bool outputAll)
 // calibration file (.clb)
 void cmpScenario::writeCalibData(cmpFile *outfile, bool outputAll)
 {
+    outfile->writeNewline();
+    writeReachClassNames(outfile);
+    outfile->writeNewline();
+    writeAllSpecies(outfile, outputAll);
+    writeAllStocks(outfile, outputAll);
+    writeConfigData(outfile, outputAll);
 }
 // release file (.rls)
 void cmpScenario::writeReleaseData(cmpFile *outfile, bool outputAll)
@@ -367,15 +390,13 @@ void cmpScenario::writeScnData(cmpFile *outfile, bool outputAll)
     outfile->writeNewline();
     writeAllStocks(outfile, outputAll);
     outfile->writeNewline();
-    writePostRivData(outfile, outputAll);
+    system->outputData(outfile, outputAll);
     outfile->writeNewline();
-    writeRiverYrData(outfile, outputAll);
-    outfile->writeNewline();
-    writeDamOpsData(outfile, outputAll);
+    system->outputPostRiverHypothesis(outfile, outputAll);
     outfile->writeNewline();
     writeRunSettings(outfile, outputAll);
     outfile->writeNewline();
-    writeReleaseData(outfile, outputAll);
+    system->outputReleaseData(outfile, outputAll);
     outfile->writeNewline();
 }
 

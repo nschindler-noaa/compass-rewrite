@@ -72,6 +72,8 @@ cmpDataSettings::cmpDataSettings()
     freeFlowEqn->setParameter(0, 0.0);
     freeFlowEqn->setParameter(1, 4.5);
     freeFlowEqn->setParameter(2, 0.0);
+
+    setMortClass(Custom);
 }
 
 cmpDataSettings::~cmpDataSettings()
@@ -554,8 +556,10 @@ void cmpDataSettings::setMortClass(QString &mortclass)
         mortClass = GasAndPredation;
     else if (mortclass.compare("xt", Qt::CaseInsensitive) == 0)
         mortClass = XT;
-    else if (mortclass.compare("custon", Qt::CaseInsensitive) == 0)
+    else if (mortclass.compare("custom", Qt::CaseInsensitive) == 0)
         mortClass = Custom;
+    else
+        setMortClass(Custom);
 }
 
 MortalityClass cmpDataSettings::getMortClass() const
@@ -596,6 +600,16 @@ void cmpDataSettings::setFishReturnHyp(QString name)
         setFishReturnHyp(LatentMort);
     else if (name.compare("constant_d", Qt::CaseInsensitive) == 0)
         setFishReturnHyp(ConstantD);
+}
+
+int cmpDataSettings::getGasStepsPerDay() const
+{
+    return gasStepsPerDay;
+}
+
+void cmpDataSettings::setGasStepsPerDay(int newGasStepsPerDay)
+{
+    gasStepsPerDay = newGasStepsPerDay;
 }
 
 ReturnHypothesis cmpDataSettings::getFishReturnHyp() const

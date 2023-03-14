@@ -9,6 +9,7 @@
 #include "cmpfishway.h"
 #include "cmppowerhouse.h"
 #include "cmpdamspecies.h"
+#include "cmpperiodlist.h"
 
 class cmpRiver;
 
@@ -33,6 +34,9 @@ public:
 
     bool parseDesc (cmpFile *descfile) override;
     void outputDesc (cmpFile *outfile) override;
+
+    void setSlicesPerDay (int newStepsPerDay) {setStepsPerDay(newStepsPerDay);}
+    int getSlicesPerDay () {return getStepsPerDay();}
 
     cmpSpillway *getSpillway() const;
     void setSpillway(cmpSpillway *value);
@@ -94,17 +98,17 @@ public:
     QList<float> getSpillPlanned() const;
     void setSpillPlanned(const QList<float> &value);
 
-    FloatPeriodList *getSpillPlannedDay() const;
-    void setSpillPlannedDay(FloatPeriodList *value);
+    cmpFloatPeriodList *getSpillPlannedDay() const;
+    void setSpillPlannedDay(cmpFloatPeriodList *value);
 
-    FloatPeriodList *getSpillPlannedNight() const;
-    void setSpillPlannedNight(FloatPeriodList *value);
+    cmpFloatPeriodList *getSpillPlannedNight() const;
+    void setSpillPlannedNight(cmpFloatPeriodList *value);
 
-    FloatPeriodList *getSpillLegacyPlanned() const;
-    void setSpillLegacyPlanned(FloatPeriodList *value);
+    cmpFloatPeriodList *getSpillLegacyPlanned() const;
+    void setSpillLegacyPlanned(cmpFloatPeriodList *value);
 
-    FloatPeriodList *getSpillLegacyFish() const;
-    void setSpillLegacyFish(FloatPeriodList *value);
+    cmpFloatPeriodList *getSpillLegacyFish() const;
+    void setSpillLegacyFish(cmpFloatPeriodList *value);
 
     float getSpillMax() const;
     void setSpillMax(float value);
@@ -161,6 +165,11 @@ public:
     float getEntrainFactor() const;
     void setEntrainFactor(float newEntrainFactor);
 
+    cmpPowerhouse *getCurrentPHouse() const;
+    void setCurrentPHouse(int index);
+    void setCurrentPHouse(cmpPowerhouse *newCurrentPHouse);
+    bool setCurrentPowerhouse(QString tmpname);
+
 private:
     /* Spillway information  */
     cmpSpillway *spillway; /**< Spillway pointer holds information about the spillway. */
@@ -182,8 +191,8 @@ private:
     /* physical characteristics; some may be computed from others,
      * depending on which were found in the river description file.
      */
-    float widthTailrace; /**< Tailrace width (ft) */
-    float lengthTailrace;/**< Tailrace length in ft */
+    float tailraceWidth; /**< Tailrace width (ft) - currently not used*/
+    float tailraceLength;/**< Tailrace length in ft */
     float elevBase;      /**< Dam floor elevation (ft) */
     float elevForebay;   /**< Forebay elevation (ft) */
     float elevTailrace;  /**< Tailrace elevation (ft) */
@@ -197,7 +206,7 @@ private:
                            * different kind of bypass system which can
                            * produce latent effects) */
 
-    float lengthBasin;   /**< Stilling basin length (this is part of the tailrace). */
+    float basinLength;   /**< Stilling basin length (this is part of the tailrace). */
     float specGrav;      /**< Specific gravity of roller */
 
     /* Spill */
@@ -208,17 +217,17 @@ private:
            then serves as input to compute_flow() [DAM_SLICES_IN_SEASON]*/
     QList<float> spillPlanned;
 
-    FloatPeriodList *spillPlannedDay; /**< Planned spill during the day */
-    FloatPeriodList *spillPlannedNight; /**< Planned spill during the night */
+    cmpFloatPeriodList *spillPlannedDay; /**< Planned spill during the day */
+    cmpFloatPeriodList *spillPlannedNight; /**< Planned spill during the night */
 
         /* These two variables are used to implement support for legacy tokens
          * planned_spill and fish_spill. Only planned_spill_day and
          * planned_spill_night should be used by new users and these legacy
          * tokens only set planned_spill_day and planned_spill_night. */
-    FloatPeriodList *spillLegacyPlanned; /**< Planned spill during the day.
+    cmpFloatPeriodList *spillLegacyPlanned; /**< Planned spill during the day.
                            * This is used to implement support for legacy
                            * planned_spill tokens. */
-    FloatPeriodList *spillLegacyFish; /**< Planned spill during the day. This
+    cmpFloatPeriodList *spillLegacyFish; /**< Planned spill during the day. This
                            * is used to implement support for legacy
                            * fish_spill tokens. */
 
@@ -227,7 +236,7 @@ private:
     QString spillSideText;
 
     /* Removable spill weir */
-    cmpRSW *spillWeir; /** RSW information. If there is no RSW, this is nullptr. */
+    cmpRSW *spillWeir; /**< RSW information. If there is no RSW, this is nullptr. */
 
     /* Flow */
 //    float flowMax;       /**< For slider top-end */
@@ -264,7 +273,7 @@ private:
                            * slice. [DAM_SLICES_IN_SEASON]*/
 
 public slots:
-    void allocateDays(int days, int slices);
+    void allocateDays(int days, int slices, int gassteps);
     void setSpeciesNames(QStringList &spcNames);
     void calculateFlow () override;
     void calculateFlows ();

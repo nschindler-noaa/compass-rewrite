@@ -12,8 +12,8 @@ cmpConsole::cmpConsole(QObject *parent) : QObject(parent)
     scenario = new cmpScenario(this);
     system = new cmpRiverSystem(this);
 
-    connect (scenario, SIGNAL(done()), SIGNAL(done()));
-    connect (scenario, SIGNAL(canceled()), SIGNAL(done(1)));
+    connect (scenario, SIGNAL(done()), SLOT(complete()));
+    connect (scenario, SIGNAL(canceled()), SLOT(canceled()));
 }
 
 cmpConsole::~cmpConsole()
@@ -60,8 +60,18 @@ int cmpConsole::run(QStringList args)
     // write any output files
     scenario->outputData(settings->getCommandSettings()->getOutputFile(), settings->getCommandSettings()->getOutputAllData());
 
-    emit done(0);
+    complete();
     return 0;
+}
+
+void cmpConsole::complete()
+{
+    emit done(0);
+}
+
+void cmpConsole::canceled()
+{
+    emit done(1);
 }
 
 bool consoleMode(int argc, char *argv[])

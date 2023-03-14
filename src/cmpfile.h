@@ -55,6 +55,7 @@ public:
     bool readString (QString &string); /**< read to end of current line */
     QStringList * splitString (QString &string); /**< divide string into component words/tokens */
 
+    bool readFloatList (QList<float> &flist, QString prompt);
     bool readFloatList (QList<float> &flist, int outSize,
                         Data::DataConversion convert, unsigned mult, QString prompt);
     bool readIntList (QList<int> &ilist, int outSize,
@@ -109,6 +110,21 @@ public:
     void setDataVersion(int newDataVersion);
 
     void setSettings(cmpSettings *newSettings);
+
+    QString *getCreator() const;
+    void setCreator(QString *newCreator);
+
+    QString *getCreatedDate() const;
+    void setCreatedDate(QString *newCreatedDate);
+
+    QString *getModifier() const;
+    void setModifier(QString *newModifier);
+
+    QString *getModifiedDate() const;
+    void setModifiedDate(QString *newModifiedDate);
+
+    QStringList *getNotes() const;
+    void setNotes(QStringList *newNotes);
 
 signals:
     void eof (bool);      /**< signals end of file reached */

@@ -2,7 +2,7 @@
 #define CMPBASIN_H
 
 //#include "definitions.h"
-//#include "cmpfile.h"
+#include "cmpfile.h"
 
 #include <QStringList>
 
@@ -23,6 +23,10 @@ public:
     QString &getText();
 
     void allocate(int numDays);
+
+    bool parseData(cmpFile *infile, QString name);
+    void writeData(cmpFile *outfile, int indent, bool outputAll);
+
 
     float getFlowOnDay(int day) const;
     void setFlowOnDay(int day, const float &value);

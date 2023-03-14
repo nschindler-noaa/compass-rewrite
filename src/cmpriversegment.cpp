@@ -100,6 +100,7 @@ int cmpRiverSegment::getStepsPerDay() const
 void cmpRiverSegment::setStepsPerDay(int newStepsPerDay)
 {
     stepsPerDay = newStepsPerDay;
+    allocateDays(daysPerSeason, stepsPerDay, gasStepsPerDay);
 }
 
 int cmpRiverSegment::getDaysPerYear() const
@@ -120,7 +121,7 @@ int cmpRiverSegment::getDaysPerSeason() const
 void cmpRiverSegment::setDaysPerSeason(int newDaysPerSeason)
 {
     daysPerSeason = newDaysPerSeason;
-    allocateDays(daysPerSeason);
+    allocateDays(daysPerSeason, stepsPerDay, gasStepsPerDay);
 }
 
 void cmpRiverSegment::setup ()
@@ -134,7 +135,6 @@ void cmpRiverSegment::setup ()
     depthUpper = 1.0;
     elevLower = 0.0;
     elevUpper = 0.0;
-//    type = Reach;
     outputFlags = 0;
     outputSettings = 0;
     flowMax = 0.0;
@@ -152,13 +152,23 @@ void cmpRiverSegment::setup ()
     fork = nullptr;
     temp_1 = -1;
     readGas = false;
-    gasDist = nullptr;
+    gasDistIn = nullptr;//new cmpGasDistribution();
+    gasDistOut = nullptr;//new cmpGasDistribution();
     readTurbidity = false;
 }
 
 cmpRiverSegment::~cmpRiverSegment ()
 {
-    setup ();
+    cmpRiverPoint *rpt;
+    if (gasDistIn != nullptr)
+        delete gasDistIn;
+    if (gasDistOut != nullptr)
+        delete gasDistOut;
+    while (course.count() > 0)
+    {
+        rpt = course.takeLast();
+        delete rpt;
+    }
 }
 
 void cmpRiverSegment::resetData()
@@ -201,7 +211,15 @@ bool cmpRiverSegment::parseToken(QString token, cmpFile *cfile)
     bool okay = true;
     QString na("");
 
-    if (token.compare("flow_max", Qt::CaseInsensitive) == 0)
+    if (token.compare ("output_settings", Qt::CaseInsensitive) == 0)
+    {
+       okay = cfile->readInt(outputSettings);
+    }
+    else if (token.compare ("output_flags", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readInt(outputFlags);
+    }
+    else if (token.compare("flow_max", Qt::CaseInsensitive) == 0)
     {
         okay = cfile->readFloatOrNa(na, flowMax);
     }
@@ -211,28 +229,42 @@ bool cmpRiverSegment::parseToken(QString token, cmpFile *cfile)
     }
     else if (token.compare("flow", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatList(flow, daysPerSeason, Data::Space, 1, "flow");
+        okay = cfile->readFloatArray(flow, daysPerSeason, Data::None, 1, "flow");
     }
     else if (token.compare ("water_temp", Qt::CaseInsensitive) == 0)
     {
         readTemps = true;
-        okay = cfile->readFloatList (temp, daysPerSeason, Data::Duplicate, stepsPerDay, "water_temp");
-    }
-    else if (token.compare ("output_settings", Qt::CaseInsensitive) == 0)
-    {
-       okay = cfile->readInt(outputSettings);
-    }
-    else if (token.compare ("output_flags", Qt::CaseInsensitive) == 0)
-    {
-        okay = cfile->readInt(outputFlags);
+        okay = cfile->readFloatArray (temp, daysPerSeason, Data::None, stepsPerDay, "water_temp");
     }
     else if (token.compare ("gas_theta", Qt::CaseInsensitive) == 0)
     {
-        cfile->readFloatOrNa(na, gasTheta);
+        okay = cfile->readFloatOrNa(na, gasTheta);
     }
     else if (token.compare ("output_gas", Qt::CaseInsensitive) == 0)
     {
-        cfile->obsoleteToken(token);
+        token = cfile->popToken ();
+        if (token.compare("on", Qt::CaseInsensitive) == 0)
+        {
+            readGas = true;
+            cfile->readFloatArray(gasInitial, stepsPerSeason, Data::None, stepsPerDay, "input gas");
+        }
+        else
+        {
+            readGas = false;
+        }
+    }
+    else if (token.compare ("input_turbidity", Qt::CaseInsensitive) == 0)
+    {
+        token = cfile->popToken ();
+        if (token.compare("on", Qt::CaseInsensitive) == 0)
+        {
+            readTurbidity = true;
+            cfile->readFloatArray(turbidity, stepsPerSeason, Data::None, stepsPerDay, "turbidity");
+        }
+        else
+        {
+            readTurbidity = false;
+        }
     }
     else if (token.startsWith("#"))
     {
@@ -256,8 +288,8 @@ void cmpRiverSegment::writeAllData(cmpFile *outfile, int indent, bool outputAll)
     outfile->writeString(indent, "segment", name);
     writeConfigData(outfile, indent+1, outputAll);
     writeFlowData(outfile, indent+1, outputAll);
-    writeGasData(outfile, indent+1, outputAll);
     writeTempData(outfile, indent+1, outputAll);
+    writeGasData(outfile, indent+1, outputAll);
     writeTurbidData(outfile, indent+1, outputAll);
     outfile->writeEnd(indent, "segment", name);
 }
@@ -271,7 +303,6 @@ void cmpRiverSegment::writeConfigData(cmpFile *outfile, int indent, bool outputA
 void cmpRiverSegment::writeFlowData(cmpFile *outfile, int indent, bool outputAll)
 {
     float fdef = (outputAll? 100000: 0);
-    outfile->writeValue(indent, "flow_min", getFlowMin(), Data::Fixed, fdef);
     outfile->writeValue(indent, "flow_max", getFlowMax(), Data::Fixed, fdef);
     if (readFlows)
     {
@@ -284,14 +315,13 @@ void cmpRiverSegment::writeGasData (cmpFile *outfile, int indent, bool outputAll
     float fdef = outputAll? 1000000: 0;
     if (readGas)
     {
-        outfile->writeString(indent, "output_gas", "On");
         if (gasInitial.isEmpty())
         {
-            gasDist->writeData(outfile, indent, outputAll);
+            gasDistIn->writeData(outfile, indent, outputAll);
         }
         else
         {
-            outfile->writeFloatArray(indent, "initial_gas","",  gasInitial, Data::None, stepsPerDay, Data::Fixed, fdef);
+            outfile->writeFloatArray(indent, "output_gas", "On",  gasInitial, Data::None, stepsPerDay, Data::Fixed, fdef);
         }
     }
     else
@@ -304,9 +334,8 @@ void cmpRiverSegment::writeTempData (cmpFile *outfile, int indent, bool outputAl
 {
     if (readTemps)
     {
-        float fdef = (outputAll? 100000: 0);
-        outfile->writeStringNR(indent, "water_temp");
-        outfile->writeFloatArray(indent, "water_temp", "", temp, Data::None, stepsPerDay, Data::Fixed, fdef);
+        float fdef = (outputAll? 1000000: 0);
+        outfile->writeFloatArray(indent, "water_temp", "", temp, Data::None, stepsPerDay, Data::Float, fdef);
     }
 }
 
@@ -315,8 +344,7 @@ void cmpRiverSegment::writeTurbidData (cmpFile *outfile, int indent, bool output
     float fdef = (outputAll? 1000000: 0);
     if (readTurbidity)
     {
-        outfile->writeString(indent, "input_turbidity", "On");
-        outfile->writeFloatArray(indent, "input_turbidity", "", turbidity, Data::None, turbidity.count(), Data::Fixed, fdef);
+        outfile->writeFloatArray(indent, "input_turbidity", "On", turbidity, Data::DataConversion::None, 2, Data::Fixed, fdef);
     }
     else
     {
@@ -681,17 +709,36 @@ void cmpRiverSegment::calculateFlowInputs()
     }
 }
 
-void cmpRiverSegment::allocateDays(int days)
+void cmpRiverSegment::allocateDays(int days, int steps, int gasSteps)
 {
+    daysPerYear = 366;
+    daysPerSeason = days;
+    stepsPerDay = steps;
+    stepsPerSeason = steps * days;
+    gasStepsPerDay = gasSteps;
+    int gasStepsPerSeason = gasSteps * days;
+
     if (!flow.isEmpty())
         flow.clear();
     if (!temp.isEmpty())
         temp.clear();
-
     for (int i = 0; i < days; i++)
     {
         flow.append(0.0);
         temp.append(0.0);
+    }
+
+    if (!gasInitial.isEmpty())
+        gasInitial.clear();
+    if (!turbidity.isEmpty())
+        turbidity.clear();
+    for (int i = 0; i < stepsPerSeason; i++)
+    {
+        turbidity.append(0.0);
+    }
+    for (int i = 0; i < gasStepsPerSeason; i++)
+    {
+        gasInitial.append(0.0);
     }
 }
 

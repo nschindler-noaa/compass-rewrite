@@ -150,15 +150,15 @@ bool cmpFile::readInfo ()
                 modifier = new QString (token);
             }
         }
-        else if (token.contains ("note"))
+        else if (token.contains ("notes"))
         {
             okay = readString (token);
             if (okay)
             {
-                delete notes;
+//                delete notes;
                 notes->append(QString (token));
             }
-            end = true;
+//            end = true;
         }
         else
         {
@@ -243,24 +243,28 @@ void cmpFile::writeHeader (cmpSettings *sets, QString type)
 
 void cmpFile::writeInfo (QString newnotes)
 {
-    QString version (QString::number(dataVersion));
-    open (QIODevice::WriteOnly);
-    writeString (0, "version", version);
-    if (!creator->isEmpty())
-        writeString (0, "creator", *creator);
-    if (!createdDate->isEmpty())
-        writeString (0, "createdDate", *createdDate);
-    if (!modifier->isEmpty())
-        writeString (0, "modifier", *modifier);
-    if (!modifiedDate->isEmpty())
-        writeString (0, "modifiedDate", *modifiedDate);
-    if (!notes->isEmpty())
+    QString dataversion (QString::number(dataVersion));
+//    open (QIODevice::WriteOnly);
+    if (isOpen())
     {
-        QStringList notetokens(newnotes.split('\n'));
-        for (int i = 0, total = notetokens.count(); i < total; i++)
-            writeString (0, "notes", notetokens.at(i));
-        for (int i = 0, total = notes->count(); i < total; i++)
-            writeString (0, "notes", notes->at(i));
+        writeString (0, "version", dataversion);
+        writeNewline();
+        if (!creator->isEmpty())
+            writeString (0, "creator", *creator);
+        if (!createdDate->isEmpty())
+            writeString (0, "createdDate", *createdDate);
+        if (!modifier->isEmpty())
+            writeString (0, "modifier", *modifier);
+        if (!modifiedDate->isEmpty())
+            writeString (0, "modifiedDate", *modifiedDate);
+        if (!notes->isEmpty())
+        {
+            QStringList notetokens(newnotes.split('\n'));
+            for (int i = 0, total = notetokens.count(); i < total; i++)
+                writeString (0, "notes", notetokens.at(i));
+            for (int i = 0, total = notes->count(); i < total; i++)
+                writeString (0, "notes", notes->at(i));
+        }
     }
 }
 
@@ -413,6 +417,7 @@ bool cmpFile::checkEnd (QString type, QString name)
 {
     QString line, namestr;
     bool okay = readString(line);
+    bool end = false;
     QStringList tokens = line.split('(', QString::SkipEmptyParts);
     if (okay && tokens.count() > 1)
     {
@@ -421,9 +426,13 @@ bool cmpFile::checkEnd (QString type, QString name)
             QString msg (QString("{end} statement does not include type '%1'").arg (type));
             printMessage (msg);
         }
+        else
+        {
+            end = true;
+        }
     }
     tokens = tokens[0].split(')', QString::SkipEmptyParts);
-    if (!tokens.isEmpty())
+    if (!end && !tokens.isEmpty())
     {
         namestr = tokens[0].simplified().replace(' ', '_');
         if(!name.isEmpty() && !name.contains(namestr))
@@ -640,7 +649,7 @@ bool cmpFile::readFloatArray(QList<float> &farray, int size, Data::DataConversio
             token = token.section ('[', -1);
             token = token.section (']', 0, 0);
             tokens = token.split(':');
-            if (token.count() == 2)
+            if (tokens.count() == 2)
             {
                 start_elem = tokens.at(0).toInt(&okay);
                 if (okay)
@@ -666,8 +675,8 @@ bool cmpFile::readFloatArray(QList<float> &farray, int size, Data::DataConversio
                     value = token.toFloat(&okay);
                     for (cur_elem = start_elem; cur_elem <= end_elem; cur_elem++)
                     {
+                        farray[cur_elem] = value;
                         farray[cur_elem] = convertFloat(farray, cur_elem, convert, mult);
-//						assign_int_array (iarray, cur_elem, number, convert, mult);
                     }
                 }
                 else
@@ -677,7 +686,7 @@ bool cmpFile::readFloatArray(QList<float> &farray, int size, Data::DataConversio
             }
             else
             {
-                printError ("parsing integer array");
+                printError (QString("parsing float array for").arg(prompt));
             }
             if (cur_elem >= size)
                 end = true;
@@ -688,6 +697,9 @@ bool cmpFile::readFloatArray(QList<float> &farray, int size, Data::DataConversio
             {
                 value = token.toFloat(&okay);
                 farray[cur_elem] = value;
+                cur_elem++;
+                if (cur_elem >= size)
+                    end = true;
             }
             else
             {
@@ -696,7 +708,7 @@ bool cmpFile::readFloatArray(QList<float> &farray, int size, Data::DataConversio
             }
         }
     }
-    return end;
+    return okay;
 }
 
 bool cmpFile::readIntArray (int *iarray, int size, Data::DataConversion convert, unsigned mult, QString prompt)
@@ -779,7 +791,7 @@ bool cmpFile::readIntArray (int *iarray, int size, Data::DataConversion convert,
         }
     }
 
-    return end;
+    return okay;
 }
 
 bool cmpFile::readIntArray(QList<int> &iarray, int size, Data::DataConversion convert, unsigned mult, QString prompt)
@@ -861,7 +873,7 @@ bool cmpFile::readIntArray(QList<int> &iarray, int size, Data::DataConversion co
             }
         }
     }
-    return end;
+    return okay;
 }
 
 bool cmpFile::readIntList(QList<int> &intlist, int size, Data::DataConversion convert, unsigned mult, QString prompt)
@@ -886,6 +898,33 @@ bool cmpFile::readIntList(QList<int> &intlist, int size, Data::DataConversion co
         okay = readInt(value);
         intlist[i] = value;
     }
+    return okay;
+}
+
+bool cmpFile::readFloatList(QList<float> &fltlist, QString prompt)
+{
+    bool okay = true, end = false;
+    QString token;
+    float value;
+
+    while (okay && !end)
+    {
+        token = popToken();
+        if (isFloat(token))
+        {
+            value = token.toFloat(&okay);
+            if (okay)
+            {
+                fltlist.append(value);
+            }
+        }
+        else
+        {
+            pushToken(token);
+            end = true;
+        }
+    }
+
     return okay;
 }
 
@@ -956,7 +995,7 @@ void cmpFile::writeBorder()
 void cmpFile::writeIndent (int indent)
 {
     for (int i = 0; i < indent; i++)
-        write ("  ", 2);
+        write ("   ", 3);
 }
 
 void cmpFile::writeValue(int indent, QString keyword, double value, Data::Type dtype, double defaultValue)
@@ -1557,24 +1596,27 @@ void cmpFile::writeFloatArray (int indent, QString prefix, QString name, float a
         }
         if (alldef) return;
     }
-    convertFloatArray(arry, size, ctype, mult);
+    if (ctype != Data::None)
+        convertFloatArray(arry, size, ctype, mult);
 
     writeStringNR(indent, prefix, name);
     writeSpace();
     num_on_line = 0;
 
-    int first = 0, last = 1, l;
-    float firstval = 0, lastval = 0;
+    int first = 0, last = 1, l = 0;
+    float firstval = 0, lastval = 0, nextval = 0;
 
     for (int i = 0; i < size; i++)
     {
         first = i;
-        last = i + 1;
+        last = i + 2;
         firstval = arry[first];
+        nextval = arry[first+1];
         lastval = arry[last];
-        if (floatIsEqual(lastval, firstval))
+        if (floatIsEqual(lastval, firstval)
+                && floatIsEqual(nextval, firstval))
         {
-            if (num_on_line >= 2)
+            if (num_on_line > 2)
             {
                 writeNewline();
                 writeIndent(indent2);
@@ -1595,11 +1637,14 @@ void cmpFile::writeFloatArray (int indent, QString prefix, QString name, float a
                            .arg (QString::number(first), QString::number(last)));
                 write (range.toUtf8());
                 writeFloat (firstval, dtype);
+                writeSpace();
             }
             else
             {
                 writeFloat (firstval, dtype);
+                writeSpace();
                 writeFloat (arry[last], dtype);
+                writeSpace();
             }
             num_on_line += 2;
             i = last;
@@ -1613,10 +1658,12 @@ void cmpFile::writeFloatArray (int indent, QString prefix, QString name, float a
                 num_on_line = 0;
             }
             writeFloat (firstval, dtype);
+            writeSpace();
             num_on_line++;
         }
     }
-    writeNewline();
+    if (num_on_line > 0)
+        writeNewline();
 }
 
 void cmpFile::writeIntArray(int indent, QString prefix, QString name, QList<int> &arry,
@@ -1755,9 +1802,63 @@ QString cmpFile::getFileLine ()
                    (fileName(), QString::number(lineNum))));
 }
 
+QStringList *cmpFile::getNotes() const
+{
+    return notes;
+}
+
+void cmpFile::setNotes(QStringList *newNotes)
+{
+    notes = newNotes;
+}
+
+QString *cmpFile::getModifiedDate() const
+{
+    return modifiedDate;
+}
+
+void cmpFile::setModifiedDate(QString *newModifiedDate)
+{
+    modifiedDate = newModifiedDate;
+}
+
+QString *cmpFile::getModifier() const
+{
+    return modifier;
+}
+
+void cmpFile::setModifier(QString *newModifier)
+{
+    modifier = newModifier;
+}
+
+QString *cmpFile::getCreatedDate() const
+{
+    return createdDate;
+}
+
+void cmpFile::setCreatedDate(QString *newCreatedDate)
+{
+    createdDate = newCreatedDate;
+}
+
+QString *cmpFile::getCreator() const
+{
+    return creator;
+}
+
+void cmpFile::setCreator(QString *newCreator)
+{
+    creator = newCreator;
+}
+
 void cmpFile::setSettings(cmpSettings *newSettings)
 {
     settings = newSettings;
+    if (creator->isEmpty())
+        creator = new QString(settings->getUserSettings()->getUserName());
+    if (createdDate->isEmpty())
+        createdDate = new QString(settings->getUserSettings()->getCurrentDate());
 }
 
 int cmpFile::getDataVersion() const

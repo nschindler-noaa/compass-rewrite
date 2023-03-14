@@ -16,6 +16,7 @@ class cmpGasDistribution
 public:
     cmpGasDistribution();
 
+    bool parseData(cmpFile *cfile);
     void writeData(cmpFile *outfile, int indent, bool outputAll);
 
     const QList<float> &getGasRight() const;
@@ -33,7 +34,11 @@ public:
     FlowLocation getFraction_side() const;
     void setFraction_side(FlowLocation newFraction_side);
 
+    bool getUsed() const;
+    void setUsed(bool newUsed);
+
 private:
+    bool used;
     QList<float> gasRight;//[DAM_SLICES_IN_SEASON];  /* size DAM_SLICES_IN_SEASON */
     QList<float> gasLeft;
     QList<float> flow;			/* size DAYS_IN_SEASON [DAYS_IN_SEASON]*/

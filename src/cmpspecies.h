@@ -35,6 +35,7 @@ public:
     void setDefaults();
 
     bool parseData(cmpFile *cfile);
+    bool parseToken(QString token, cmpFile *cfile);
     bool readReachClassValue(QString &newString, int &rc, float &value);
     void writeData(cmpFile *outfile, int indent, bool outputAll);
     void writeReachClassData(cmpFile *outfile, int indent, bool outputAll);

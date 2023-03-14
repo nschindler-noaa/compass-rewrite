@@ -12,8 +12,6 @@ cmpPowerhouse::cmpPowerhouse(int num)
 cmpPowerhouse::~cmpPowerhouse()
 {
     deleteSpecies();
-    if (!schedule.isEmpty())
-        schedule.clear();
     if (!flowFraction.isEmpty())
         flowFraction.clear();
 }
@@ -22,17 +20,11 @@ void cmpPowerhouse::allocate(int days, int slicesPerDay)
 {
     int damSlicesDay = slicesPerDay;
     int damSlicesSeason = days * damSlicesDay;
-    if (!schedule.isEmpty())
-        schedule.clear();
+
+    schedule.allocate(days);
+
     if (!flowFraction.isEmpty())
         flowFraction.clear();
-
-    for (int i = 0; i < days; i++)
-    {
-        schedule.append(BoolList());
-        for (int j = 0; j < damSlicesDay; j++)
-            schedule[i].append(false);
-    }
     for (int i = 0; i < damSlicesSeason; i++)
         flowFraction.append(0.0);
 }
@@ -86,100 +78,22 @@ cmpDamSpecies *cmpPowerhouse::getSpecies(int index)
 void cmpPowerhouse::writeData (cmpFile *outfile, int indent, bool outputAll)
 {
     float fdefault = outputAll? 1000000: 0;
-    int idefault = outputAll? 100000: 0;
+//    int idefault = outputAll? 100000: 0;
     int total = species.count();
     cmpEquation eqn;
     QString name;
 
-    outfile->writeValue(indent, "powerhouse_priority", priority, 0);
-    outfile->writeValue(indent, "powerhouse_capacity", capacity, fdefault);
-    outfile->writeValue(indent, "flow_min", threshold, fdefault);
-//    outfile->writeStringNR(indent, "powerhouse_schedule ");
-//    outfile->writeBoolArray(0, schedule, false);
+    if (number > 1)
+        outfile->writeValue(indent, "powerhouse_priority", priority);
+    outfile->writeValue(indent, "flow_min", threshold, Data::Fixed, fdefault);
+    outfile->writeValue(indent, "powerhouse_capacity", capacity, Data::Fixed, fdefault);
+    schedule.writeData(outfile, indent, "powerhouse_schedule", outputAll);
+//    outfile->writeString(indent, "powerhouse_schedule", "0:365 (0:24)");
+    outfile->writeValue(indent, "rsw_spill_cap", rswCapacity, Data::Fixed, fdefault);
+    outfile->writeNewline();
     for (int i = 0; i < total; i++)
     {
-        name = species[i]->getName();
-        outfile->writeTitledValue(indent, "mean_forebay_transit_time", name, species[i]->getMeanForebayTransitTime(), fdefault);
-        outfile->writeTitledValue(indent, "separation_prob", name, species[i]->getSeparationProb(), fdefault);
-        outfile->writeTitledValue(indent, "sluideway_proportion", name, species[i]->getSluicewayProp(), fdefault);
-        outfile->writeTitledValue(indent, "rsw_spill_cap", name, species[i]->getRswCapacity(), fdefault);
-        outfile->writeTitledValue(indent, "sluiceway_mort", name, species[i]->getSluicewayMort(), fdefault);
-        outfile->writeTitledValue(indent, "bypass_mort", name, species[i]->getBypassMort(), fdefault);
-        outfile->writeTitledValue(indent, "turbine_mort", name, species[i]->getTurbineMort(), fdefault);
-        outfile->writeTitledValue(indent, "spill_mort", name, species[i]->getSpillMort(), fdefault);
-        outfile->writeTitledValue(indent, "transport_mort", name, species[i]->getTransportMort(), fdefault);
-        outfile->writeTitledValue(indent, "rsw_mort", name, species[i]->getRswMort(), fdefault);
-        outfile->writeNewline();
-        outfile->writeTitledValue(indent, "sluiceway_delay", name, species[i]->getSluicewayDelay(), fdefault);
-        outfile->writeTitledValue(indent, "bypass_delay", name, species[i]->getBypassDelay(), fdefault);
-        outfile->writeTitledValue(indent, "turbine_delay", name, species[i]->getTurbineDelay(), fdefault);
-        outfile->writeTitledValue(indent, "spill_delay", name, species[i]->getSpillDelay(), fdefault);
-        outfile->writeTitledValue(indent, "rsw_delay", name, species[i]->getRswDelay(), fdefault);
-        outfile->writeNewline();
-        outfile->writeTitledValue(indent, "sluiceway_day_delay", name, species[i]->getSluicewayDayDelay(), fdefault);
-        outfile->writeTitledValue(indent, "bypass_day_delay", name, species[i]->getBypassDayDelay(), fdefault);
-        outfile->writeTitledValue(indent, "turbine_day_delay", name, species[i]->getTurbineDayDelay(), fdefault);
-        outfile->writeTitledValue(indent, "spill_day_delay", name, species[i]->getSpillDayDelay(), fdefault);
-        outfile->writeTitledValue(indent, "rsw_day_delay", name, species[i]->getRswDayDelay(), fdefault);
-        outfile->writeNewline();
-        eqn = species[i]->getFgeEqn();
-        if (eqn.getId() != idefault)
-        {
-            outfile->writeTitledValue(indent, "fge_equation", name, eqn.getId());
-            eqn.writeParameters(outfile, indent+1, outputAll);
-            outfile->writeEnd(indent, "fge_equation", name);
-            outfile->writeNewline();
-        }
-        eqn = species[i]->getRswEqn();
-        if (eqn.getId() != idefault)
-        {
-            outfile->writeTitledValue(indent, "rsw_equation", name, eqn.getId());
-            eqn.writeParameters(outfile, indent+1, outputAll);
-            outfile->writeEnd(indent, "rsw_equation", name);
-            outfile->writeNewline();
-        }
-        eqn = species[i]->getSpillEqn();
-        if (eqn.getId() != idefault)
-        {
-            outfile->writeTitledValue(indent, "spill_equation", name, eqn.getId());
-            eqn.writeParameters(outfile, indent+1, outputAll);
-            outfile->writeEnd(indent, "spill_equation", name);
-            outfile->writeNewline();
-        }
-        eqn = species[i]->getTransEqn();
-        if (eqn.getId() != idefault)
-        {
-            outfile->writeTitledValue(indent, "trans_mort_equation", name, eqn.getId());
-            eqn.writeParameters(outfile, indent+1, outputAll);
-            outfile->writeEnd(indent, "trans_mort_equation", name);
-            outfile->writeNewline();
-        }
-        eqn = species[i]->getDelayEqn();
-        if (eqn.getId() != idefault)
-        {
-            outfile->writeTitledValue(indent, "delay_equation", name, eqn.getId());
-            eqn.writeParameters(outfile, indent+1, outputAll);
-            outfile->writeEnd(indent, "delay_equation", name);
-            outfile->writeNewline();
-        }
-/*        outfile->writeTitledValue(indent, "fishway_mort", name, species[i]->getFishwayMort(), dval);
-        outfile->writeNewline();
-        eqn = species[i]->getFishwayMigrEqu();
-        if (eqn.getId() != idefault)
-        {
-            outfile->writeTitledValue(indent, "fishway_migr_equation", name, eqn.getId());
-            eqn.writeParameters(outfile, indent+1, outputAll);
-            outfile->writeEnd(indent, "fishway_migr_equation", name);
-            outfile->writeNewline();
-        }
-        eqn = species[i]->getFishwaySurvEqn();
-        if (eqn.getId() != idefault)
-        {
-            outfile->writeTitledValue(indent, "fishway_surv_equation", name, eqn.getId());
-            eqn.writeParameters(outfile, indent+1, outputAll);
-            outfile->writeEnd(indent, "fishway_surv_equation", name);
-            outfile->writeNewline();
-        }*/
+        writeSpeciesData(outfile, indent, outputAll, i);
     }
 }
 
@@ -195,62 +109,141 @@ void cmpPowerhouse::writeSecondData(cmpFile *outfile, int indent, bool outputAll
     cmpEquation eqn;
     QString name;
 
-    outfile->writeValue(indent, "powerhouse_priority", priority, 0);
-    outfile->writeValue(indent, "powerhouse_capacity", capacity, dval);
-    outfile->writeValue(indent, "flow_min", threshold, dval);
-//    outfile->writeValue(indent, "rsw_spill_cap", rswCapacity, dval);
-//    outfile->writeStringNR(indent, "powerhouse_schedule");
-//    outfile->writeBoolArray(1, schedule, false);
+    outfile->writeValue(indent, "powerhouse_priority", priority);
+    outfile->writeValue(indent, "flow_min", threshold, Data::Fixed, dval);
+    outfile->writeValue(indent, "powerhouse_capacity", capacity, Data::Fixed, dval);
+    outfile->writeString(indent, "powerhouse_schedule", "0:365 (0:24)");
+    //    writeSchedule(outfile, indent, outputAll);
+    outfile->writeValue(indent, "rsw_spill_cap", rswCapacity, Data::Fixed, dval);
+    outfile->writeNewline();
     for (int i = 0; i < total; i++)
     {
-        name = species[i]->getName();
-//        outfile->writeTitledValue(indent, "mean_forebay_transit_time", species[i]->getFbayTransTime(), dval);
-        outfile->writeTitledValue(indent, "separation_prob", name, species[i]->getSeparationProb(), dval);
-//        outfile->writeTitledValue(indent, "sluideway_proportion", name, species[i]->getSluicewayProp(), dval);
-        outfile->writeTitledValue(indent, "sluiceway_mort", name, species[i]->getSluicewayMort(), dval);
-        outfile->writeTitledValue(indent, "bypass_mort", name, species[i]->getBypassMort(), dval);
-        outfile->writeTitledValue(indent, "turbine_mort", name, species[i]->getTurbineMort(), dval);
-//        outfile->writeTitledValue(indent, "spill_mort", name, species[i]->getSpillMort(), dval);
-//        outfile->writeTitledValue(indent, "transport_mort", name, species[i]->getTransportMort(), dval);
-//        outfile->writeTitledValue(indent, "rsw_mort", name, species[i]->getRswMort(), dval);
-        outfile->writeNewline();
-        outfile->writeTitledValue(indent, "sluiceway_delay", name, species[i]->getSluicewayDelay(), dval);
-        outfile->writeTitledValue(indent, "bypass_delay", name, species[i]->getBypassDelay(), dval);
-        outfile->writeTitledValue(indent, "turbine_delay", name, species[i]->getTurbineDelay(), dval);
-        outfile->writeTitledValue(indent, "spill_delay", name, species[i]->getSpillDelay(), dval);
-        outfile->writeTitledValue(indent, "rsw_delay", name, species[i]->getRswDelay(), dval);
-        outfile->writeNewline();
-        outfile->writeTitledValue(indent, "sluiceway_day_delay", name, species[i]->getSluicewayDayDelay(), dval);
-        outfile->writeTitledValue(indent, "bypass_day_delay", name, species[i]->getBypassDayDelay(), dval);
-        outfile->writeTitledValue(indent, "turbine_day_delay", name, species[i]->getTurbineDayDelay(), dval);
-        outfile->writeTitledValue(indent, "spill_day_delay", name, species[i]->getSpillDayDelay(), dval);
-        outfile->writeTitledValue(indent, "rsw_day_delay", name, species[i]->getRswDayDelay(), dval);
-        outfile->writeNewline();
-        eqn = species[i]->getFgeEqn();
-        outfile->writeTitledValue(indent, "fge_equation", name, eqn.getId(), 0);
+        writeSecondSpeciesData(outfile, indent, outputAll, i);
+    }
+}
+
+void cmpPowerhouse::writeSpeciesData(cmpFile *outfile, int indent, bool outputAll, int index)
+{
+    float fdefault = outputAll? 1000000: 0;
+    int idefault = outputAll? 100000: 0;
+    cmpEquation eqn;
+    QString name;
+
+    name = species[index]->getName();
+    outfile->writeTitledValue(indent, "mean_forebay_transit_time", name, species[index]->getMeanForebayTransitTime(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "separation_prob", name, species[index]->getSeparationProb(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "sluiceway_prop", name, species[index]->getSluicewayProp(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "sluiceway_mort", name, species[index]->getSluicewayMort(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "bypass_mort", name, species[index]->getBypassMort(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "turbine_mort", name, species[index]->getTurbineMort(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "spill_mort", name, species[index]->getSpillMort(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "rsw_mort", name, species[index]->getRswMort(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "transport_mort", name, species[index]->getTransportMort(), Data::Fixed, fdefault);
+    outfile->writeNewline();
+    outfile->writeTitledValue(indent, "sluiceway_delay", name, species[index]->getSluicewayDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "bypass_delay", name, species[index]->getBypassDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "turbine_delay", name, species[index]->getTurbineDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "spill_delay", name, species[index]->getSpillDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "rsw_delay", name, species[index]->getRswDelay(), Data::Fixed, fdefault);
+    outfile->writeNewline();
+    outfile->writeTitledValue(indent, "sluiceway_day_delay", name, species[index]->getSluicewayDayDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "bypass_day_delay", name, species[index]->getBypassDayDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "turbine_day_delay", name, species[index]->getTurbineDayDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "spill_day_delay", name, species[index]->getSpillDayDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "rsw_day_delay", name, species[index]->getRswDayDelay(), Data::Fixed, fdefault);
+    outfile->writeNewline();
+    eqn = species[index]->getFgeEqn();
+    if (eqn.getId() != idefault)
+    {
+        outfile->writeTitledValue(indent, "fge_equation", name, eqn.getId());
         eqn.writeParameters(outfile, indent+1, outputAll);
         outfile->writeEnd(indent, "fge_equation", name);
         outfile->writeNewline();
-/*        eqn = species[i]->getRswEqn();
-        outfile->writeTitledValue(indent, "rsw_equation", name, eqn.getId(), 0);
-        eqn.writeParameters(outfile, indent+1, outputAll);
-        outfile->writeEnd(indent, "rsw_equation", name);
-        outfile->writeNewline();
-        eqn = species[i]->getSpillEqn();
-        outfile->writeTitledValue(indent, "spill_equation", name, eqn.getId(), 0);
+    }
+    eqn = species[index]->getSpillEqn();
+    if (eqn.getId() != idefault)
+    {
+        outfile->writeTitledValue(indent, "spill_equation", name, eqn.getId());
         eqn.writeParameters(outfile, indent+1, outputAll);
         outfile->writeEnd(indent, "spill_equation", name);
         outfile->writeNewline();
-        eqn = species[i]->getTransEqn();
-        outfile->writeTitledValue(indent, "trans_mort_equation", name, eqn.getId(), 0);
+    }
+    eqn = species[index]->getRswEqn();
+    if (eqn.getId() != idefault)
+    {
+        outfile->writeTitledValue(indent, "rsw_equation", name, eqn.getId());
+        eqn.writeParameters(outfile, indent+1, outputAll);
+        outfile->writeEnd(indent, "rsw_equation", name);
+        outfile->writeNewline();
+    }
+    eqn = species[index]->getTransEqn();
+    if (eqn.getId() != idefault)
+    {
+        outfile->writeTitledValue(indent, "trans_mort_equation", name, eqn.getId());
         eqn.writeParameters(outfile, indent+1, outputAll);
         outfile->writeEnd(indent, "trans_mort_equation", name);
         outfile->writeNewline();
-        eqn = species[i]->getDelayEqn();
-        outfile->writeTitledValue(indent, "delay_equation", name, eqn.getId(), 0);
+    }
+    eqn = species[index]->getDelayEqn();
+    if (eqn.getId() != idefault)
+    {
+        outfile->writeTitledValue(indent, "delay_equation", name, eqn.getId());
         eqn.writeParameters(outfile, indent+1, outputAll);
         outfile->writeEnd(indent, "delay_equation", name);
-        outfile->writeNewline(); */
+        outfile->writeNewline();
+    }
+    outfile->writeTitledValue(indent, "fishway_mortality", name, species[index]->getFishwayMort(), Data::Fixed, fdefault);
+    outfile->writeNewline();
+    eqn = species[index]->getFishwayMigrEqn();
+    if (eqn.getId() != idefault)
+    {
+        outfile->writeTitledValue(indent, "fishway_migr_equation", name, eqn.getId());
+        eqn.writeParameters(outfile, indent+1, outputAll);
+        outfile->writeEnd(indent, "fishway_migr_equation", name);
+        outfile->writeNewline();
+    }
+    eqn = species[index]->getFishwaySurvEqn();
+    if (eqn.getId() != idefault)
+    {
+        outfile->writeTitledValue(indent, "fishway_surv_equation", name, eqn.getId());
+        eqn.writeParameters(outfile, indent+1, outputAll);
+        outfile->writeEnd(indent, "fishway_surv_equation", name);
+        outfile->writeNewline();
+    }
+}
+
+void cmpPowerhouse::writeSecondSpeciesData(cmpFile *outfile, int indent, bool outputAll, int index)
+{
+    float fdefault = outputAll? 1000000: 0;
+    int idefault = outputAll? 100000: 0;
+    cmpEquation eqn;
+    QString name;
+
+    name = species[index]->getName();
+    outfile->writeTitledValue(indent, "sluiceway_prop", name, species[index]->getSluicewayProp(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "sluiceway_mort", name, species[index]->getSluicewayMort(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "bypass_mort", name, species[index]->getBypassMort(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "turbine_mort", name, species[index]->getTurbineMort(), Data::Fixed, fdefault);
+    outfile->writeNewline();
+    outfile->writeTitledValue(indent, "sluiceway_delay", name, species[index]->getSluicewayDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "bypass_delay", name, species[index]->getBypassDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "turbine_delay", name, species[index]->getTurbineDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "spill_delay", name, species[index]->getSpillDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "rsw_delay", name, species[index]->getRswDelay(), Data::Fixed, fdefault);
+    outfile->writeNewline();
+    outfile->writeTitledValue(indent, "sluiceway_day_delay", name, species[index]->getSluicewayDayDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "bypass_day_delay", name, species[index]->getBypassDayDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "turbine_day_delay", name, species[index]->getTurbineDayDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "spill_day_delay", name, species[index]->getSpillDayDelay(), Data::Fixed, fdefault);
+    outfile->writeTitledValue(indent, "rsw_day_delay", name, species[index]->getRswDayDelay(), Data::Fixed, fdefault);
+    outfile->writeNewline();
+    eqn = species[index]->getFgeEqn();
+    if (eqn.getId() != idefault)
+    {
+        outfile->writeTitledValue(indent, "fge_equation", name, eqn.getId());
+        eqn.writeParameters(outfile, indent+1, outputAll);
+        outfile->writeEnd(indent, "fge_equation", name);
+        outfile->writeNewline();
     }
 }
 
@@ -286,14 +279,13 @@ void cmpPowerhouse::setCapacity(float value)
 
 void cmpPowerhouse::setActive (int day, int start, int stop, bool active)
 {
-    BoolList bl = schedule[day];
-    for (int i = start; i <= stop; i++)
-        bl[i] = active;
+    cmpDaySchedule bl = schedule.getDaySchedule(day);
+    bl.setHours(start, stop, active);
 }
 
 bool cmpPowerhouse::getActive (int day, int slice)
 {
-    return schedule[day][slice];
+    return schedule.getDaySchedule(day).isOn(slice);
 }
 
 void cmpPowerhouse::setFlowFraction (int day, float fraction)
@@ -343,6 +335,16 @@ float cmpPowerhouse::getRswCapacity() const
 void cmpPowerhouse::setRswCapacity(float newRswCapacity)
 {
     rswCapacity = newRswCapacity;
+}
+
+cmpSchedule &cmpPowerhouse::getSchedule()
+{
+    return schedule;
+}
+
+void cmpPowerhouse::setSchedule(const cmpSchedule &newSchedule)
+{
+    schedule = newSchedule;
 }
 
 

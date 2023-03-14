@@ -32,12 +32,13 @@ public:
 
     void clear ();
     void resetData ();
-    void allocateDays(int days, int steps);
+    void allocateDays(int days, int steps, int gasSteps);
 
     bool parseData (cmpFile *infile) override;
     bool parseToken (QString token, cmpFile *infile);
     void writeData (cmpFile *outfile, int indent, bool outputAll);
     void writeConfigData (cmpFile *outfile, int indent, bool outputAll);
+    void writeLossData (cmpFile *outfile, int indent, bool outputAll);
     void writeRivData (cmpFile *outfile, int indent, bool outputAll);
 
 #ifdef PRED_CALC
@@ -107,14 +108,15 @@ private:
 //    float elevLower;      /**< Height above sea level, or bottom of
 //                            *  river at the lower end of reach in feet. */
     float wallSlope;           /**< Angle of sides, from vertical; deg */
-    QList<float> elevChange; /**< Delta (difference) from maximum [STEPS_IN_SEASON]*/
-
-    QList<float> volumeCurr; /**< Current water volume [STEPS_IN_SEASON]*/
-    QList<float> velocity;  /**< Current water velocity [STEPS_IN_SEASON]*/
 
     float lossMin;          /**< Minimum loss at this reach */
     float lossMax;          /**< Maximum loss at this reach */
     QList<float> loss;      /**< Loss given at each day [days_per_season]*/
+
+    QList<float> elevChange; /**< Delta (difference) from maximum [STEPS_IN_SEASON]*/
+
+    QList<float> volumeCurr; /**< Current water volume [STEPS_IN_SEASON]*/
+    QList<float> velocity;  /**< Current water velocity [STEPS_IN_SEASON]*/
 
     QList<float> tempDelta; /**< Modifies water_temp, if needed [STEPS_IN_SEASON]*/
 

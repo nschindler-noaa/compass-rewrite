@@ -2,18 +2,17 @@
 
 cmpRelease::cmpRelease()
 {
-    active = false;
+    active = true;
     site = nullptr;
     species = nullptr;
     stock = nullptr;
     startDay = 0;
-#ifdef REALTIME
     rtinfo = nullptr;
-#endif
     addSetting = 0;
     dirtyFlag = false;
     initialSpillExperience = 1;
     totalReleased = 0;
+    fishLength = 100;
     migrOnsetMedian = 0;
 }
 
@@ -76,8 +75,7 @@ bool cmpRelease::parseToken(QString token, cmpFile *cfile)
     }
     else if (token.compare ("number", Qt::CaseInsensitive) == 0)
     {
-        okay = cfile->readFloatOrNa(na, tempFloat);
-        setNumber(1, tempFloat);
+        okay = cfile->readFloatList(number, QString("release number"));
     }
     return okay;
 }
@@ -86,11 +84,12 @@ void cmpRelease::writeData(cmpFile *ofile, bool outputAll)
 {
     float dval = outputAll? 1000000: 0.0;
     ofile->writeStringNR(0, "release ", species->getName());
-    ofile->writeValue(0, site->getName(), startDay);
+    ofile->writeString(0, site->getName());
     ofile->writeString(1, "stock", stock->getName());
-    ofile->writeValue(1, "initial_spill_experience", initialSpillExperience, dval);
-    ofile->writeValue(1, "length", fishLength, dval);
+    ofile->writeValue(1, "initial_spill_experience", initialSpillExperience, Data::Float, dval);
+    ofile->writeValue(1, "length", fishLength, Data::Integer, dval);
     ofile->writeFloatArray(1, QString("number"), QString(), number,  Data::None, 1, Data::Float, dval);
+    ofile->writeEnd(0, "release", species->getName());
 }
 
 void cmpRelease::setSite(cmpReleaseSite *newSite)
@@ -137,7 +136,8 @@ const float &cmpRelease::getNumber(int i) const
 
 void cmpRelease::setNumber(int i, const float &newNumber)
 {
-    while (number.count() < i)
+    int total = i + 1;
+    while (number.count() < total)
         number.append(0);
 
     number[i] = newNumber;

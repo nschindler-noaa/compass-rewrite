@@ -71,7 +71,7 @@ public:
 
 private:
     QString name;        /**< Reach Class name. */
-    // migration (travel)
+    // migration (travel) values
     float vVar;          /**< Herterogeneity of species - travel time distribution  */
     float migrVarCoef;   /**< migration variance  */
     float distCoeff;     /**< "a" in "sqrt( a * x^2 + b * t^2 )"  */

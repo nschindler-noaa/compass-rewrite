@@ -37,7 +37,7 @@ public:
 
     bool parseDesc(cmpFile *descfile);
     bool outputDesc(cmpFile *descfile);
-    bool output(cmpFile *cfile);
+    bool outputData(cmpFile *cfile, bool outputAll);
 
 private:
     cmpRiverSystem *rs;

@@ -161,47 +161,50 @@ protected:
     QString typeStr;
     QString abbrev;
 
-    QList<cmpRiverPoint *> course;
+    QList<cmpRiverPoint *> course;   /**< The path of the river in latitude/longitude points. */
     cmpRiverPoint *currentPoint;
     int currentPointIndex;
 
-    QList<cmpTributary *> tributaries;
+    QList<cmpTributary *> tributaries; /**< not currently used. */
 
     SegmentType type;     /**< type of river segment. */
 
-    float widthUpper;
+    float widthUpper;      /**< not currently used. */
     float widthAve;         /**< Average width in feet */
-    float widthLower;
+    float widthLower;      /**< not currently used. */
 
-    float depthUpper;
-    float depthLower;
+    float depthUpper;      /**< water depth at up river end of segment. */
+    float depthLower;      /**< water depth at down river end of segment. */
 
-    float elevUpper;
-    float elevLower;
+    float elevUpper;      /**< not currently used. */
+    float elevLower;        /**< Height above sea level, or bottom of
+                             *  river at the lower end of reach in feet. */
 
-    int outputFlags;
+    int outputFlags;      /**< flags determine what is output in reports. */
 
     int outputSettings;
 
-    bool isRegPoint;         /**< Whether this is regulation point or not */
+    bool isRegPoint;         /**< Whether this is regulation point or not (other segment flows
+                               *  are based on these). */
     bool readFlows;          /**< Whether flows are read from a data file */
-    float flowMax;
-    float flowMin;
-    QList<float> flow;
-    FlowLocation mainFlow;
-    FlowLocation otherFlow;
+    float flowMax;    /**< Maximum flow for this segment. */
+    float flowMin;    /**< Minimum flow for this segment. */
+    QList<float> flow;    /**< Water flow at each model day [days_per_season]*/
+    FlowLocation mainFlow;    /**< Side of the river with main flow (used in gas calcs). */
+    FlowLocation otherFlow;   /**< Opposite side of the river from main flow (used in gas calcs). */
 
-    QList<float> temp;/**< Water temperature at each model day [days_per_season]*/
-    bool readTemps;     /**< true if reading temps from data file,
-                          *   false if not. */
+    QList<float> temp;    /**< Water temperature at each model day [days_per_season]*/
+    bool readTemps;       /**< true if reading temps from data file,
+                           *   false if not. */
 
     bool readGas;            /**< true if values are read from a data file */
     float gasTheta;
-    cmpGasDistribution *gasDist; /**< Output gas distribution */
+    cmpGasDistribution *gasDistIn; /**< Input gas distribution */
+    cmpGasDistribution *gasDistOut; /**< Output gas distribution */
     QList<float> gasInitial; /**< Only defined if there is an initial gas
                                * vector which supercedes any in-river gas */
 
-    bool readTurbidity;     /**< true if values are read from a data file */
+    bool readTurbidity;     /**< true if values are read from a data file, false if propagated from above. */
     QList<float> turbidity; /**< Turbidity at each model time step */
 
     cmpRiverSegment *up;  /**< next segment up the same river.*/
@@ -213,6 +216,8 @@ protected:
     int daysPerSeason;
     int daysPerYear;
     int stepsPerDay;
+    int stepsPerSeason;
+    int gasStepsPerDay;
 
 private:
 /*    GasDistribution *gas_in; *< Input gas distribution */
@@ -224,16 +229,11 @@ private:
      *  included only for insight into gas distribution mechanisms.
     equation	gas_dist_eqn;*/
 
-/*    float turbidity[STEPS_IN_SEASON]; *< Turbidity given at each model time step */
-/*    int  turbidity_flag;  *< 1 if input_turb = "0N" (reading turbidity), 0 if "Off" (propegate from above)*/
-
-/*    float pred_dist_coef; *< "Predator distribution coefficient" -
-                        *  used in V1.6 pred/vol interaction. */
 
 signals:
 
 public slots:
-    void allocateDays(int days);
+    void allocateDays(int days, int steps, int gasSteps);
     void calculateFlows ();
     void calculateFlowInputs ();
     void calculateTemps ();

@@ -161,6 +161,7 @@ bool cmpRiver::parseDesc(cmpFile *descfile)
                 cmpHeadwater *head = new cmpHeadwater (hwName);
                 rs->headwaters.append (hwName);
                 rs->segments.append (head);
+//                segments.append(head);
                 head->setRiverName(getName());
                 okay = head->parseDesc(descfile);
                 addSegment(head);
@@ -188,6 +189,7 @@ bool cmpRiver::parseDesc(cmpFile *descfile)
         rs->segments.append (cur->getUpperSegment());
         rs->headwaters.append(hname);
         descfile->printMessage(QString("Adding headwater %1").arg(hname));
+        addSegment(cur->getUpperSegment());
 //        cmpLog::outlog->add(cmpLog::Debug, QString (
 //                  QString("adding headwater %1").arg(hname)));
     }
@@ -246,12 +248,39 @@ bool cmpRiver::outputDesc(cmpFile *descfile)
 }
 
 
-bool cmpRiver::output(cmpFile *cfile)
+bool cmpRiver::outputData(cmpFile *cfile, bool outputAll)
 {
     bool okay = true;
-    if (cfile->isReadable())
-        ;
-    else {
+    int total = segments.count();
+    cmpDam *dam;
+    cmpReach *reach;
+    cmpHeadwater *hwater;
+    cmpRiverSegment *seg;
+    cmpRiverSegment::SegmentType type;
+    if (cfile->isOpen())
+    {
+        for (int i = 0; i < total; i++)
+        {
+            seg = segments.at(i);
+            switch (seg->getType())
+            {
+            case cmpRiverSegment::Dam:
+                dam = static_cast<cmpDam *> (segments.at(i));
+                dam->writeData(cfile, 1, outputAll);
+                break;
+            case cmpRiverSegment::Reach:
+                reach = static_cast<cmpReach *> (segments.at(i));
+                reach->writeData(cfile, 1, outputAll);
+                break;
+            case cmpRiverSegment::Headwater:
+                hwater = static_cast<cmpHeadwater *>(segments.at(i));
+                hwater->writeData(cfile, 1, outputAll);
+            }
+            cfile->writeNewline();
+        }
+    }
+    else
+    {
         okay = false;
     }
 

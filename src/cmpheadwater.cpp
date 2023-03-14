@@ -23,12 +23,12 @@ cmpHeadwater::cmpHeadwater (QString hname, cmpRiver *parent) :
     resetData ();
 }
 
-void cmpHeadwater::allocateDays(int numdays)
+void cmpHeadwater::allocateDays(int numdays, int numsteps, int gasSteps)
 {
     elevChange.clear();
     for (int i = 0; i < numdays; i++)
         elevChange.append(0.0);
-    cmpRiverSegment::allocateDays(numdays);
+    cmpRiverSegment::allocateDays(numdays, numsteps, gasSteps);
 }
 
 void cmpHeadwater::resetData()
@@ -36,7 +36,7 @@ void cmpHeadwater::resetData()
     isRegPoint = true;  // default setting
     flowCoefficient = 0.0;
     flowMean = 0.0;
-    allocateDays(366);
+    allocateDays(daysPerSeason, stepsPerDay, gasStepsPerDay);
 }
 
 void cmpHeadwater::fillRegulated()
@@ -191,6 +191,10 @@ bool cmpHeadwater::parseToken (QString token, cmpFile *cfile)
     {
         okay = cfile->readFloatArray (elevChange, daysPerSeason, Data::None, stepsPerDay, "elevation_change");
     }
+    else if (token.compare("flow_mean", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readFloatOrNa(na, flowMean);
+    }
     else if (token.compare("flow_coefficient", Qt::CaseInsensitive) == 0)
     {
         okay = cfile->readFloatOrNa(na, flowCoefficient);
@@ -206,13 +210,13 @@ bool cmpHeadwater::parseToken (QString token, cmpFile *cfile)
 void cmpHeadwater::writeRivData (cmpFile *outfile, int indent, bool outputAll)
 {
     float fdef = outputAll? 1000000: 0.0;
-    outfile->writeValue(indent, "flow_mean", getFlowMean(), fdef);// 0.00
+    outfile->writeValue(indent, "flow_mean", getFlowMean(), Data::Float, fdef);// 0.00
     // output flow array
     writeFlowData(outfile, indent, outputAll);
-    // output gas
-    writeGasData(outfile, indent, outputAll);
     // output temp
     writeTempData(outfile, indent, outputAll);
+    // output gas
+    writeGasData(outfile, indent, outputAll);
     // output turbidity
     writeTurbidData(outfile, indent, outputAll);
 }

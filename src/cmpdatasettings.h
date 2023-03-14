@@ -171,6 +171,9 @@ public:
     void setFishReturnHyp(ReturnHypothesis newFishReturnHyp);
     void setFishReturnHyp(QString name);
 
+    int getGasStepsPerDay() const;
+    void setGasStepsPerDay(int newGasStepsPerDay);
+
 private:
     /** Downstream (juvenile) or upstream (adult) model */
     bool migration;          /**< Type of migration JUVENILE or Downstream (true), or ADULT or Upstream (false). JUVENILE is the default. */

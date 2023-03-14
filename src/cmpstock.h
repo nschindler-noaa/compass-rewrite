@@ -26,9 +26,16 @@ class cmpStock : public cmpSpecies
 public:
     cmpStock();
 
+    bool parseData(cmpFile *cfile);
+
     void writeData(cmpFile *outfile, int indent, bool outputAll);
+    void writeReachClassData(cmpFile *outfile, int indent, bool outputAll);
+
+    const QString &getSpeciesName() const;
+    void setSpeciesName(const QString &newSpeciesName);
 
 private:
+    QString speciesName;
 
 };
 
