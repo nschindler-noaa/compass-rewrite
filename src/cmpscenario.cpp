@@ -1,5 +1,7 @@
 #include "cmpscenario.h"
 
+#include <iostream>
+
 cmpScenario::cmpScenario(QObject *parent) : QObject(parent)
 {
     settings = nullptr;
@@ -42,7 +44,13 @@ void cmpScenario::readDescriptionFile()
     if (rDesc->open(QIODevice::ReadOnly))
     {
         rDesc->readHeader();
+#ifdef DEBUG_
+    std::cout << "   Parse description" << std::endl;
+#endif
         system->parseDesc(rDesc);
+#ifdef DEBUG_
+    std::cout << "   Construct river structure" << std::endl;
+#endif
         system->construct();
     }
     else
@@ -233,6 +241,7 @@ void cmpScenario::writeDataSettings(cmpFile *outfile, bool outputAll)
     outfile->writeValue(0, "days_in_season", settings->getDataSettings()->getNumDaysInSeason());
     outfile->writeValue(0, "time_steps_per_day", settings->getDataSettings()->getTimeStepsPerDay());
     outfile->writeValue(0, "dam_slices_per_day", settings->getDataSettings()->getDamSlicesPerDay());
+    outfile->writeValue(0, "gas_steps_per_day", settings->getDataSettings()->getDamSlicesPerDay());
     outfile->writeValue(0, "night_start", settings->getDataSettings()->getNightStart());
     outfile->writeValue(0, "day_start", settings->getDataSettings()->getDayStart());
     outfile->writeNewline();
@@ -245,10 +254,11 @@ void cmpScenario::writeDataSettings(cmpFile *outfile, bool outputAll)
         if (!settings->getDataSettings()->getMigration())
             outfile->writeString(0, "migration", "adult");
         outfile->writeValue(0, "days_in_season", settings->getDataSettings()->getNumDaysInSeason(), 366);
-        outfile->writeValue(0, "night_start", settings->getDataSettings()->getNightStart(), 2000);
-        outfile->writeValue(0, "day_start", settings->getDataSettings()->getDayStart(), 600);
         outfile->writeValue(0, "time_steps_per_day", settings->getDataSettings()->getTimeStepsPerDay(), 2);
         outfile->writeValue(0, "dam_slices_per_day", settings->getDataSettings()->getDamSlicesPerDay(), 2);
+        outfile->writeValue(0, "gas_steps_per_day", settings->getDataSettings()->getDamSlicesPerDay(), 2);
+        outfile->writeValue(0, "night_start", settings->getDataSettings()->getNightStart(), 2000);
+        outfile->writeValue(0, "day_start", settings->getDataSettings()->getDayStart(), 600);
         outfile->writeNewline();
         if (settings->getDataSettings()->getCalcGas())
             outfile->writeString(0, "compute_gas", "On");

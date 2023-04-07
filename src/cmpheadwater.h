@@ -20,7 +20,7 @@ public:
     void writeRivData (cmpFile *outfile, int indent, bool outputAll);
     void writeData (cmpFile *outfile, int indent, bool outputAll);
 
-    void allocateDays(int numdays, int numsteps, int gasSteps);
+    void allocate(int numdays, int numsteps, int gasSteps);
     void calculateFlow () override;
     void fillRegulated ();   /**< fills headwaters that are regulated and labels them as such. */
     void fillUnRegulated (); /**< fills headwaters not filled in previous - fillRegulated must be called first. */

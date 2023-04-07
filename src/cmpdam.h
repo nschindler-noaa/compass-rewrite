@@ -35,7 +35,7 @@ public:
     bool parseDesc (cmpFile *descfile) override;
     void outputDesc (cmpFile *outfile) override;
 
-    void setSlicesPerDay (int newStepsPerDay) {setStepsPerDay(newStepsPerDay);}
+    void setSlicesPerDay (int newStepsPerDay);
     int getSlicesPerDay () {return getStepsPerDay();}
 
     cmpSpillway *getSpillway() const;
@@ -273,7 +273,9 @@ private:
                            * slice. [DAM_SLICES_IN_SEASON]*/
 
 public slots:
-    void allocateDays(int days, int slices, int gassteps);
+    void allocateDays(int newDaysPerSeason);
+    void allocateSlices(int newSlicesPerDay);
+    void allocate(int days, int slices, int gassteps);
     void setSpeciesNames(QStringList &spcNames);
     void calculateFlow () override;
     void calculateFlows ();

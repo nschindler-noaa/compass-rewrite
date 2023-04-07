@@ -176,10 +176,6 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
     QStringList tokens;
     int index = 0;
     int tmpInt = 0;
-    int numDays = 366;
-    int timeSteps = 2;
-    int damSlices = 2;
-    int gasSteps = 2;
     float tmpFloat = 0;
     cmpDataSettings *dSettings = cSettings->getDataSettings();
 
@@ -203,26 +199,35 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
             if(okay)
             {
                 dSettings->setNumDaysInSeason(tmpInt);
-                numDays = tmpInt;
+                setNumDays(tmpInt);
             }
         }
         else if (token.compare("time_steps_per_day") == 0)
         {
             okay = cfile->readInt(tmpInt);
-            if(okay) dSettings->setTimeStepsPerDay(tmpInt);
-            timeSteps = tmpInt;
+            if(okay)
+            {
+                dSettings->setTimeStepsPerDay(tmpInt);
+                setNumSteps(tmpInt);
+            }
         }
         else if (token.compare("dam_slices_per_day") == 0)
         {
             okay = cfile->readInt(tmpInt);
-            if(okay) dSettings->setDamSlicesPerDay(tmpInt);
-            damSlices = tmpInt;
+            if(okay)
+            {
+                dSettings->setDamSlicesPerDay(tmpInt);
+                setNumSlices(tmpInt);
+            }
         }
         else if (token.compare("gas_steps_per_day") == 0)
         {
             okay = cfile->readInt(tmpInt);
-            if(okay) dSettings->setGasStepsPerDay(tmpInt);
-            gasSteps = tmpInt;
+            if(okay)
+            {
+                dSettings->setGasStepsPerDay(tmpInt);
+                setNumGasSteps(tmpInt);
+            }
         }
         else if (token.compare("day_start") == 0)
         {
@@ -292,7 +297,7 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
             }
             else
             {
-                cfile->printError(QString("Species name %1 not found.").arg(name));
+                cfile->printError(QString("Species name %1 not found in species list.").arg(name));
                 cfile->skipToEnd();
             }
         }
@@ -313,7 +318,7 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
                         index = speciesNames.indexOf(name);
                         if (index < 0)
                         {
-                            cfile->printError(QString("Species name %1 not found.").arg(name));
+                            cfile->printError(QString("Species name %1 not found in species list.").arg(name));
                             cfile->skipToEnd();
                         }
                         else
@@ -321,7 +326,7 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
                             stocks[stIndex]->copy(*static_cast<cmpStock *>(species.at(index)));
                             stocks[stIndex]->setName(stName);
                             stocks[stIndex]->setSpeciesName(name);
-                            stocks[stIndex]->setReachClassNames(reachClassNames);
+//                            stocks[stIndex]->setReachClassNames(reachClassNames);
                             stocks[stIndex]->parseData(cfile);
                         }
                     }
@@ -332,13 +337,13 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
                 }
                 else
                 {
-                    cfile->printError(QString("'species' token not found."));
+                    cfile->printError(QString("'species' token not found. It must be the first item in stock definition."));
                     cfile->skipToEnd();
                 }
             }
             else
             {
-                cfile->printError(QString("Stock name %1 not found.").arg(name));
+                cfile->printError(QString("Stock name %1 not found in stock name list.").arg(name));
                 cfile->skipToEnd();
             }
         }
@@ -1212,19 +1217,123 @@ void cmpRiverSystem::allocate(int numDays, int timeSteps, int damSlices, int gas
         {
         case cmpRiverSegment::Reach:
             reach = static_cast<cmpReach*>(segments.at(i));
-            reach->allocateDays(numDays, timeSteps, gasSteps);
+            reach->allocate(numDays, timeSteps, gasSteps);
             break;
         case cmpRiverSegment::Dam:
             dam = static_cast<cmpDam*>(segments.at(i));
-            dam->allocateDays(numDays, damSlices, gasSteps);
+            dam->allocate(numDays, damSlices, gasSteps);
             dam->setSpeciesNames(speciesNames);
             break;
         case cmpRiverSegment::Headwater:
             hwater = static_cast<cmpHeadwater*>(segments.at(i));
-            hwater->allocateDays(numDays, timeSteps, gasSteps);
+            hwater->allocate(numDays, timeSteps, gasSteps);
             break;
         }
     }
 }
+
+void cmpRiverSystem::setNumDays(int newNumDays)
+{
+    int totalSegs = segments.count();
+    cmpRiverSegment::SegmentType type;
+    cmpReach *reach = nullptr;
+    cmpDam *dam = nullptr;
+    cmpHeadwater *hwater = nullptr;
+    for (int i = 0; i < totalSegs; i ++)
+    {
+        type = segments.at(i)->getType();
+        switch (type)
+        {
+        case cmpRiverSegment::Reach:
+            reach = static_cast<cmpReach*>(segments.at(i));
+            reach->setDaysPerSeason(newNumDays);
+            break;
+        case cmpRiverSegment::Dam:
+            dam = static_cast<cmpDam*>(segments.at(i));
+            dam->setDaysPerSeason(newNumDays);
+            break;
+        case cmpRiverSegment::Headwater:
+            hwater = static_cast<cmpHeadwater*>(segments.at(i));
+            hwater->setDaysPerSeason(newNumDays);
+            break;
+        }
+    }
+}
+
+void cmpRiverSystem::setNumSteps(int newNumSteps)
+{
+    int totalSegs = segments.count();
+    cmpRiverSegment::SegmentType type;
+    cmpReach *reach = nullptr;
+    cmpDam *dam = nullptr;
+    cmpHeadwater *hwater = nullptr;
+    for (int i = 0; i < totalSegs; i ++)
+    {
+        type = segments.at(i)->getType();
+        switch (type)
+        {
+        case cmpRiverSegment::Reach:
+            reach = static_cast<cmpReach*>(segments.at(i));
+            reach->setStepsPerDay(newNumSteps);
+            break;
+        case cmpRiverSegment::Dam:
+            dam = static_cast<cmpDam*>(segments.at(i));
+            dam->setStepsPerDay(newNumSteps);
+            break;
+        case cmpRiverSegment::Headwater:
+            hwater = static_cast<cmpHeadwater*>(segments.at(i));
+            hwater->setStepsPerDay(newNumSteps);
+            break;
+        }
+    }
+}
+
+void cmpRiverSystem::setNumSlices(int newNumSlices)
+{
+    int totalSegs = segments.count();
+    cmpRiverSegment::SegmentType type;
+    cmpReach *reach = nullptr;
+    cmpDam *dam = nullptr;
+    cmpHeadwater *hwater = nullptr;
+    for (int i = 0; i < totalSegs; i ++)
+    {
+        type = segments.at(i)->getType();
+        if (type == cmpRiverSegment::Dam)
+        {
+            dam = static_cast<cmpDam*>(segments.at(i));
+            dam->setSlicesPerDay(newNumSlices);
+            break;
+        }
+    }
+}
+
+void cmpRiverSystem::setNumGasSteps(int newNumGasSteps)
+{
+    int totalSegs = segments.count();
+    cmpRiverSegment::SegmentType type;
+    cmpReach *reach = nullptr;
+    cmpDam *dam = nullptr;
+    cmpHeadwater *hwater = nullptr;
+    for (int i = 0; i < totalSegs; i ++)
+    {
+        type = segments.at(i)->getType();
+        switch (type)
+        {
+        case cmpRiverSegment::Reach:
+            reach = static_cast<cmpReach*>(segments.at(i));
+            reach->setGasStepsPerDay(newNumGasSteps);
+            break;
+        case cmpRiverSegment::Dam:
+            dam = static_cast<cmpDam*>(segments.at(i));
+            dam->setGasStepsPerDay(newNumGasSteps);
+            break;
+        case cmpRiverSegment::Headwater:
+            hwater = static_cast<cmpHeadwater*>(segments.at(i));
+            hwater->setGasStepsPerDay(newNumGasSteps);
+            break;
+        }
+    }
+}
+
 
 

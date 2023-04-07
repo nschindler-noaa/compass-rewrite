@@ -70,34 +70,51 @@ void cmpReach::clear ()
 
 void cmpReach::resetData()
 {
-    allocateDays(daysPerSeason, stepsPerDay, gasStepsPerDay);
+//    allocate(daysPerSeason, stepsPerDay, gasStepsPerDay);
+    cmpRiverSegment::resetData();
 }
 
-void cmpReach::allocateDays(int days, int steps, int gasSteps)
+void cmpReach::allocateDays(int newDaysPerSeason)
 {
-    int daysteps = days * steps;
-
-    if (!loss.isEmpty())
-        loss.clear();
-    for (int i = 0; i < days; i++)
-        loss.append(0.0);
-
-    if (!elevChange.isEmpty())
-        elevChange.clear();
-    if (!volumeCurr.isEmpty())
-        volumeCurr.clear();
-    if (!velocity.isEmpty())
-        velocity.clear();
-    if (!tempDelta.isEmpty())
-        tempDelta.clear();
-    for (int i = 0; i < daysteps; i++)
+    if (daysPerSeason != newDaysPerSeason)
     {
-        elevChange.append(0.0);
-        volumeCurr.append(0.0);
-        velocity.append(0.0);
-        tempDelta.append(0.0);
+        if (!loss.isEmpty())
+            loss.clear();
+        for (int i = 0; i < daysPerSeason; i++)
+            loss.append(0.0);
     }
-    cmpRiverSegment::allocateDays(days, steps, gasSteps);
+    cmpRiverSegment::allocateDays(daysPerSeason);
+}
+
+void cmpReach::allocateSteps(int newStepsPerDay)
+{
+    if (stepsPerDay != newStepsPerDay)
+    {
+        int stepsPerSeason = daysPerSeason * stepsPerDay;
+        if (!elevChange.isEmpty())
+            elevChange.clear();
+        if (!volumeCurr.isEmpty())
+            volumeCurr.clear();
+        if (!velocity.isEmpty())
+            velocity.clear();
+        if (!tempDelta.isEmpty())
+            tempDelta.clear();
+        for (int i = 0; i < stepsPerSeason; i++)
+        {
+            elevChange.append(0.0);
+            volumeCurr.append(0.0);
+            velocity.append(0.0);
+            tempDelta.append(0.0);
+        }
+    }
+    cmpRiverSegment::allocateSteps(stepsPerDay);
+}
+
+void cmpReach::allocate(int days, int steps, int gasSteps)
+{
+    setDaysPerSeason(days);
+    setStepsPerDay(steps);
+    setGasStepsPerDay(gasSteps);
 }
 
 bool cmpReach::parseDesc(cmpFile *descfile)
@@ -105,6 +122,8 @@ bool cmpReach::parseDesc(cmpFile *descfile)
     bool okay = true, end = false;
     QString token ("");
     QString na("");
+
+    std::cout << "       Parsing Reach description: " << name.toStdString() << std::endl;
 
     while (okay && !end)
     {

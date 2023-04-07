@@ -8,8 +8,10 @@
 #include <QMessageBox>
 #include <QtMessageHandler>
 
-#include <stdio.h>
-#include <stdlib.h>
+//#include <stdio.h>
+//#include <stdlib.h>
+
+#define DEBUG true
 
 int main(int argc, char *argv[])
 {
@@ -23,7 +25,7 @@ int main(int argc, char *argv[])
         QCoreApplication a (argc, argv);
         cmpConsole c;
         QObject::connect(&c, SIGNAL(done(int)),
-                         &a, SLOT(QCoreApplication::exit(int)), Qt::QueuedConnection);
+                         &a, SLOT(exit(int)), Qt::QueuedConnection);
         retval = c.run(qApp->arguments());
     }
     // else, start gui mode

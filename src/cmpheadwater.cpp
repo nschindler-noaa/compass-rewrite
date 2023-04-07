@@ -23,12 +23,12 @@ cmpHeadwater::cmpHeadwater (QString hname, cmpRiver *parent) :
     resetData ();
 }
 
-void cmpHeadwater::allocateDays(int numdays, int numsteps, int gasSteps)
+void cmpHeadwater::allocate(int numdays, int numsteps, int gasSteps)
 {
     elevChange.clear();
     for (int i = 0; i < numdays; i++)
         elevChange.append(0.0);
-    cmpRiverSegment::allocateDays(numdays, numsteps, gasSteps);
+    cmpRiverSegment::allocate(numdays, numsteps, gasSteps);
 }
 
 void cmpHeadwater::resetData()
@@ -36,7 +36,7 @@ void cmpHeadwater::resetData()
     isRegPoint = true;  // default setting
     flowCoefficient = 0.0;
     flowMean = 0.0;
-    allocateDays(daysPerSeason, stepsPerDay, gasStepsPerDay);
+    allocate(daysPerSeason, stepsPerDay, gasStepsPerDay);
 }
 
 void cmpHeadwater::fillRegulated()

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.15.1, 2023-03-14T00:27:07. -->
+<!-- Written by QtCreator 4.15.1, 2023-04-07T16:29:31. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -296,10 +296,12 @@
     </valuelist>
     <valuelist type="QVariantList" key="CustomOutputParsers"/>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
-    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
+    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes">
+     <value type="QString">#DEBUG_=1</value>
+    </valuelist>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:C:/Users/Neal.Schindler/Documents/working/nwfsc-github/compass/compassRewrite/src/compass.pro</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">C:/Users/Neal.Schindler/Documents/working/nwfsc-github/compass/compassRewrite/src/compass.pro</value>
-    <value type="QString" key="RunConfiguration.Arguments">-bsu -lwmd -r columbia-adult1.desc -f base-new.dat  -oa base-adult-newcheck.dat</value>
+    <value type="QString" key="RunConfiguration.Arguments">-bsu -lwmd -r columbia-adult1.desc -f base-adult-new-all.dat  -oa base-adult-newcheck.dat</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>

@@ -79,7 +79,7 @@ cmpSchedule::~cmpSchedule()
         schedule.clear();
 }
 
-void cmpSchedule::allocate (int numdays)
+void cmpSchedule::setNumDays (int numdays)
 {
     if (!schedule.isEmpty())
         schedule.clear();
@@ -162,7 +162,7 @@ void cmpSchedule::writeData (cmpFile *outfile, int indent, QString name, bool ou
     {
         int numDays = schedule.count();
         int stDay = 0, endDay = 0, stHr = 0, endHr = 0;
-        int firstHour = 0, lastHour = 24;
+        int firstHour = 0, lastHour = 23;
         int numOnLine = 0;
         bool hoursChanged = false;
 
@@ -177,7 +177,7 @@ void cmpSchedule::writeData (cmpFile *outfile, int indent, QString name, bool ou
             if (firstHour != stHr || lastHour != endHr)
             {
                 hoursChanged = true;
-                endDay = i - 1;
+                endDay = i;
                 if ((endDay - stDay) > 1)
                 {
                     outfile->writeStringNR(0, QString(" %1:%2").arg(stDay).arg(endDay));

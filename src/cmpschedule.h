@@ -23,7 +23,7 @@ public:
     bool getHours(int &start, int &stop);
 
 private:
-    bool hours[24];
+    bool hours[TOTALHOURS];
 };
 
 class cmpSchedule
@@ -32,7 +32,7 @@ public:
     cmpSchedule();
     ~cmpSchedule();
 
-    void allocate (int numdays);
+    void setNumDays (int numdays);
     bool parseData (cmpFile *infile, QString prompt = QString());
     void writeData (cmpFile *outfile, int indent, QString name, bool outputAll);
 

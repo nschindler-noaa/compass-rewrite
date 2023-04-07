@@ -72,6 +72,21 @@ cmpRiverSegment &cmpRiverSegment::copy (const cmpRiverSegment &rhs)
     return *this;
 }
 
+int cmpRiverSegment::getGasStepsPerDay() const
+{
+    return gasStepsPerDay;
+}
+
+void cmpRiverSegment::setGasStepsPerDay(int newGasStepsPerDay)
+{
+    if (gasStepsPerDay != newGasStepsPerDay)
+    {
+        gasStepsPerDay = newGasStepsPerDay;
+        gasStepsPerSeason = gasStepsPerDay * daysPerSeason;
+        allocateGasSteps(gasStepsPerDay);
+    }
+}
+
 float cmpRiverSegment::getGasTheta() const
 {
     return gasTheta;
@@ -99,8 +114,10 @@ int cmpRiverSegment::getStepsPerDay() const
 
 void cmpRiverSegment::setStepsPerDay(int newStepsPerDay)
 {
-    stepsPerDay = newStepsPerDay;
-    allocateDays(daysPerSeason, stepsPerDay, gasStepsPerDay);
+    if (stepsPerDay != newStepsPerDay)
+    {
+        allocateSteps(newStepsPerDay);
+    }
 }
 
 int cmpRiverSegment::getDaysPerYear() const
@@ -110,7 +127,10 @@ int cmpRiverSegment::getDaysPerYear() const
 
 void cmpRiverSegment::setDaysPerYear(int newDaysPerYear)
 {
-    daysPerYear = newDaysPerYear;
+    if (daysPerYear != newDaysPerYear)
+    {
+        daysPerYear = newDaysPerYear;
+    }
 }
 
 int cmpRiverSegment::getDaysPerSeason() const
@@ -120,8 +140,10 @@ int cmpRiverSegment::getDaysPerSeason() const
 
 void cmpRiverSegment::setDaysPerSeason(int newDaysPerSeason)
 {
-    daysPerSeason = newDaysPerSeason;
-    allocateDays(daysPerSeason, stepsPerDay, gasStepsPerDay);
+    if (daysPerSeason != newDaysPerSeason)
+    {
+        allocateDays(daysPerSeason);
+    }
 }
 
 void cmpRiverSegment::setup ()
@@ -142,9 +164,9 @@ void cmpRiverSegment::setup ()
     temp.append(0);
     readFlows = false;
     flow.append(0);
-    daysPerYear = 366;
-    stepsPerDay = 2;
-    setDaysPerSeason(366);
+    setDaysPerYear(366);
+    setStepsPerDay(2);
+    setGasStepsPerDay(2);
     isRegPoint = false;
     readTemps = false;
     up = nullptr;
@@ -175,7 +197,6 @@ void cmpRiverSegment::resetData()
 {
     outputFlags = 0;
     outputSettings = 0;
-    setDaysPerSeason(366);
     temp_1 = -1;
 }
 
@@ -246,7 +267,7 @@ bool cmpRiverSegment::parseToken(QString token, cmpFile *cfile)
         if (token.compare("on", Qt::CaseInsensitive) == 0)
         {
             readGas = true;
-            cfile->readFloatArray(gasInitial, stepsPerSeason, Data::None, stepsPerDay, "input gas");
+            cfile->readFloatArray(gasInitial, gasStepsPerSeason, Data::None, stepsPerDay, "input gas");
         }
         else
         {
@@ -357,6 +378,8 @@ bool cmpRiverSegment::parseDesc(cmpFile *descfile)
     bool okay = true, end = false;
     QString token ("");
     QString na("");
+
+    std::cout << "       Parsing Headwater description: " << name.toStdString() << std::endl;
 
     while (okay && !end)
     {
@@ -709,37 +732,64 @@ void cmpRiverSegment::calculateFlowInputs()
     }
 }
 
-void cmpRiverSegment::allocateDays(int days, int steps, int gasSteps)
+bool cmpRiverSegment::allocateDays(int newDaysPerSeason)
 {
-    daysPerYear = 366;
-    daysPerSeason = days;
-    stepsPerDay = steps;
-    stepsPerSeason = steps * days;
-    gasStepsPerDay = gasSteps;
-    int gasStepsPerSeason = gasSteps * days;
+    bool changed = false;
+    if (daysPerSeason != newDaysPerSeason)
+    {
+        daysPerSeason = newDaysPerSeason;
+        if (!flow.isEmpty())
+            flow.clear();
+        if (!temp.isEmpty())
+            temp.clear();
+        for (int i = 0; i < daysPerSeason; i++)
+        {
+            flow.append(0.0);
+            temp.append(0.0);
+        }
+        changed = true;
+    }
+    return changed;
+}
 
-    if (!flow.isEmpty())
-        flow.clear();
-    if (!temp.isEmpty())
-        temp.clear();
-    for (int i = 0; i < days; i++)
+bool cmpRiverSegment::allocateSteps(int newStepsPerDay)
+{
+    bool changed = false;
+    if (stepsPerDay != newStepsPerDay)
     {
-        flow.append(0.0);
-        temp.append(0.0);
+        stepsPerSeason = stepsPerDay * daysPerSeason;
+        if (!turbidity.isEmpty())
+            turbidity.clear();
+        for (int i = 0; i < stepsPerSeason; i++)
+        {
+            turbidity.append(0.0);
+        }
+        changed = true;
     }
+    return changed;
+}
 
-    if (!gasInitial.isEmpty())
-        gasInitial.clear();
-    if (!turbidity.isEmpty())
-        turbidity.clear();
-    for (int i = 0; i < stepsPerSeason; i++)
+bool cmpRiverSegment::allocateGasSteps(int newGasStepsPerDay)
+{
+    bool changed = false;
+    if (gasStepsPerDay != newGasStepsPerDay)
     {
-        turbidity.append(0.0);
+        if (!gasInitial.isEmpty())
+            gasInitial.clear();
+        for (int i = 0; i < gasStepsPerSeason; i++)
+        {
+            gasInitial.append(0.0);
+        }
+        changed = true;
     }
-    for (int i = 0; i < gasStepsPerSeason; i++)
-    {
-        gasInitial.append(0.0);
-    }
+    return changed;
+}
+
+void cmpRiverSegment::allocate(int days, int steps, int gasSteps)
+{
+    setDaysPerSeason(days);
+    setStepsPerDay(steps);
+    setGasStepsPerDay(gasSteps);
 }
 
 void cmpRiverSegment::calculateFlows()

@@ -21,7 +21,7 @@ void cmpPowerhouse::allocate(int days, int slicesPerDay)
     int damSlicesDay = slicesPerDay;
     int damSlicesSeason = days * damSlicesDay;
 
-    schedule.allocate(days);
+    schedule.setNumDays(days);
 
     if (!flowFraction.isEmpty())
         flowFraction.clear();
@@ -29,7 +29,24 @@ void cmpPowerhouse::allocate(int days, int slicesPerDay)
         flowFraction.append(0.0);
 }
 
-void cmpPowerhouse::allocateSpecies (int num)
+void cmpPowerhouse::setNumDays(int days)
+{
+    schedule.setNumDays(days);
+}
+
+void cmpPowerhouse::setNumSlices(int slices)
+{
+    int damSlicesDay = slices;
+    int days = schedule.getScheduleLength();
+    int damSlicesSeason = days * damSlicesDay;
+
+    if (!flowFraction.isEmpty())
+        flowFraction.clear();
+    for (int i = 0; i < damSlicesSeason; i++)
+        flowFraction.append(0.0);
+}
+
+void cmpPowerhouse::setNumSpecies (int num)
 {
     cmpDamSpecies *spc = nullptr;
     while (species.count() < num)
@@ -75,7 +92,7 @@ cmpDamSpecies *cmpPowerhouse::getSpecies(int index)
     return species[index];
 }
 
-void cmpPowerhouse::writeData (cmpFile *outfile, int indent, bool outputAll)
+void cmpPowerhouse::writeData (cmpFile *outfile, int indent, bool outputAll, bool single)
 {
     float fdefault = outputAll? 1000000: 0;
 //    int idefault = outputAll? 100000: 0;
@@ -83,12 +100,14 @@ void cmpPowerhouse::writeData (cmpFile *outfile, int indent, bool outputAll)
     cmpEquation eqn;
     QString name;
 
-    if (number > 1)
+    if (!single)
+    {
         outfile->writeValue(indent, "powerhouse_priority", priority);
+    }
+
     outfile->writeValue(indent, "flow_min", threshold, Data::Fixed, fdefault);
     outfile->writeValue(indent, "powerhouse_capacity", capacity, Data::Fixed, fdefault);
     schedule.writeData(outfile, indent, "powerhouse_schedule", outputAll);
-//    outfile->writeString(indent, "powerhouse_schedule", "0:365 (0:24)");
     outfile->writeValue(indent, "rsw_spill_cap", rswCapacity, Data::Fixed, fdefault);
     outfile->writeNewline();
     for (int i = 0; i < total; i++)
@@ -112,8 +131,7 @@ void cmpPowerhouse::writeSecondData(cmpFile *outfile, int indent, bool outputAll
     outfile->writeValue(indent, "powerhouse_priority", priority);
     outfile->writeValue(indent, "flow_min", threshold, Data::Fixed, dval);
     outfile->writeValue(indent, "powerhouse_capacity", capacity, Data::Fixed, dval);
-    outfile->writeString(indent, "powerhouse_schedule", "0:365 (0:24)");
-    //    writeSchedule(outfile, indent, outputAll);
+    schedule.writeData(outfile, indent, "powerhouse_schedule", outputAll);
     outfile->writeValue(indent, "rsw_spill_cap", rswCapacity, Data::Fixed, dval);
     outfile->writeNewline();
     for (int i = 0; i < total; i++)

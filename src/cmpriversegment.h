@@ -151,6 +151,9 @@ public:
     float getGasTheta() const;
     void setGasTheta(float newGasTheta);
 
+    int getGasStepsPerDay() const;
+    void setGasStepsPerDay(int newGasStepsPerDay);
+
 protected:
     cmpRiverSegment &copy (const cmpRiverSegment &rhs);
 
@@ -218,6 +221,7 @@ protected:
     int stepsPerDay;
     int stepsPerSeason;
     int gasStepsPerDay;
+    int gasStepsPerSeason;
 
 private:
 /*    GasDistribution *gas_in; *< Input gas distribution */
@@ -233,7 +237,10 @@ private:
 signals:
 
 public slots:
-    void allocateDays(int days, int steps, int gasSteps);
+    bool allocateSteps(int newStepsPerDay);
+    bool allocateGasSteps(int newGasStepsPerDay);
+    bool allocateDays(int newDaysPerSeason);
+    void allocate(int days, int steps, int gasSteps);
     void calculateFlows ();
     void calculateFlowInputs ();
     void calculateTemps ();

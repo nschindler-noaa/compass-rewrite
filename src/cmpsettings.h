@@ -7,6 +7,9 @@
 
 #include "version.h"
 
+#include <iostream>
+#define DEBUG_
+
 class cmpSettings
 {
 public:

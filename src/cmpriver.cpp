@@ -13,14 +13,15 @@ cmpRiver::cmpRiver(cmpRiverSystem *parent) : QObject (parent)
 cmpRiver::cmpRiver(QString rname, cmpRiverSystem *parent) :
     QObject (parent)
 {
-    setup(QString(), parent);
+    setup(rname, parent);
 //    name = QString (rname);
 //    flowMax = 0.0;
 //    flowMin = 0.0;
 }
 
-void cmpRiver::setup(QString name, cmpRiverSystem *parent)
+void cmpRiver::setup(QString rname, cmpRiverSystem *parent)
 {
+    name = rname;
     rs = parent;
     flowMax = 1.0;
     flowMin = 0.0;
@@ -101,6 +102,7 @@ bool cmpRiver::parseDesc(cmpFile *descfile)
     float tempFloat = 0;
     int tempInt = 0;
 
+    std::cout << "     Parsing River description: " << name.toStdString() << std::endl;
 
     while (okay && !end)
     {

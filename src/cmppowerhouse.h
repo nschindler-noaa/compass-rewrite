@@ -19,13 +19,15 @@ public:
     ~cmpPowerhouse ();
 
     void allocate (int days, int slices);
-    void allocateSpecies (int num);
+    void setNumDays (int days);
+    void setNumSlices(int slices);
+    void setNumSpecies (int num);
     void setSpeciesNames (QStringList &spNames);
     void deleteSpecies();
     cmpDamSpecies *getSpecies(QString name);
     cmpDamSpecies *getSpecies(int index);
 
-    void writeData (cmpFile *outfile, int indent, bool outputAll);
+    void writeData (cmpFile *outfile, int indent, bool outputAll, bool single);
     void writeAllData (cmpFile *outfile, int indent);
     void writeSecondData(cmpFile *outfile, int indent, bool outputAll);
     void writeSpeciesData(cmpFile *outfile, int indent, bool outputAll, int index);

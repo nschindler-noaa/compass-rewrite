@@ -1777,8 +1777,8 @@ void cmpFile::printEOF (QString data)
 
 void cmpFile::printMessage (QString msg)
 {
-    QMessageLogContext mlc(fileName().toStdString().data(), lineNum, nullptr, nullptr);
-    qInfo(msg.toStdString().data());
+//    QMessageLogContext mlc(fileName().toStdString().data(), lineNum, nullptr, nullptr);
+//    qInfo(msg.toStdString().data());
     cmpLog::instance()->add (cmpLog::Message, msg);
     cmpLog::instance()->add (cmpLog::Message, getFileLine());
 
@@ -1788,11 +1788,12 @@ void cmpFile::printMessage (QString msg)
 
 void cmpFile::printError (QString errmsg)
 {
-    qWarning(errmsg.toStdString().data());
+    std::string str = errmsg.toStdString();
+    qWarning("%s", str.c_str());
     cmpLog::instance()->add (cmpLog::Error, errmsg);
     cmpLog::instance()->add (cmpLog::Error, getFileLine());
 
-    cout << "Error :" << errmsg.toStdString() << endl;
+    cout << "Error :" << str << endl;
     cout << getFileLine().toStdString() << endl;
 }
 

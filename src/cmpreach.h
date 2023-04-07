@@ -32,7 +32,9 @@ public:
 
     void clear ();
     void resetData ();
-    void allocateDays(int days, int steps, int gasSteps);
+    void allocateDays(int newDaysPerSeason);
+    void allocateSteps(int newStepsPerDay);
+    void allocate(int days, int steps, int gasSteps);
 
     bool parseData (cmpFile *infile) override;
     bool parseToken (QString token, cmpFile *infile);
@@ -131,7 +133,7 @@ private:
     QList<float> birdDensity2;
     QMap<QString, float> predMean; /**< predation mean for each species. */
 
-    int stepsPerSeason;
+//    int stepsPerSeason;
 
 };
 

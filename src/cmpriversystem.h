@@ -97,6 +97,10 @@ public slots:
     void deleteReleases ();
     void deleteSpill ();
     void allocate(int numDays, int numSteps, int numSlices, int gasSteps);
+    void setNumDays(int newNumDays);
+    void setNumSteps(int newNumSteps);
+    void setNumSlices(int newNumSlices);
+    void setNumGasSteps(int newNumGasSteps);
 
 private:
 
