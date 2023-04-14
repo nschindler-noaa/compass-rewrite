@@ -6,7 +6,7 @@
 #include <QObject>
 #include <QStringList>
 
-#define TOTALHOURS 24
+#define TOTALHOURS 25
 
 class cmpDaySchedule
 {

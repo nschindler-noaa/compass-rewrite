@@ -144,7 +144,7 @@ public:
     void setWallSlope(float newWallSlope);
 
     int getOutputSettings() const;
-    void setOutputSettings(unsigned int newOutput_settings);
+    void setOutputSettings(int newOutput_settings);
 
     const QString &getTypeStr() const;
 

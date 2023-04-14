@@ -1,4 +1,5 @@
 #include "cmpreleasesite.h"
+#include "cmpreach.h"
 
 cmpReleaseSite::cmpReleaseSite(QString rsname)
 {
@@ -75,7 +76,7 @@ void cmpReleaseSite::setSeg(cmpReach *value)
     seg = value;
 }
 
-cmpReach *cmpReleaseSite::getSeg() const
+cmpRiverSegment *cmpReleaseSite::getSeg() const
 {
     return seg;
 }

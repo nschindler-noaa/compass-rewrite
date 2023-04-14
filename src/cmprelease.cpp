@@ -3,7 +3,8 @@
 cmpRelease::cmpRelease()
 {
     active = true;
-    site = nullptr;
+    relsite = nullptr;
+    destination = nullptr;
     species = nullptr;
     stock = nullptr;
     startDay = 0;
@@ -14,6 +15,34 @@ cmpRelease::cmpRelease()
     totalReleased = 0;
     fishLength = 100;
     migrOnsetMedian = 0;
+}
+
+cmpRelease::~cmpRelease()
+{
+    cmpReleaseSegmentData *reldata;
+    if (rtinfo != nullptr)
+        delete rtinfo;
+    while (!relSegments.isEmpty())
+    {
+        reldata = relSegments.takeLast();
+        delete reldata;
+    }
+}
+
+void cmpRelease::activate(bool newActive)
+{
+    active = newActive;
+}
+
+void cmpRelease::reset()
+{
+//    if (rtinfo != nullptr)
+//        rtinfo->reset();
+//    stats.reset();
+//    for (int i = 0, total = relSegments.count(); i < total; i++)
+//    {
+//        relSegments[i]->reset();
+//    }
 }
 
 const QString &cmpRelease::getName() const
@@ -63,7 +92,12 @@ bool cmpRelease::parseToken(QString token, cmpFile *cfile)
         okay = cfile->readString(na);
         setStockName(na);
     }
-    else if (token.compare ("intial_spill_experience", Qt::CaseInsensitive) == 0)
+    else if (token.compare ("destination", Qt::CaseInsensitive) == 0)
+    {
+        okay = cfile->readString(na);
+        setDestSiteName(na);
+    }
+    else if (token.compare ("initial_spill_experience", Qt::CaseInsensitive) == 0)
     {
         okay = cfile->readFloatOrNa(na, tempFloat);
         setInitialSpillExperience(tempFloat);
@@ -83,18 +117,35 @@ bool cmpRelease::parseToken(QString token, cmpFile *cfile)
 void cmpRelease::writeData(cmpFile *ofile, bool outputAll)
 {
     float dval = outputAll? 1000000: 0.0;
-    ofile->writeStringNR(0, "release ", species->getName());
-    ofile->writeString(0, site->getName());
+    ofile->writeStringNR(0, "release", species->getName());
+    ofile->writeTitledValue(0, " ", relsite->getName(), getStartDay());
     ofile->writeString(1, "stock", stock->getName());
+    if (destination != nullptr)
+        ofile->writeString(1, "destination", destination->getName());
     ofile->writeValue(1, "initial_spill_experience", initialSpillExperience, Data::Float, dval);
-    ofile->writeValue(1, "length", fishLength, Data::Integer, dval);
+    ofile->writeValue(1, "length", fishLength, Data::Float, dval);
     ofile->writeFloatArray(1, QString("number"), QString(), number,  Data::None, 1, Data::Float, dval);
     ofile->writeEnd(0, "release", species->getName());
 }
 
+cmpReleaseSite *cmpRelease::getSite()
+{
+    return relsite;
+}
+
 void cmpRelease::setSite(cmpReleaseSite *newSite)
 {
-    site = newSite;
+    relsite = newSite;
+}
+
+cmpReleaseSite *cmpRelease::getDestination()
+{
+    return destination;
+}
+
+void cmpRelease::setDestination(cmpReleaseSite *newSite)
+{
+    destination = newSite;
 }
 
 void cmpRelease::setSpecies(cmpSpecies *newSpecies)
@@ -127,11 +178,12 @@ void cmpRelease::setRtinfo(RtInfo *newRtinfo)
     rtinfo = newRtinfo;
 }
 
-const float &cmpRelease::getNumber(int i) const
+const float &cmpRelease::getNumber(int i)
 {
+    curNumber = -1.;
     if (i < number.count())
-       return number.at(i);
-    return -1.;
+       curNumber = number.at(i);
+    return curNumber;
 }
 
 void cmpRelease::setNumber(int i, const float &newNumber)
@@ -226,6 +278,16 @@ float cmpRelease::getFishLength() const
 void cmpRelease::setFishLength(float newFishLength)
 {
     fishLength = newFishLength;
+}
+
+const QString &cmpRelease::getDestSiteName() const
+{
+    return destSiteName;
+}
+
+void cmpRelease::setDestSiteName(const QString &newDestSiteName)
+{
+    destSiteName = newDestSiteName;
 }
 
 void cmpRelease::setStockName(QString stkName)

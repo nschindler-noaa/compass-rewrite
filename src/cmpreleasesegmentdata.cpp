@@ -434,6 +434,12 @@ cmpReleaseSegmentData::cmpReleaseSegmentData()
     d = nullptr;
 }
 
+cmpReleaseSegmentData::~cmpReleaseSegmentData()
+{
+    if (d != nullptr)
+        delete d;
+}
+
 cmpRiverSegment *cmpReleaseSegmentData::getRivSeg() const
 {
     return rivSeg;

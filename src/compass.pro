@@ -14,6 +14,7 @@ HEADERS += \
     cmpdam.h \
     cmpdamspecies.h \
     cmpdatasettings.h \
+    cmpdelayedmorttable.h \
     cmpequation.h \
     cmpfile.h \
     cmpfishway.h \
@@ -56,6 +57,7 @@ SOURCES += \
     cmpdam.cpp \
     cmpdamspecies.cpp \
     cmpdatasettings.cpp \
+    cmpdelayedmorttable.cpp \
     cmpequation.cpp \
     cmpfile.cpp \
     cmpfishway.cpp \

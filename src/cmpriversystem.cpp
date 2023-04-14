@@ -434,10 +434,12 @@ bool cmpRiverSystem::parseData(cmpFile *cfile)
                         newrel->setSpecies(spec);
                         newrel->setSite(site);
                         newrel->setStartDay(tmpInt);
-                        newrel->setName(relName);
+                        newrel->setName(relName.replace(' ', '_'));
                         newrel->parseData(cfile);
                         cmpStock *stk = findStock(newrel->getStockName());
                         newrel->setStock(stk);
+                        site = findReleaseSite(newrel->getDestSiteName());
+                        newrel->setDestination(site);
                     }
                 }
             }

@@ -9,7 +9,8 @@
 
 #include "cmpriver.h"
 
-cmpRiverSegment::cmpRiverSegment (cmpRiver *parent) : QObject(parent)
+cmpRiverSegment::cmpRiverSegment (cmpRiver *parent) :
+    QObject(parent)
 {
     if (parent == nullptr)
         riverName = QString ();
@@ -29,7 +30,6 @@ cmpRiverSegment::cmpRiverSegment (QString segName, cmpRiver *parent) :
         riverName = parent->getName();
     name = segName;
     abbrev = QString ();
-
     setup ();
 }
 
@@ -102,7 +102,7 @@ int cmpRiverSegment::getOutputSettings() const
     return outputSettings;
 }
 
-void cmpRiverSegment::setOutputSettings(unsigned int newOutputSettings)
+void cmpRiverSegment::setOutputSettings(int newOutputSettings)
 {
     outputSettings = newOutputSettings;
 }
@@ -127,10 +127,7 @@ int cmpRiverSegment::getDaysPerYear() const
 
 void cmpRiverSegment::setDaysPerYear(int newDaysPerYear)
 {
-    if (daysPerYear != newDaysPerYear)
-    {
-        daysPerYear = newDaysPerYear;
-    }
+    daysPerYear = newDaysPerYear;
 }
 
 int cmpRiverSegment::getDaysPerSeason() const
@@ -142,7 +139,7 @@ void cmpRiverSegment::setDaysPerSeason(int newDaysPerSeason)
 {
     if (daysPerSeason != newDaysPerSeason)
     {
-        allocateDays(daysPerSeason);
+        allocateDays(newDaysPerSeason);
     }
 }
 
@@ -161,10 +158,11 @@ void cmpRiverSegment::setup ()
     outputSettings = 0;
     flowMax = 0.0;
     flowMin = 0.0;
-    temp.append(0);
+    temp.append(4);
     readFlows = false;
-    flow.append(0);
+    flow.append(1);
     setDaysPerYear(366);
+    setDaysPerSeason(366);
     setStepsPerDay(2);
     setGasStepsPerDay(2);
     isRegPoint = false;
@@ -735,53 +733,46 @@ void cmpRiverSegment::calculateFlowInputs()
 bool cmpRiverSegment::allocateDays(int newDaysPerSeason)
 {
     bool changed = false;
-    if (daysPerSeason != newDaysPerSeason)
+    daysPerSeason = newDaysPerSeason;
+    if (!flow.isEmpty())
+        flow.clear();
+    if (!temp.isEmpty())
+        temp.clear();
+    for (int i = 0; i < daysPerSeason; i++)
     {
-        daysPerSeason = newDaysPerSeason;
-        if (!flow.isEmpty())
-            flow.clear();
-        if (!temp.isEmpty())
-            temp.clear();
-        for (int i = 0; i < daysPerSeason; i++)
-        {
-            flow.append(0.0);
-            temp.append(0.0);
-        }
-        changed = true;
+        flow.append(0.0);
+        temp.append(0.0);
     }
+    changed = true;
     return changed;
 }
 
 bool cmpRiverSegment::allocateSteps(int newStepsPerDay)
 {
     bool changed = false;
-    if (stepsPerDay != newStepsPerDay)
+    stepsPerDay = newStepsPerDay;
+    stepsPerSeason = stepsPerDay * daysPerSeason;
+    if (!turbidity.isEmpty())
+        turbidity.clear();
+    for (int i = 0; i < stepsPerSeason; i++)
     {
-        stepsPerSeason = stepsPerDay * daysPerSeason;
-        if (!turbidity.isEmpty())
-            turbidity.clear();
-        for (int i = 0; i < stepsPerSeason; i++)
-        {
-            turbidity.append(0.0);
-        }
-        changed = true;
+        turbidity.append(0.0);
     }
+    changed = true;
     return changed;
 }
 
 bool cmpRiverSegment::allocateGasSteps(int newGasStepsPerDay)
 {
     bool changed = false;
-    if (gasStepsPerDay != newGasStepsPerDay)
+    gasStepsPerDay = newGasStepsPerDay;
+    if (!gasInitial.isEmpty())
+        gasInitial.clear();
+    for (int i = 0; i < gasStepsPerSeason; i++)
     {
-        if (!gasInitial.isEmpty())
-            gasInitial.clear();
-        for (int i = 0; i < gasStepsPerSeason; i++)
-        {
-            gasInitial.append(0.0);
-        }
-        changed = true;
+        gasInitial.append(0.0);
     }
+    changed = true;
     return changed;
 }
 

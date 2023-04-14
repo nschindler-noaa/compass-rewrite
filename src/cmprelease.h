@@ -14,18 +14,22 @@ class cmpRelease
 {
 public:
     cmpRelease();
-
-    void activate (bool newActive = true);
-
+    ~cmpRelease();
 
     const QString &getName() const;
     void setName(const QString &newName);
+
+    void activate (bool newActive = true);
+    void reset ();
 
     bool parseData(cmpFile *cfile);
     bool parseToken(QString token, cmpFile*cfile);
     void writeData(cmpFile *ofile, bool outputAll);
 
+    cmpReleaseSite *getSite ();
     void setSite(cmpReleaseSite *newSite);
+    cmpReleaseSite *getDestination ();
+    void setDestination(cmpReleaseSite *newSite);
 
     void setSpecies(cmpSpecies *newSpecies);
 
@@ -38,7 +42,7 @@ public:
     RtInfo *getRtinfo() const;
     void setRtinfo(RtInfo *newRtinfo);
 
-    const float &getNumber(int i) const;
+    const float &getNumber(int i);
     void setNumber(int i, const float &newNumber);
 
     int getAddSetting() const;
@@ -67,16 +71,22 @@ public:
     float getFishLength() const;
     void setFishLength(float newFishLength);
 
+    const QString &getDestSiteName() const;
+    void setDestSiteName(const QString &newDestSiteName);
+
 private:
     QString name;
     bool active;
-    cmpReleaseSite *site;
+    cmpReleaseSite *relsite;
+    QString destSiteName;
+    cmpReleaseSite *destination;
     cmpSpecies *species;
-    cmpStock *stock;
     QString stockName;
+    cmpStock *stock;
     float fishLength;
     int startDay;        /**< Offset into season */
     QList<float> number; /**< The release distribution up to [days_per_season] - startDay*/
+    float curNumber;
 //#ifdef REALTIME
     RtInfo *rtinfo;               /**< Realtime info (optional) */
 //#endif

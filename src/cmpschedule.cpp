@@ -162,32 +162,35 @@ void cmpSchedule::writeData (cmpFile *outfile, int indent, QString name, bool ou
     {
         int numDays = schedule.count();
         int stDay = 0, endDay = 0, stHr = 0, endHr = 0;
-        int firstHour = 0, lastHour = 23;
+        int firstHour = 0, lastHour = 24;
         int numOnLine = 0;
         bool hoursChanged = false;
+        QString days, hours;
 
         outfile->writeStringNR(indent, name);
 
         schedule[stDay].getHours(stHr, endHr);
+        firstHour = stHr;
+        lastHour = endHr;
 
         for (int i = 1; i < numDays; i++)
         {
+            days = QString::number(stDay);
+            hours = QString(" (%1:%2)").arg(stHr).arg(endHr);
+            endDay = i;
+
             schedule[i].getHours(firstHour, lastHour);
 
             if (firstHour != stHr || lastHour != endHr)
             {
                 hoursChanged = true;
-                endDay = i;
                 if ((endDay - stDay) > 1)
                 {
-                    outfile->writeStringNR(0, QString(" %1:%2").arg(stDay).arg(endDay));
+                    days.prepend(" ");
+                    days.append(QString(":%1").arg(endDay));
                 }
-                else
-                {
-                    outfile->writeStringNR(0, QString::number(stDay));
-                }
-                outfile->writeStringNR(0, QString(" (%1:%2)").arg(stHr).arg(endHr));
-                stDay = i;
+                outfile->writeStringNR(0, days, hours);
+                stDay = i + 1;
                 stHr = firstHour;
                 endHr = lastHour;
                 numOnLine += 2;
@@ -196,8 +199,14 @@ void cmpSchedule::writeData (cmpFile *outfile, int indent, QString name, bool ou
             {
                 outfile->writeNewline();
                 outfile->writeIndent(indent);
+                numOnLine = 0;
             }
 
+        }
+        if (stDay == 0)
+        {
+            outfile->writeStringNR(0, QString(" %1:%2").arg(stDay).arg(endDay));
+            outfile->writeStringNR(0, QString(" (%1:%2)").arg(stHr).arg(endHr));
         }
         if (numOnLine < 4)
             outfile->writeNewline();

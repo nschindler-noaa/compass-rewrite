@@ -6,6 +6,7 @@
 
 #include <QObject>
 
+class cmpRiverSegment;
 class cmpReach;
 
 /** Release site structure. It contains name, location in lat/lon,
@@ -26,7 +27,7 @@ public:
     void setLatlon(cmpRiverPoint *value);
 
     void setSeg(cmpReach *value);
-    cmpReach *getSeg() const;
+    cmpRiverSegment *getSeg() const;
 
     float getSeg_mile() const;
     void setSeg_mile(float value);

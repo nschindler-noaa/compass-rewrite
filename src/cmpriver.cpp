@@ -85,8 +85,8 @@ void cmpRiver::addSegment(cmpRiverSegment *value)
     if (value != nullptr)
     {
         int index = segments.count();
-        segments.append(nullptr);
-        segments[index] = value;
+        segments.append(value);
+//        segments[index] = value;
     }
 }
 
@@ -128,9 +128,9 @@ bool cmpRiver::parseDesc(cmpFile *descfile)
             okay = descfile->readString (reachName);
             if (okay)
             {
-                cmpReach *reach = new cmpReach (this);
                 reachName = reachName.simplified().replace(' ', '_');
-                reach->setName(reachName);
+                cmpReach *reach = new cmpReach (reachName, this);
+//                reach->setName(reachName);
                 rs->reaches.append (reachName);
                 rs->segments.append (reach);
                 reach->setRiverName(getName());
@@ -212,8 +212,8 @@ bool cmpRiver::outputDesc(cmpFile *descfile)
     {
         // output river values
         descfile->writeString(0, QString("river"), namestr.replace('_', ' '));
-        descfile->writeValue(1, QString("flow_min"), flowMin);
-        descfile->writeValue(1, QString("flow_max"), flowMax);
+        descfile->writeValue(1, QString("flow_min"), flowMin, Data::Float);
+        descfile->writeValue(1, QString("flow_max"), flowMax, Data::Float);
         descfile->writeNewline();
 
         // output river segments
