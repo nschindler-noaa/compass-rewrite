@@ -24,14 +24,14 @@ class Data
 {
 public:
     typedef enum DataConversionType {
-        // from small to large
+        // from small to large (input)
         None = 100,       /**< Keep values as-is. */
         Proportion,       /**< Divide value by multiple and assign to array. */
         Duplicate,        /**< Duplicate value and assign to array. */
         Space,            /**< Assign to every multiple value in array. */
         Half,             /**< Divide by 2 and assign to array. */
-        // from large to small
-        Sum,              /**< Sum multiple values and assign to one */
+        // from large to small (output)
+        Sum,              /**< Sum multiple values and assign to one. */
         Average,          /**< Average input and assign to smaller array. */
         AveragePositive,  /**< Output average of positive values only. */
         AverageNonZero,   /**< Output average of non-zero values only. */

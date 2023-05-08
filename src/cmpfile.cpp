@@ -626,19 +626,9 @@ bool cmpFile::readFloatArray(QList<float> &farray, int size, Data::DataConversio
     short flag = 1;
 
     // initialize array
-    int count = farray.count();
-    for (int i = 0; i < count; i++)
-        farray[i] = 0;
-    while (count < size)
-    {
+    farray.clear();
+    for (int i = 0; i < size; i++)
         farray.append(0);
-        count++;
-    }
-    while (count > size)
-    {
-        farray.takeLast();
-        count--;
-    }
 
     while (!end && okay)
     {
@@ -654,8 +644,12 @@ bool cmpFile::readFloatArray(QList<float> &farray, int size, Data::DataConversio
                 start_elem = tokens.at(0).toInt(&okay);
                 if (okay)
                     end_elem = tokens.at(1).toInt(&okay);
-                else
-                    end_elem = start_elem;
+                if (!okay)
+                {
+                    printError (QString("parsing float array for ").arg(prompt));
+                    skipAllNumbers();
+                    end = true;
+                }
             }
             else if (token.contains ('*'))
             {
@@ -682,14 +676,15 @@ bool cmpFile::readFloatArray(QList<float> &farray, int size, Data::DataConversio
                 else
                 {
                     pushToken (token);
+                    end = true;
                 }
             }
             else
             {
-                printError (QString("parsing float array for").arg(prompt));
-            }
-            if (cur_elem >= size)
+                skipAllNumbers();
+                printError (QString("parsing float array for ").arg(prompt));
                 end = true;
+            }
         }
         else
         {
@@ -698,8 +693,6 @@ bool cmpFile::readFloatArray(QList<float> &farray, int size, Data::DataConversio
                 value = token.toFloat(&okay);
                 farray[cur_elem] = value;
                 cur_elem++;
-                if (cur_elem >= size)
-                    end = true;
             }
             else
             {
@@ -707,6 +700,8 @@ bool cmpFile::readFloatArray(QList<float> &farray, int size, Data::DataConversio
                 end = true;
             }
         }
+        if (cur_elem >= size)
+            end = true;
     }
     return okay;
 }
@@ -995,7 +990,7 @@ void cmpFile::writeBorder()
 void cmpFile::writeIndent (int indent)
 {
     for (int i = 0; i < indent; i++)
-        write ("   ", 3);
+        write ("\t", 1);
 }
 
 void cmpFile::writeValue(int indent, QString keyword, double value, Data::Type dtype, double defaultValue)
@@ -1337,6 +1332,203 @@ bool cmpFile::convertIntArray(int arry[], int size, Data::DataConversion ctype, 
     return okay;
 }
 
+bool cmpFile::convertIntArray(QList<int> &array1, QList<int> &array2, Data::DataConversion ctype, int mult)
+{
+    bool okay = true;
+    int value = 0;
+    int total = 0;
+    int count = 0;
+    int index = 0;
+    int size1 = array1.count();
+    int size2 = size1 * mult;
+
+    array2.clear();
+    for (int i = 0; i < size2; i++)
+        array2.append(0);
+
+    switch (ctype)
+    {
+    case Data::Sum:   // Sum multiple values and assign to one.
+        size2 = size1 / mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            value = 0;
+            for (int j = 0; j < mult; j++)
+                value += array1[i + j];
+
+            array2[i/mult] = value;
+        }
+        break;
+
+    case Data::Average: // Average input and assign to smaller array.
+        size2 = size1 / mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            total = 0;
+            for (int j = 0; j < mult; j++)
+                total += array1[i + j];
+            value = total / mult;
+
+            array2[i/mult] = value;
+        }
+        break;
+
+    case Data::AverageNonZero: // Output average of non-zero values only.
+        size2 = size1 / mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                index = i + j;
+                if (array1[index] < 0 || array1[index] > 0)
+                {
+                    total += array1[index];
+                    count ++;
+                }
+            }
+            value = total / count;
+            array2[i/mult] = value;
+        }
+        break;
+
+    case Data::AveragePositive: // Output average of positive values only.
+        size2 = size1 / mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                index = i + j;
+                if (array1[index] > 0)
+                {
+                    total += array1[index];
+                    count ++;
+                }
+            }
+            value = total / count;
+            array2[i/mult] = value;
+        }
+        break;
+
+    case Data::DamDay:    // Output as Dam day values.
+        size2 = size1 / mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                if (settings->getDataSettings()->isDay(i))
+                {
+                    total += array1[i + j];
+                    count ++;
+                }
+            }
+            value = total / count;
+            array2[i / mult] = value;
+        }
+        break;
+
+    case Data::DamNight:   // Output as Dam night values.
+        size2 = size1 / mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                if (settings->getDataSettings()->isNight(i))
+                {
+                    total += array1[i + j];
+                    count ++;
+                }
+            }
+            value = total / count;
+            array2[i / mult] = value;
+        }
+        break;
+
+    case Data::None:  // Leave as-is
+        size2 = size1;
+        for (int i = 0; i < size1; i++)
+            array2.append(array1.at(i));
+        break;
+
+    case Data::Proportion: // Divide value by multiple and assign to array.
+        size2 = size1 * mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            value = array1[i] / mult;
+            for (int j = 0; j < mult; j++)
+            {
+                index = i + j;
+                array2[index] = value;
+            }
+        }
+        break;
+
+    case Data::Duplicate:  // Duplicate value and assign to array.
+        size2 = size1 * mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            value = array1[i];
+            for (int j = 0; j < mult; j++)
+            {
+                index = i + j;
+                array2[index] = value;
+            }
+        }
+        break;
+
+    case Data::Space:      // Assign to every multiple value in array.
+        size2 = size1 * mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            value = array1[i];
+            array2[i * mult] = value;
+        }
+        break;
+
+    case Data::Half:       // Divide by 2 and assign to array.
+        size2 = size1 * mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            value = array1[i] / 2;
+            for (int j = 0; j < mult; j++)
+            {
+                index = i + j;
+                array2[index] = value;
+            }
+        }
+        break;
+
+    }
+    return okay;
+}
+
 void cmpFile::writeEnd(int indent, QString keyword, QString name)
 {
     writeIndent(indent);
@@ -1560,6 +1752,203 @@ bool cmpFile::convertFloatArray(float arry[], int size, Data::DataConversion cty
     return okay;
 }
 
+bool cmpFile::convertFloatArray(QList<float> &array1, QList<float> &array2, Data::DataConversion ctype, int mult)
+{
+    bool okay = true;
+    float value = 0;
+    float total = 0;
+    int count = 0;
+    int index = 0;
+    int size1 = array1.count();
+    int size2 = size1 * mult;
+
+    array2.clear();
+    for (int i = 0; i < size2; i++)
+        array2.append(0);
+
+    switch (ctype)
+    {
+    case Data::Sum:   // Sum multiple values and assign to one.
+        size2 = size1 / mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            value = 0;
+            for (int j = 0; j < mult; j++)
+                value += array1[i + j];
+
+            array2[i/mult] = value;
+        }
+        break;
+
+    case Data::Average: // Average input and assign to smaller array.
+        size2 = size1 / mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            total = 0;
+            for (int j = 0; j < mult; j++)
+                total += array1[i + j];
+            value = total / mult;
+
+            array2[i/mult] = value;
+        }
+        break;
+
+    case Data::AverageNonZero: // Output average of non-zero values only.
+        size2 = size1 / mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                index = i + j;
+                if (array1[index] < 0 || array1[index] > 0)
+                {
+                    total += array1[index];
+                    count ++;
+                }
+            }
+            value = total / count;
+            array2[i/mult] = value;
+        }
+        break;
+
+    case Data::AveragePositive: // Output average of positive values only.
+        size2 = size1 / mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                index = i + j;
+                if (array1[index] > 0)
+                {
+                    total += array1[index];
+                    count ++;
+                }
+            }
+            value = total / count;
+            array2[i/mult] = value;
+        }
+        break;
+
+    case Data::DamDay:    // Output as Dam day values.
+        size2 = size1 / mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                if (settings->getDataSettings()->isDay(i))
+                {
+                    total += array1[i + j];
+                    count ++;
+                }
+            }
+            value = total / count;
+            array2[i / mult] = value;
+        }
+        break;
+
+    case Data::DamNight:   // Output as Dam night values.
+        size2 = size1 / mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            total = 0;
+            count = 0;
+            for (int j = 0; j < mult; j++)
+            {
+                if (settings->getDataSettings()->isNight(i))
+                {
+                    total += array1[i + j];
+                    count ++;
+                }
+            }
+            value = total / count;
+            array2[i / mult] = value;
+        }
+        break;
+
+    case Data::None:  // Leave as-is
+        size2 = size1;
+        for (int i = 0; i < size1; i++)
+            array2.append(array1.at(i));
+        break;
+
+    case Data::Proportion: // Divide value by multiple and assign to array.
+        size2 = size1 * mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            value = array1[i] / mult;
+            for (int j = 0; j < mult; j++)
+            {
+                index = i + j;
+                array2[index] = value;
+            }
+        }
+        break;
+
+    case Data::Duplicate:  // Duplicate value and assign to array.
+        size2 = size1 * mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            value = array1[i];
+            for (int j = 0; j < mult; j++)
+            {
+                index = i + j;
+                array2[index] = value;
+            }
+        }
+        break;
+
+    case Data::Space:      // Assign to every multiple value in array.
+        size2 = size1 * mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            value = array1[i];
+            array2[i * mult] = value;
+        }
+        break;
+
+    case Data::Half:       // Divide by 2 and assign to array.
+        size2 = size1 * mult;
+        for (int i = 0; i < size2; i++)
+            array2.append(0);
+        for (int i = 0; i < size1; i += mult)
+        {
+            value = array1[i] / 2.0;
+            for (int j = 0; j < mult; j++)
+            {
+                index = i + j;
+                array2[index] = value;
+            }
+        }
+        break;
+
+   }
+    return okay;
+}
+
 void cmpFile::writeFloatArray(int indent, QString prefix, QString name, QList<float> &arry,
                       Data::DataConversion ctype, int mult,
                       Data::Type dtype, float defaultval)
@@ -1579,7 +1968,7 @@ void cmpFile::writeFloatArray (int indent, QString prefix, QString name, float a
                        Data::Type dtype, float defaultval)
 {
     int num_on_line = 0;
-    int indent2 = indent + 2;
+    int indent2 = indent + 1;
 
     if (arry == nullptr) {
         qWarning("Float array is nullptr.");
@@ -1616,7 +2005,7 @@ void cmpFile::writeFloatArray (int indent, QString prefix, QString name, float a
         if (floatIsEqual(lastval, firstval)
                 && floatIsEqual(nextval, firstval))
         {
-            if (num_on_line > 2)
+            if (num_on_line >= 3)
             {
                 writeNewline();
                 writeIndent(indent2);
@@ -1630,24 +2019,28 @@ void cmpFile::writeFloatArray (int indent, QString prefix, QString name, float a
             {
                 write (QString ("[*] ").toUtf8());
                 writeFloat (firstval, dtype);
+                i = last;
+                num_on_line = 2;
             }
-            else if (last - first > 2)
+            else if ((last - first) > 1)
             {
                 QString range (QString ("[%1:%2] ")
                            .arg (QString::number(first), QString::number(last)));
                 write (range.toUtf8());
-                writeFloat (firstval, dtype);
+                writeFloat(firstval, dtype);
                 writeSpace();
+                i = last;
+                num_on_line += 2;
             }
             else
             {
                 writeFloat (firstval, dtype);
                 writeSpace();
-                writeFloat (arry[last], dtype);
+                writeFloat (firstval, dtype);
                 writeSpace();
+                i++;
+                num_on_line += 2;
             }
-            num_on_line += 2;
-            i = last;
         }
         else
         {

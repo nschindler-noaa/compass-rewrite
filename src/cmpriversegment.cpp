@@ -248,6 +248,7 @@ bool cmpRiverSegment::parseToken(QString token, cmpFile *cfile)
     }
     else if (token.compare("flow", Qt::CaseInsensitive) == 0)
     {
+        readFlows = true;
         okay = cfile->readFloatArray(flow, daysPerSeason, Data::None, 1, "flow");
     }
     else if (token.compare ("water_temp", Qt::CaseInsensitive) == 0)

@@ -9,6 +9,7 @@ TEMPLATE = app
 
 HEADERS += \
     cmpbasin.h \
+    cmpboollist.h \
     cmpcommandsettings.h \
     cmpconsole.h \
     cmpdam.h \
@@ -52,6 +53,7 @@ HEADERS += \
 
 SOURCES += \
     cmpbasin.cpp \
+    cmpboollist.cpp \
     cmpcommandsettings.cpp \
     cmpconsole.cpp \
     cmpdam.cpp \

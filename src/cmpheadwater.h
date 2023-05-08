@@ -17,6 +17,7 @@ public:
 
     bool parseData (cmpFile *infile) override;
     bool parseToken (QString token, cmpFile *infile);
+    void writeFlowData(cmpFile *outfile, int indent, bool outputAll) ;
     void writeRivData (cmpFile *outfile, int indent, bool outputAll);
     void writeData (cmpFile *outfile, int indent, bool outputAll);
 

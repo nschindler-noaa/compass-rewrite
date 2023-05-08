@@ -176,7 +176,7 @@ void cmpSchedule::writeData (cmpFile *outfile, int indent, QString name, bool ou
         for (int i = 1; i < numDays; i++)
         {
             days = QString::number(stDay);
-            hours = QString(" (%1:%2)").arg(stHr).arg(endHr);
+            hours = QString("(%1:%2)").arg(stHr).arg(endHr);
             endDay = i;
 
             schedule[i].getHours(firstHour, lastHour);
@@ -205,10 +205,11 @@ void cmpSchedule::writeData (cmpFile *outfile, int indent, QString name, bool ou
         }
         if (stDay == 0)
         {
-            outfile->writeStringNR(0, QString(" %1:%2").arg(stDay).arg(endDay));
-            outfile->writeStringNR(0, QString(" (%1:%2)").arg(stHr).arg(endHr));
+            outfile->writeSpace();
+            outfile->writeStringNR(0, QString("%1:%2").arg(stDay).arg(endDay), hours);
+            numOnLine = 2;
         }
-        if (numOnLine < 4)
+        if (numOnLine > 0)
             outfile->writeNewline();
     }
 }

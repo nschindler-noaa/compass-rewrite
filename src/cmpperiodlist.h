@@ -6,36 +6,12 @@
 #include <QObject>
 #include <QStringList>
 
-template <class T>
-class cmpPeriod
-{
-public:
-    cmpPeriod();
-    cmpPeriod(const cmpPeriod<T> &period);
-
-    void setStart (int index);
-    int getStart();
-    void setStop (int index);
-    int getStop ();
-
-    void setValue (T val);
-    T getValue ();
-
-    bool isEqual(cmpPeriod<T> &period);
-
-private:
-    int start;
-    int stop;
-    T value;
-};
-
-typedef cmpPeriod<int>   cmpIntPeriod;
-typedef cmpPeriod<bool>  cmpBoolPeriod;
 
 class cmpFloatPeriod
 {
 public:
     cmpFloatPeriod();
+    cmpFloatPeriod(int i, int j, float val);
     cmpFloatPeriod(const cmpFloatPeriod &period) noexcept ;
 
     void setStart (int index);
@@ -53,9 +29,6 @@ private:
     int stop;
     float value;
 };
-
-typedef QList<cmpIntPeriod>   cmpIntPeriodList;
-//typedef QList<cmpFloatPeriod> cmpFloatPeriodList;
 
 
 class cmpFloatPeriodList
@@ -75,5 +48,6 @@ private:
     QList<cmpFloatPeriod> list;
 
 };
+
 
 #endif // CMPPERIODLIST_H

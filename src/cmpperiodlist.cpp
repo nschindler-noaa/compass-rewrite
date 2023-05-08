@@ -1,54 +1,5 @@
 #include "cmpperiodlist.h"
 
-template <class T>
-cmpPeriod<T>::cmpPeriod () :start(0), stop(0), value(0)
-{}
-
-template <class T>
-cmpPeriod<T>::cmpPeriod (const cmpPeriod<T> &period)
-{
-    start = period.getStart();
-    stop = period.getStop();
-    value = period.getValue();
-}
-
-template <class T>
-void cmpPeriod<T>::setStart(int index)
-{    start = index; }
-
-template <class T>
-int cmpPeriod<T>::getStart()
-{    return start;  }
-
-template <class T>
-void cmpPeriod<T>::setStop(int index)
-{   stop = index;   }
-
-template <class T>
-int cmpPeriod<T>::getStop()
-{   return stop;    }
-
-template <class T>
-void cmpPeriod<T>::setValue(T val)
-{   value = val;    }
-
-template <class T>
-T cmpPeriod<T>::getValue()
-{   return value;   }
-
-template <class T>
-bool cmpPeriod<T>::isEqual(cmpPeriod<T> &period)
-{
-    bool equal = true;
-    if (period.getStart() != start)
-        equal = false;
-    else if (period.getStop() != stop)
-        equal = false;
-    else if (period.getValue() != value)
-        equal = false;
-    return equal;
-}
-
 cmpFloatPeriod::cmpFloatPeriod () :start(0), stop(0), value(0)
 {}
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.15.1, 2023-04-14T16:28:47. -->
+<!-- Written by QtCreator 4.15.1, 2023-05-02T22:19:33. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -301,7 +301,7 @@
     </valuelist>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:C:/Users/Neal.Schindler/Documents/working/nwfsc-github/compass/compassRewrite/src/compass.pro</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">C:/Users/Neal.Schindler/Documents/working/nwfsc-github/compass/compassRewrite/src/compass.pro</value>
-    <value type="QString" key="RunConfiguration.Arguments">-bsu -lwmd -r columbia-adult1.desc -f base-adult-new-all.dat  -oa base-adult-newcheck.dat</value>
+    <value type="QString" key="RunConfiguration.Arguments">-bsu -lwmd -r columbia-adult1.desc -f base-adult-newcheck.dat  -oa base-adult-newcheck2.dat</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>

@@ -207,10 +207,21 @@ bool cmpHeadwater::parseToken (QString token, cmpFile *cfile)
     return okay;
 }
 
+void cmpHeadwater::writeFlowData(cmpFile *outfile, int indent, bool outputAll)
+{
+    float fdef = (outputAll? 100000: 0);
+    outfile->writeValue(indent, "flow_mean", getFlowMean(), Data::Fixed, fdef);
+    outfile->writeValue(indent, "flow_max", getFlowMax(), Data::Fixed, fdef);
+    if (readFlows)
+    {
+        outfile->writeFloatArray(indent, "flow", "", flow, Data::None, stepsPerDay, Data::Float, fdef);
+    }
+}
+
+
 void cmpHeadwater::writeRivData (cmpFile *outfile, int indent, bool outputAll)
 {
     float fdef = outputAll? 1000000: 0.0;
-    outfile->writeValue(indent, "flow_mean", getFlowMean(), Data::Float, fdef);// 0.00
     // output flow array
     writeFlowData(outfile, indent, outputAll);
     // output temp

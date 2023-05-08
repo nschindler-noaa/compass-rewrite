@@ -99,8 +99,10 @@ public:
     void writeEnd (int indent, QString keyword, QString name = QString());
     int convertInt (QList<int> arry, int index, Data::DataConversion ctype, int mult);
     bool convertIntArray (int arry[], int size, Data::DataConversion ctype, int mult);
+    bool convertIntArray(QList<int> &array1, QList<int> &array2, Data::DataConversion ctype, int mult);
     float convertFloat (QList<float> arry, int index, Data::DataConversion ctype, int mult);
     bool convertFloatArray (float arry[], int size, Data::DataConversion ctype, int mult);
+    bool convertFloatArray (QList<float> &array1, QList<float> &array2, Data::DataConversion ctype, int mult);
 //    int output_float_array (QFile *outfile, const QString prefix, const QString name,
 //                                     int size, float *array,
 //                                     oconv conversion, unsigned mult,
