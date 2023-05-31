@@ -22,14 +22,14 @@ public:
     void writeData (cmpFile *outfile, int indent, bool outputAll);
 
     void allocate(int numdays, int numsteps, int gasSteps);
-    void calculateFlow () override;
+    int calculateFlow() override;
     void fillRegulated ();   /**< fills headwaters that are regulated and labels them as such. */
     void fillUnRegulated (); /**< fills headwaters not filled in previous - fillRegulated must be called first. */
     void calculateFlowInputs ();
-    void calculateFlows ();
-    void calculateTemp () override;
+    int calculateFlows();
+    int calculateTemp () override;
     void calculateTempInputs ();
-    void calculateTemps ();
+    int calculateTemps();
 
     float getFlowMean() const;
     void setFlowMean(float newFlowMean);

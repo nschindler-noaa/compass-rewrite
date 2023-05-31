@@ -1,4 +1,5 @@
 #include "cmpscenario.h"
+#include "cmpmath.h"
 
 #include <iostream>
 
@@ -106,15 +107,69 @@ void cmpScenario::deleteReleases()
     }
 }
 
+bool cmpScenario::initialize(int type)
+{
+    return true;
+}
+
 // run the scenario
 void cmpScenario::run()
 {
+//    setPlannedSpill ();
 
+//    batch_init ();
+
+    if (settings->getCommandSettings()->getSingle())
+        runScenario();
+
+    else if (settings->getCommandSettings()->getMonte())
+        runMonteCarlo();
+
+    else if (settings->getCommandSettings()->getCovar())
+        runMonteCarloMV();
+
+    else if (settings->getCommandSettings()->getRealtime())
+        runRealTime();
+
+    else
+        std::cout << "Error: Unknown run mode" << std::endl << "Ending Compass" << std::endl;
+//        log_msg (L_ERROR, QString("unknown run mode\n"));
 }
 
 void cmpScenario::runScenario()
 {
+    cmpRelease *rls;
+    bool isJuvenile = settings->getDataSettings()->getMigration();
 
+    if (!initialize (Scenario))
+    {
+        emit canceled();
+        return;
+    }
+
+//    mark_only_dams_active();
+//    setPlannedSpill();
+
+    // run scenario
+    int num = releases.count();
+    for (int k = 0; k < num; k++)//rls = runs[0].release_list ; rls ; rls = rls->next)
+    {
+        rls = releases[k];
+        rls->resetSegmentData();
+        cmpReleaseSegmentData *seg;
+//        alloc_seg_data (rls, 1); // make sure there is room for data
+        int numSegs = rls->getRelSegments().count();
+    }
+    if (runModel (isJuvenile))
+    {
+        // if scenario mode, output summary (if requested)
+        if (settings->getCommandSettings()->getSummary())
+            writeSummaryFile (isJuvenile, 0, -1, -1);
+
+        if (settings->getCommandSettings()->getCalib())
+            writeCalibrationFile ("calibration_values.dat", releases);
+    }
+    emit done();
 }
 
 void cmpScenario::runMonteCarlo()
@@ -132,8 +187,93 @@ void cmpScenario::runRealTime()
 
 }
 
+int cmpScenario::runModel(bool isJuvenile)
+{
+    int retval = 0;
+    cmpRelease *rls = nullptr;
+    int numRel = releases.count();
+
+    if (system->getMouth() == nullptr)
+    {
+        emit canceled();
+        return (-1);
+    }
+    // compute flow
+    if (calculateFlow(system->getMouth()) != 0)
+    {
+        std::cout << "Unable to calculate flow." << std::endl;
+        emit canceled();
+        return (-1);
+    }
+
+    // check for releases
+    if (numRel == 0)
+    {
+        std::cout << "No releases in run; execution stopped." << std::endl;
+        emit canceled();
+        retval = (-1);
+    }
+    for (int i = 0; i < numRel; i++)
+    {
+        rls = releases[i];
+        if (floatIsEqual(rls->calculateTotalReleased(), 0))
+        {
+            std::cout << "No fish in release number " << (i+1) << "." << std::endl;
+        }
+
+        // draw error factors for reach classes - reaches per game per release
+//        calc_process_var (rls->getRelSegments().at(0), rls->stock->proc_sd);
+
+
+        if (rls->resetSegmentData() != 0) // also allocates if necessary
+        {
+            std::cout << "Problem allocating for run." << std::endl;
+            emit canceled();
+            return (-1);			// error
+        }
+
+        // sample variable parameters before the run
+        if (!true) //sample_variable_parameters ())
+        {
+            std::cout << "sampling stochastic parameters failed" << std::endl;
+            emit canceled();
+            return(-1); // error
+        }
+
+        rls->computeSegments ();
+
+        if (settings->getDataSettings()->getInterrupt())		// user interrupt?
+        {
+            emit canceled();
+            break;
+        }
+    }
+    return retval;
+}
+
+bool cmpScenario::calculateFlow(cmpRiverSegment *seg)
+{
+    int erc = 0;
+
+    erc += system->computeAllFlows();
+
+    return erc;
+}
+
+void cmpScenario::writeSummaryFile(bool isJuvenile, int, int, int)
+{
+
+}
+
+void cmpScenario::writeCalibrationFile(QString filename, QList<cmpRelease *> &rels)
+{
+
+}
+
+
+
 // write any output files
-void cmpScenario::outputData(QString filename, bool outputAll)
+void cmpScenario::writeDataFile(QString filename, bool outputAll)
 {
     cmpFile *outfile;
     if (!fileNames.isEmpty() && fileNames.contains(filename, Qt::CaseInsensitive))
@@ -161,7 +301,7 @@ void cmpScenario::outputData(QString filename, bool outputAll)
         {
             QStringList outfiles = writeCtrlData(outfile);
             for (int i = 0, total = outfiles.count(); i < total; i++)
-                outputData(outfiles.at(i), outputAll);
+                writeDataFile(outfiles.at(i), outputAll);
         }
         // Write a river environment data file.
         else if (filename.endsWith(".riv", Qt::CaseInsensitive))

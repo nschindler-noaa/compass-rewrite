@@ -643,7 +643,11 @@ bool cmpFile::readFloatArray(QList<float> &farray, int size, Data::DataConversio
             {
                 start_elem = tokens.at(0).toInt(&okay);
                 if (okay)
+                {
                     end_elem = tokens.at(1).toInt(&okay);
+                    if (end_elem >= size)
+                        end_elem = size - 1;
+                }
                 if (!okay)
                 {
                     printError (QString("parsing float array for ").arg(prompt));
@@ -1108,7 +1112,7 @@ void cmpFile::writeFloat (double val, Data::Type dtype)
         break;
 
     case Data::Fixed:
-        write (QString::number(val, 'f', 6).toUtf8());
+        write (QString::number(val, 'f', 4).toUtf8());
         break;
 
     case Data::Scientific:
@@ -1963,6 +1967,19 @@ void cmpFile::writeFloatArray(int indent, QString prefix, QString name, QList<fl
     }
 }
 
+void cmpFile::writeFloatArray (int indent, QString prefix, QString name, QList<float> &arry, int size,
+                       Data::DataConversion ctype, int mult,
+                       Data::Type dtype, float defaultval)
+{
+    if (size > 0)
+    {
+        float *newarry = static_cast<float*>(calloc(size, sizeof(float)));
+        for (int i = 0; i < size; i++)
+            newarry[i] = arry[i];
+        writeFloatArray(indent, prefix, name, newarry, size, ctype, mult, dtype, defaultval);
+    }
+}
+
 void cmpFile::writeFloatArray (int indent, QString prefix, QString name, float arry[], int size,
                        Data::DataConversion ctype, int mult,
                        Data::Type dtype, float defaultval)
@@ -1998,19 +2015,12 @@ void cmpFile::writeFloatArray (int indent, QString prefix, QString name, float a
     for (int i = 0; i < size; i++)
     {
         first = i;
-        last = i + 2;
+        last = i + 1;
         firstval = arry[first];
-        nextval = arry[first+1];
+//        nextval = arry[first+1];
         lastval = arry[last];
-        if (floatIsEqual(lastval, firstval)
-                && floatIsEqual(nextval, firstval))
+        if (last < size && floatIsEqual(lastval, firstval))
         {
-            if (num_on_line >= 3)
-            {
-                writeNewline();
-                writeIndent(indent2);
-                num_on_line = 0;
-            }
             l = last + 1;
             while (l < size && floatIsEqual((lastval = arry[l]), firstval))
                 l++;
@@ -2024,6 +2034,12 @@ void cmpFile::writeFloatArray (int indent, QString prefix, QString name, float a
             }
             else if ((last - first) > 1)
             {
+                if (num_on_line >= 3)
+                {
+                    writeNewline();
+                    writeIndent(indent2);
+                    num_on_line = 0;
+                }
                 QString range (QString ("[%1:%2] ")
                            .arg (QString::number(first), QString::number(last)));
                 write (range.toUtf8());
@@ -2036,23 +2052,21 @@ void cmpFile::writeFloatArray (int indent, QString prefix, QString name, float a
             {
                 writeFloat (firstval, dtype);
                 writeSpace();
-                writeFloat (firstval, dtype);
-                writeSpace();
-                i++;
-                num_on_line += 2;
+                num_on_line++;
             }
         }
         else
         {
-            if (num_on_line == 4)
-            {
-                writeNewline();
-                writeIndent(indent2);
-                num_on_line = 0;
-            }
             writeFloat (firstval, dtype);
             writeSpace();
             num_on_line++;
+        }
+        if (num_on_line == 4)
+        {
+            writeNewline();
+            if (i < size-1)
+                writeIndent(indent2);
+            num_on_line = 0;
         }
     }
     if (num_on_line > 0)

@@ -57,6 +57,8 @@ public:
     cmpReleaseSegmentStats();
 //    ~cmpReleaseSegmentStats();
 
+    void reset();
+
     bool getDone() const;
     void setDone(bool newDone);
 
@@ -132,9 +134,13 @@ public:
     float getFlowAverage() const;
     void setFlowAverage(float newFlowAverage);
 
+    bool getRouteTracking() const;
+    void setRouteTracking(bool newRouteTracking);
+
 private:
     /* summary statistics for a seg */
     bool done;                /**< Compute done flag */
+    bool routeTracking;       /**< If tracking fish routes thru dams separately */
 
     /** Passage statistics (separated by total, inriver, and transport) */
     cmpPassageStats totalStats,/**< Total stats */
@@ -187,6 +193,9 @@ class cmpReleaseSegmentData
 public:
     cmpReleaseSegmentData();
     ~cmpReleaseSegmentData();
+
+    void reset();
+    int allocate(int days);
 
     cmpRiverSegment *getRivSeg() const;
     void setRivSeg(cmpRiverSegment *newRivSeg);
@@ -275,6 +284,7 @@ public:
     float getNopass() const;
     void setNopass(float newNopass);
 
+    int computeStats();
     const cmpReleaseSegmentStats &getStats() const;
     void setStats(const cmpReleaseSegmentStats &newStats);
 

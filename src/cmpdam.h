@@ -277,10 +277,10 @@ public slots:
     void allocateSlices(int newSlicesPerDay);
     void allocate(int days, int slices, int gassteps);
     void setSpeciesNames(QStringList &spcNames);
-    void calculateFlow () override;
-    void calculateFlows ();
-    void calculateTemp () override;
-    void calculateTemps ();
+    int calculateFlow () override;
+    int calculateFlows();
+    int calculateTemp () override;
+    int calculateTemps();
     void calculateSpill ();
     void calculateFish() override;
     void calculateStats() override;

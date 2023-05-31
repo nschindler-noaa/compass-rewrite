@@ -195,13 +195,14 @@ void cmpReach::outputDesc(cmpFile *ofile)
     }
 }
 
-void cmpReach::calculateFlow()
+int cmpReach::calculateFlow()
 {
     if (!isRegPoint)
     {
         calculateFlowInputs(); // sets flow to sum of upstream segments
         calculateFlows ();     // modifies flow by characteristics of segment
     }
+    return 0;
 }
 
 void cmpReach::calculateFlows()
@@ -362,16 +363,18 @@ float cmpReach::computeWTT(int firstDay, int lastDay)
     return wtt;
 }
 
-void cmpReach::calculateTemp()
+int cmpReach::calculateTemp()
 {
+    int retval = 0;
     if (!readTemps)
     {
         calculateTempInputs();
-        calculateTemps();
+        retval = calculateTemps();
     }
+    return retval;
 }
 
-void cmpReach::calculateTemps()
+int cmpReach::calculateTemps()
 {
 
 }
@@ -638,9 +641,7 @@ void cmpReach::writeData(cmpFile *outfile, int indent, bool outputAll)
         outfile->writeEnd(indent2, "ufree_eqn");
     }
     outfile->writeNewline();
-    outfile->writeValue(indent2, "loss_min", lossMin, Data::Fixed, dval);
-    outfile->writeValue(indent2, "loss_max", lossMax, Data::Fixed, dval);
-    outfile->writeFloatArray(indent2, "loss", "", loss, Data::DataConversion::None, 2, Data::Float, dval);
+    writeLossData(outfile, indent2, outputAll);
     outfile->writeFloatArray(indent2, "elevation_change", "", elevChange, Data::DataConversion::None, 2, Data::Float, dval);
     outfile->writeValue(indent2, "gas_theta", gasTheta, Data::Scientific, dval);
     outfile->writeValue(indent2, "gas_dissp_exp", gasDispExp, Data::Fixed, dval);
@@ -671,7 +672,7 @@ void cmpReach::writeLossData(cmpFile *outfile, int indent, bool outputAll)
     outfile->writeValue(indent, "loss_min", lossMin, Data::Float, fdef);
     outfile->writeValue(indent, "loss_max", lossMax, Data::Float, fdef);
     {
-        outfile->writeFloatArray(indent, "loss", "", loss, Data::None, stepsPerDay, Data::Float, fdef);
+        outfile->writeFloatArray(indent, "loss", "", loss, daysPerSeason, Data::None, stepsPerDay, Data::Float, fdef);
     }
 }
 

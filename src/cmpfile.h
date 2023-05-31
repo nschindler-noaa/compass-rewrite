@@ -89,6 +89,9 @@ public:
     void writeFloatArray (int indent, QString prefix, QString name, QList<float> &arry,
                           Data::DataConversion ctype, int mult,
                           Data::Type dtype, float defaultval);
+    void writeFloatArray (int indent, QString prefix, QString name, QList<float> &arry, int size,
+                          Data::DataConversion ctype, int mult,
+                          Data::Type dtype, float defaultval);
     void writeFloatArray (int indent, QString prefix, QString name, float arry[], int size,
                           Data::DataConversion ctype, int mult,
                           Data::Type dtype, float defaultval);

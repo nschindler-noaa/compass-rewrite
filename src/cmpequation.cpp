@@ -688,7 +688,7 @@ void cmpEquation::setupEquation()
         setNumParameters(numEqnParams + numValParams);
         setParameter(0,  75.0,    0.0,  250.0, " flow");
         setParameter(1, 100.0,    0.0,  250.0,  "depth");
-        setParameter(2, 140.0,    0.0,  365.0,  " day "); //
+        setParameter(2, 140.0,    1.0,  365.0,  " day "); //
         setParameter(3,   1.0,    0.5,   10.0,  "scale"); //
         break;
     case EQ_DELAY3:
@@ -708,7 +708,7 @@ void cmpEquation::setupEquation()
         setParameter(7,   0.0,    0.0,    10.0,  "B intercept"); //
         setParameter(8,   0.0,    0.0,   100.0,  "River vel");
         setParameter(9,   0.0,    0.0,     1.0,  "Spill fraction");
-        setParameter(10,  0.0,    0.0,   365.0,  "Julian date"); //
+        setParameter(10,  1.0,    1.0,   365.0,  "Julian date"); //
         setParameter(11,  0.0,    0.0,     1.0,  "RSW active"); //
         break;
     case EQ_GMORT0:
@@ -1066,7 +1066,7 @@ void cmpEquation::setupEquation()
         numEqnParams = 1;
         numValParams = 0;
         setNumParameters(numEqnParams + numValParams);
-        setParameter(0, 150.0,    0.0,  365.0,  "day"); //
+        setParameter(0, 150.0,    1.0,  365.0,  "day"); //
         break;
     case EQ_GAS_DISP_RIGHT:
         name = QString("GAS_DISP_RIGHT");
@@ -1075,7 +1075,7 @@ void cmpEquation::setupEquation()
         numEqnParams = 1;
         numValParams = 0;
         setNumParameters(numEqnParams + numValParams);
-        setParameter(0, 150.0,    0.0,  365.0,  "day"); //
+        setParameter(0, 150.0,    1.0,  365.0,  "day"); //
         break;
     case EQ_PRED_TEMP1:
         name = QString("PRED_TEMP1");

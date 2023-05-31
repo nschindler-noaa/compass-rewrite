@@ -15,6 +15,14 @@ public:
     cmpScenario(cmpSettings *settings, QObject *parent = nullptr);
     ~cmpScenario() override;
 
+    enum scenario {
+        Scenario = 0,
+        RTScenario,
+        MonteCarlo,
+        RTMonteCarlo,
+        MVMonteCarlo
+    };
+
     void setSettings (cmpSettings *sets);
     cmpSettings *getSettings();
 
@@ -26,9 +34,15 @@ public:
     // read in data files
     void readDataFiles();
 
+    QStringList &getPostRivMethods();
+    void setPostRivMethods();
+
     int getNumberReleases();
     cmpRelease *getRelease(int index);
     void deleteReleases();
+
+public slots:
+    bool initialize(int type);
     // run the scenario
     void run();
     void runScenario();
@@ -36,7 +50,7 @@ public:
     void runMonteCarloMV();
     void runRealTime();
     // write any output files
-    void outputData(QString filename, bool outputAll);
+    void writeDataFile(QString filename, bool outputAll);
     void writeDescData(cmpFile *outfile);
     QStringList &writeCtrlData(cmpFile *outfile);
     void writeDataSettings(cmpFile *outfile, bool outputAll);
@@ -52,9 +66,11 @@ public:
     void writeConfigData(cmpFile *outfile, bool outputAll);
     void writeScnData(cmpFile *outfile, bool outputAll);
 
+    int runModel(bool isJuvenile = true);
+    bool calculateFlow(cmpRiverSegment *seg = nullptr);
 
-    QStringList &getPostRivMethods();
-    void setPostRivMethods();
+    void writeSummaryFile(bool isJuvenile, int, int, int);
+    void writeCalibrationFile(QString filename, QList<cmpRelease *> &rels);
 
 signals:
     void done();

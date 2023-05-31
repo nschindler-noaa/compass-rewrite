@@ -326,7 +326,7 @@ void cmpRiverSegment::writeFlowData(cmpFile *outfile, int indent, bool outputAll
     outfile->writeValue(indent, "flow_max", getFlowMax(), Data::Fixed, fdef);
     if (readFlows)
     {
-        outfile->writeFloatArray(indent, "flow", "", flow, Data::None, stepsPerDay, Data::Fixed, fdef);
+        outfile->writeFloatArray(indent, "flow", "", flow, Data::None, stepsPerDay, Data::Float, fdef);
     }
 }
 
@@ -699,9 +699,9 @@ void cmpRiverSegment::setTemp_1(int newTemp_1)
     temp_1 = newTemp_1;
 }
 
-void cmpRiverSegment::calculateFlow ()
+int cmpRiverSegment::calculateFlow()
 {
-    calculateFlowInputs();
+//    calculateFlowInputs();
     calculateFlows();
 }
 
@@ -784,24 +784,28 @@ void cmpRiverSegment::allocate(int days, int steps, int gasSteps)
     setGasStepsPerDay(gasSteps);
 }
 
+// be sure to calculate upper segments first
 void cmpRiverSegment::calculateFlows()
 {
-    // unique per segment type
-    if (up != nullptr)
+    if (!readFlows)
     {
-        up->calculateFlows();
-        for (int i = 0; i < flow.count(); i++)
-            flow[i] = up->flow[i];
-        if (fork != nullptr)
+        // unique per segment type
+        if (up != nullptr)
         {
-            fork->calculateFlows();
             for (int i = 0; i < flow.count(); i++)
-                flow[i] += fork->flow[i];
+                flow[i] = up->flow[i];
+            if (fork != nullptr)
+            {
+                for (int i = 0; i < flow.count(); i++)
+                    flow[i] += fork->flow[i];
+            }
         }
+        // else headwater - flow from input file or calculated from dam values
     }
 }
 
-void cmpRiverSegment::calculateTemp ()
+// calculate temps only after calculating flow
+int cmpRiverSegment::calculateTemp ()
 {
     if (!readTemps)
     {
@@ -849,7 +853,55 @@ void cmpRiverSegment::calculateTempInputs()
 
 void cmpRiverSegment::calculateTemps()
 {
-    // unique per segment type
+    if (!readTemps)
+    {
+        // default - as reach
+        if (up != nullptr && fork != nullptr)
+        {
+            for (int i = 0; i < daysPerSeason; i++)
+            {
+                temp[i] = (up->getTemps().at(i) * up->getFlow().at(i) +
+                           fork->getTemps().at(i) * fork->getFlow().at(i)) /
+                          (up->getFlow().at(i) + fork->getFlow().at(i));
+            }
+        }
+        else if (up != nullptr)
+        {
+            for (int i = 0; i < daysPerSeason; i++)
+                temp[i] = up->getTemps().at(i);
+        }
+        // else headwater - temps from input file
+    }
+}
+
+int cmpRiverSegment::calculateTurb()
+{
+    // default - as reach
+    if (up != nullptr && fork != nullptr)
+    {
+        for (int i = 0; i < daysPerSeason; i++)
+        {
+            turbidity[i] = (up->getTurbidity().at(i) * up->getFlow().at(i) +
+                       fork->getTurbidity().at(i) * fork->getFlow().at(i)) /
+                      (up->getFlow().at(i) + fork->getFlow().at(i));
+        }
+    }
+    else if (up != nullptr)
+    {
+        for (int i = 0; i < daysPerSeason; i++)
+            turbidity[i] = up->getTurbidity().at(i);
+    }
+    // generate more turbidity at dam
+    // reduce turbidity over reach segment
+    // else headwater - temps from input file
+}
+
+int cmpRiverSegment::calculateGas()
+{
+//    if (readGas)
+
+    //gasDistIn;
+    // dissipate gas to produce output gas
 }
 
 void cmpRiverSegment::calculateFish ()

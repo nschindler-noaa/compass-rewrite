@@ -78,16 +78,16 @@ void cmpHeadwater::fillUnRegulated()
 
 }
 
-void cmpHeadwater::calculateFlow()
+int cmpHeadwater::calculateFlow()
 {
     if (!readFlows)
     {
-        calculateFlows();
+        return calculateFlows();
     }
 }
 
 
-void cmpHeadwater::calculateFlows()
+int cmpHeadwater::calculateFlows()
 {
     int i;
     cmpRiverSegment *downseg = down;
@@ -111,13 +111,15 @@ void cmpHeadwater::calculateFlows()
 
 }
 
-void cmpHeadwater::calculateTemp()
+int cmpHeadwater::calculateTemp()
 {
+    int retval = 0;
     if (!readTemps)
     { // get temps from down stream if not read in
-        calculateTempInputs();
-        calculateTemps();
+//        calculateTempInputs();
+        retval = calculateTemps();
     }
+    return retval;
 }
 
 void cmpHeadwater::calculateTempInputs()
@@ -125,7 +127,7 @@ void cmpHeadwater::calculateTempInputs()
 
 }
 
-void cmpHeadwater::calculateTemps()
+int cmpHeadwater::calculateTemps()
 {
 
 }
@@ -211,11 +213,12 @@ void cmpHeadwater::writeFlowData(cmpFile *outfile, int indent, bool outputAll)
 {
     float fdef = (outputAll? 100000: 0);
     outfile->writeValue(indent, "flow_mean", getFlowMean(), Data::Fixed, fdef);
-    outfile->writeValue(indent, "flow_max", getFlowMax(), Data::Fixed, fdef);
-    if (readFlows)
-    {
-        outfile->writeFloatArray(indent, "flow", "", flow, Data::None, stepsPerDay, Data::Float, fdef);
-    }
+    cmpRiverSegment::writeFlowData(outfile, indent, outputAll);
+//    outfile->writeValue(indent, "flow_max", getFlowMax(), Data::Fixed, fdef);
+//    if (readFlows)
+//    {
+//        outfile->writeFloatArray(indent, "flow", "", flow, Data::None, stepsPerDay, Data::Float, fdef);
+//    }
 }
 
 

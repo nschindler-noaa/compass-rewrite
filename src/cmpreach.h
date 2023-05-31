@@ -51,13 +51,13 @@ public:
     bool parseDesc (cmpFile *descfile) override;
     void outputDesc (cmpFile *outfile) override;
 
-    void calculateFlow () override;
+    int calculateFlow() override;
     void calculateFlows ();
     float computeVolume (float elev_chng, float upper_d, float lower_d, float wd, float slp_tan);
     float computeVelocity (float elev_chng, float upper_d, float lower_d, float avg_fl);
     float computeWTT (int startDay, int stopDay);
-    void calculateTemp () override;
-    void calculateTemps ();
+    int calculateTemp () override;
+    int calculateTemps();
     void calculateFish() override;
     void calculateStats() override;
 

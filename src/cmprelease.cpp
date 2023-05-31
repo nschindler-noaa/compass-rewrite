@@ -1,4 +1,7 @@
 #include "cmprelease.h"
+#include "cmpdam.h"
+#include "cmpreach.h"
+#include "cmpheadwater.h"
 
 cmpRelease::cmpRelease()
 {
@@ -29,20 +32,73 @@ cmpRelease::~cmpRelease()
     }
 }
 
+void cmpRelease::reset()
+{
+    active = true;
+    relsite = nullptr;
+    destination = nullptr;
+    species = nullptr;
+    stock = nullptr;
+    startDay = 0;
+    rtinfo = nullptr;
+    addSetting = 0;
+    dirtyFlag = false;
+    initialSpillExperience = 1;
+    totalReleased = 0;
+    fishLength = 100;
+    migrOnsetMedian = 0;
+}
+
 void cmpRelease::activate(bool newActive)
 {
     active = newActive;
 }
 
-void cmpRelease::reset()
+int cmpRelease::resetSegmentData()
 {
-//    if (rtinfo != nullptr)
-//        rtinfo->reset();
-//    stats.reset();
-//    for (int i = 0, total = relSegments.count(); i < total; i++)
-//    {
-//        relSegments[i]->reset();
-//    }
+    if (rtinfo != nullptr)
+        rtinfo->reset();
+    stats.reset();
+    for (int i = 0, total = relSegments.count(); i < total; i++)
+    {
+        relSegments[i]->reset();
+    }
+}
+
+int cmpRelease::computeSegments()
+{
+    int retval = 0;
+    cmpReleaseSegmentData *segdata;
+    cmpDam *dam;
+    cmpReach *reach;
+    cmpHeadwater *headwtr;
+
+    segdata = relSegments[0];
+    reach = static_cast<cmpReach *>(segdata->getRivSeg());
+    reach->inputFish(number);
+    reach->calculateStats();
+
+    for (int i = 1, total = relSegments.count(); i < total; i++)
+    {
+        segdata = relSegments[i];
+        cmpRiverSegment::SegmentType type = segdata->getRivSeg()->getType();
+        switch (type)
+        {
+        case cmpRiverSegment::Dam:
+            dam = static_cast<cmpDam *>(segdata->getRivSeg());
+            dam->calculateFish();
+            break;
+        case cmpRiverSegment::Reach:
+            reach = static_cast<cmpReach *>(segdata->getRivSeg());
+            reach->calculateFish();
+            break;
+        default:
+            segdata->getRivSeg()->calculateFish();
+        }
+        segdata->computeStats();
+    }
+
+    return retval;
 }
 
 const QString &cmpRelease::getName() const
@@ -223,6 +279,15 @@ float cmpRelease::getInitialSpillExperience() const
 void cmpRelease::setInitialSpillExperience(float newInitialSpillExperience)
 {
     initialSpillExperience = newInitialSpillExperience;
+}
+
+float cmpRelease::calculateTotalReleased()
+{
+    totalReleased = 0;
+    for (int i = 0, total = number.count(); i < total; i++)
+        totalReleased += number.at(i);
+
+    return totalReleased;
 }
 
 float cmpRelease::getTotalReleased() const

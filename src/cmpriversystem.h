@@ -88,6 +88,8 @@ public slots:
     void computeFlows ();
     void markRegulationPts ();
     void fillHeadwaters ();
+    int computeAllFlows();
+    int computeAllFlows(cmpRiverSegment *seg);
     void computeSegFlow (cmpRiverSegment *seg);
     void computeTemps ();
     void computeSegTemp (cmpRiverSegment *seg);

@@ -154,9 +154,14 @@ void cmpPassageStats::computeStats(QList<float> &dailyNum)
 
 cmpReleaseSegmentStats::cmpReleaseSegmentStats()
 {
+    reset();
+}
+
+void cmpReleaseSegmentStats::reset()
+{
     done = false;
 
-#ifdef ROUTE_TRACKING
+//#ifdef ROUTE_TRACKING
     turbineInTotal = 0;
     turbineOutTotal = 0;
     sluicewayInTotal = 0;
@@ -169,7 +174,7 @@ cmpReleaseSegmentStats::cmpReleaseSegmentStats()
     rswOutTotal = 0;
     postmortTransportTotal = 0;
     spillEfficiency = 0;
-#endif
+//#endif
     d = nullptr;
 
     inriverLatentMort = 0;
@@ -428,6 +433,17 @@ void cmpReleaseSegmentStats::setFlowAverage(float newFlowAverage)
     flowAverage = newFlowAverage;
 }
 
+bool cmpReleaseSegmentStats::getRouteTracking() const
+{
+    return routeTracking;
+}
+
+void cmpReleaseSegmentStats::setRouteTracking(bool newRouteTracking)
+{
+    routeTracking = newRouteTracking;
+}
+
+
 cmpReleaseSegmentData::cmpReleaseSegmentData()
 {
     rivSeg = nullptr;
@@ -438,6 +454,16 @@ cmpReleaseSegmentData::~cmpReleaseSegmentData()
 {
     if (d != nullptr)
         delete d;
+}
+
+void cmpReleaseSegmentData::reset()
+{
+
+}
+
+int cmpReleaseSegmentData::allocate(int days)
+{
+
 }
 
 cmpRiverSegment *cmpReleaseSegmentData::getRivSeg() const
@@ -736,6 +762,11 @@ float cmpReleaseSegmentData::getNopass() const
 void cmpReleaseSegmentData::setNopass(float newNopass)
 {
     nopass = newNopass;
+}
+
+int cmpReleaseSegmentData::computeStats()
+{
+
 }
 
 const cmpReleaseSegmentStats &cmpReleaseSegmentData::getStats() const

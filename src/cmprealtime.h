@@ -27,6 +27,7 @@ public:
 
     void copy(cmpRealtime &rhs);
 
+    void reset();
 
     const QString &getName() const;
     void setName(const QString &newName);

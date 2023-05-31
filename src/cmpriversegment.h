@@ -78,6 +78,8 @@ public:
     float getFlowMin() const;
     void setFlowMin(float value);
 
+    QList<float> &getFlow() {return flow;}
+
     /** Division of river into separate flows */
     enum FlowLocation {
         FlowRight,         /**< Right side of the segment */
@@ -91,6 +93,11 @@ public:
 
     bool getReadTemps() const;
     void setReadTemps(bool value);
+    QList<float> &getTemps() {return temp;}
+
+    QList<float> &getTurbidity() {return turbidity;}
+
+    cmpGasDistribution *getGasOut() {return gasDistOut;}
 
     cmpRiverSegment * getUpperSegment () {return up;}
     void setUpperSegment (cmpRiverSegment *upper) {up = upper;}
@@ -245,8 +252,10 @@ public slots:
     void calculateFlowInputs ();
     void calculateTemps ();
     void calculateTempInputs ();
-    virtual void calculateFlow ();
-    virtual void calculateTemp ();
+    virtual int calculateFlow ();
+    virtual int calculateTemp();
+    virtual int calculateTurb ();
+    virtual int calculateGas ();
     virtual void calculateFish ();
     virtual void calculateStats ();
 

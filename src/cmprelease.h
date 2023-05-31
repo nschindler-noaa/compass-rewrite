@@ -16,11 +16,14 @@ public:
     cmpRelease();
     ~cmpRelease();
 
+    void reset();
+
     const QString &getName() const;
     void setName(const QString &newName);
 
     void activate (bool newActive = true);
-    void reset ();
+    int resetSegmentData ();
+    int computeSegments ();
 
     bool parseData(cmpFile *cfile);
     bool parseToken(QString token, cmpFile*cfile);
@@ -54,6 +57,7 @@ public:
     float getInitialSpillExperience() const;
     void setInitialSpillExperience(float newInitialSpillExperience);
 
+    float calculateTotalReleased();
     float getTotalReleased() const;
     void setTotalReleased(float newTotalReleased);
 

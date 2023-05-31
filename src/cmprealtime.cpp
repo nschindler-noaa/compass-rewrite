@@ -50,6 +50,11 @@ void cmpRealtime::copy(cmpRealtime &rhs)
     setDatafile(rhs.getDatafile());
 }
 
+void cmpRealtime::reset()
+{
+
+}
+
 const QString &cmpRealtime::getName() const
 {
     return name;

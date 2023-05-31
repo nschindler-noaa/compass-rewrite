@@ -80,7 +80,7 @@ int cmpConsole::run(QStringList args)
     std::cout << "Write any output files" << std::endl;
 #endif
     // write any output files
-    scenario->outputData(settings->getCommandSettings()->getOutputFile(),
+    scenario->writeDataFile(settings->getCommandSettings()->getOutputFile(),
                          settings->getCommandSettings()->getOutputAllData());
 
     complete();

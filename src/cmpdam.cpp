@@ -164,27 +164,31 @@ void cmpDam::setSpeciesNames(QStringList &spNames)
     }
 }
 
-void cmpDam::calculateFlow()
+int cmpDam::calculateFlow()
 {
-    calculateFlowInputs();
-    calculateFlows();
+    int retval = 0;
+//    calculateFlowInputs();
+    retval = calculateFlows();
+    return retval;
 }
 
-void cmpDam::calculateFlows()
+int cmpDam::calculateFlows()
 {
 
 }
 
-void cmpDam::calculateTemp()
+int cmpDam::calculateTemp()
 {
+    int retval = 0;
     if (!readTemps)
     {
         calculateTempInputs();
-        calculateTemps();
+        retval = calculateTemps();
     }
+    return retval;
 }
 
-void cmpDam::calculateTemps()
+int cmpDam::calculateTemps()
 {
 
 }

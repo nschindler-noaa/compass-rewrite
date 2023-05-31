@@ -1134,6 +1134,99 @@ void cmpRiverSystem::computeSegFlow (cmpRiverSegment *seg)
     }
 }
 
+int cmpRiverSystem::computeAllFlows()
+{
+    int retval = 0;
+
+    if (segments.count() == 0)
+    {
+        std::cout << "No river segments - execution stopped. " << std::endl;
+        retval = -1;
+    }
+    else if (releases.count() == 0)
+    {
+        std::cout << "No releases - execution stopped." << std::endl;
+        retval = -2;
+    }
+    retval = computeAllFlows(segments[0]);
+
+    return retval;
+}
+
+int cmpRiverSystem::computeAllFlows(cmpRiverSegment *seg)
+{
+    int retval = 0;
+    cmpDam *dam;
+    cmpReach *reach;
+    cmpHeadwater *headwtr;
+    QString msg;
+
+    if (seg == nullptr)
+    {
+        retval = -1;
+    }
+    else
+    {
+        if (seg->getUpperSegment() != nullptr)
+            retval += computeAllFlows(seg->getUpperSegment());
+        if (seg->getForkSegment() != nullptr)
+            retval += computeAllFlows(seg->getForkSegment());
+
+        if (cSettings->getDataSettings()->getInterrupt())
+        {
+            std::cout << "Execution interrupted. " << std::endl;
+            retval = 1;
+        }
+        else
+        {
+            msg = QString(QString("Calculating flows for segment %1\n").arg(seg->getName()));
+            std::cout << msg.toStdString() << std::endl;
+    //        log_msg(L_DBGMSG, msg);
+
+            switch (seg->getType())
+            {
+            case cmpRiverSegment::Dam:
+            {
+                dam = static_cast<cmpDam *>(seg);
+                retval += dam->calculateFlow();// compute_dam_flow (seg);
+                retval += dam->calculateTemp();//compute_dam_flow_temp (seg);
+                if (cSettings->getDataSettings()->getCalcTurbidity())
+                    retval += dam->calculateTurb();//compute_dam_flow_turbidity (seg);
+                if (cSettings->getDataSettings()->getCalcGas())
+                    retval += dam->calculateGas();//compute_dam_flow_gas (seg);
+        //            dam->calculateRouteProbs(releases.at(0)->getSpecies());//calc_route_prob(seg, current->release_list.at(0)->species->index);
+                break;
+            }
+            case cmpRiverSegment::Reach:
+            {
+                reach = static_cast<cmpReach *>(seg);
+                retval += reach->calculateFlow();//compute_reach_flow (seg);
+                retval += reach->calculateTemp();//compute_reach_flow_temp (seg);
+                if (cSettings->getDataSettings()->getCalcTurbidity())
+                    retval += reach->calculateTurb();//compute_reach_flow_turbidity (seg);
+                if (cSettings->getDataSettings()->getCalcGas())
+                    retval += reach->calculateGas();//compute_reach_flow_gas (seg);
+                /* print some stats for day 1 */
+        //            log_day_stats (seg, 1);
+                break;
+            }
+            case cmpRiverSegment::Headwater:
+            {
+                headwtr = static_cast<cmpHeadwater *>(seg);
+                retval += headwtr->calculateFlow();// compute_headwater_flow (seg);
+                retval += headwtr->calculateTemp();// compute_headwater_flow_temp (seg);
+                if (cSettings->getDataSettings()->getCalcTurbidity())
+                    retval += headwtr->calculateTurb();// += compute_headwater_flow_turbidity (seg);
+                if (cSettings->getDataSettings()->getCalcGas())
+                    retval += headwtr->calculateGas();// compute_headwater_flow_gas (seg);
+                break;
+            }
+            }
+        }
+    }
+    return retval;
+}
+
 /** Downstream temperature propogation. Headwaters are always done first, then
  *  the downstream segments. */
 
